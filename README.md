@@ -305,8 +305,8 @@ No hay backend. Todo se almacena en `localStorage` del navegador.
 
 | Panel | URL | Credenciales |
 |-------|-----|--------------|
-| Admin | `/admin-login` | `admin` / `12345` |
-| Cliente | `/login` | Registro con email + contraseña |
+| Admin | [`/admin-login`](https://restaurante-hgdsw9piq-javier-1e91.vercel.app/admin-login) | `admin` / `12345` |
+| Cliente | [`/login`](https://restaurante-hgdsw9piq-javier-1e91.vercel.app/login) | Registro con email + contraseña |
 
 ---
 
