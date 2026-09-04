@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { storage } from '../lib/storage'
 import { useProductStore } from '../store/useProductStore'
 import { ProductForm } from '../components/admin/ProductForm'
 import { toast } from 'sonner'
-import { SEO } from '../lib/seo'
 import type { IProduct } from '../types/product'
 
 export default function AdminProductos() {
@@ -13,12 +10,10 @@ export default function AdminProductos() {
   const [mostrarForm, setMostrarForm] = useState(false)
   const [busqueda, setBusqueda] = useState('')
   const [filtroCategoria, setFiltroCategoria] = useState('')
-  const navigate = useNavigate()
 
   useEffect(() => {
-    if (!storage.isAdmin()) { navigate('/admin-login'); return }
     loadProductos()
-  }, [navigate, loadProductos])
+  }, [loadProductos])
 
   const categorias = getCategorias()
   const productosFiltrados = productos.filter((p) => {
@@ -32,8 +27,7 @@ export default function AdminProductos() {
   const handleEliminar = (id: string, nombre: string) => { if (!confirm(`¿Eliminar "${nombre}"?`)) return; deleteProducto(id); toast.success('Producto eliminado') }
 
   return (
-    <div className="min-h-screen bg-cream-50 p-6">
-      <SEO title="Admin - Productos" />
+    <div>
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
@@ -41,7 +35,6 @@ export default function AdminProductos() {
             <p className="text-steel text-sm mt-1">{productos.length} productos registrados</p>
           </div>
           <div className="flex gap-3">
-            <Link to="/admin-dashboard" className="btn-secondary">Dashboard</Link>
             <button onClick={() => { setMostrarForm(true); setEditando(null) }} className="btn-primary">+ Nuevo producto</button>
           </div>
         </div>

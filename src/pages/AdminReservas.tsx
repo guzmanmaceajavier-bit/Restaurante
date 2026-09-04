@@ -1,10 +1,8 @@
 import { useEffect, useState, useMemo } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
 import { toast } from 'sonner'
-import { SEO } from '../lib/seo'
-import { FaSignOutAlt, FaSearch, FaWhatsapp } from 'react-icons/fa'
+import { FaSearch, FaWhatsapp } from 'react-icons/fa'
 import type { ReservaData as Reserva } from '../types/ReservaData'
 import clsx from 'clsx'
 
@@ -15,12 +13,10 @@ export default function AdminReservas() {
   const [mensaje, setMensaje] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
   const [busqueda, setBusqueda] = useState('')
-  const navigate = useNavigate()
 
   useEffect(() => {
-    if (!storage.isAdmin()) { navigate('/admin-login'); return }
     setReservas(storage.getReservas())
-  }, [navigate])
+  }, [])
 
   const reservasFiltradas = useMemo(() => {
     return reservas.filter((r) => {
@@ -54,24 +50,16 @@ export default function AdminReservas() {
   }
 
   return (
-    <>
-      <SEO title="Admin - Reservas" />
-      <div className="min-h-screen bg-cream-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <div>
-              <h1 className="text-2xl font-display font-bold text-espresso-800">Reservas</h1>
-              <p className="text-steel text-sm mt-1">{reservasFiltradas.length} de {reservas.length} reservas</p>
-            </div>
-            <div className="flex gap-2">
-              <Link to="/admin-dashboard" className="bg-white text-espresso-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-cream-100 transition-all border border-cream-200">Dashboard</Link>
-              <button onClick={() => { storage.clearAdmin(); navigate('/admin-login') }} className="flex items-center gap-1.5 text-steel hover:text-red-500 px-4 py-2 rounded-xl text-sm font-medium transition-all hover:bg-red-50">
-                <FaSignOutAlt size={12} /> Salir
-              </button>
-            </div>
+    <div>
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-display font-bold text-espresso-800">Reservas</h1>
+            <p className="text-steel text-sm mt-1">{reservasFiltradas.length} de {reservas.length} reservas</p>
           </div>
+        </div>
 
-          <div className="bg-white rounded-2xl border border-cream-200 p-4 mb-6 flex flex-col sm:flex-row gap-3">
+        <div className="bg-white rounded-2xl border border-cream-200 p-4 mb-6 flex flex-col sm:flex-row gap-3">
             <div className="flex-1 relative">
               <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
               <input type="text" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar por nombre, email, teléfono o ID..." className="input-base pl-11 text-sm" />
@@ -183,6 +171,5 @@ export default function AdminReservas() {
           </div>
         )}
       </div>
-    </>
   )
 }

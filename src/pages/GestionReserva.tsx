@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { storage } from '../lib/storage'
 import { toast } from 'sonner'
-import { SEO } from '../lib/seo'
 import { CONFIG } from '../lib/config'
 import { FaWhatsapp, FaSearch } from 'react-icons/fa'
 import type { ReservaData } from '../types/ReservaData'
@@ -34,16 +33,14 @@ export default function GestionReserva() {
   }
 
   return (
-    <>
-      <SEO title="Gestionar Reserva" description="Busca, edita o cancela tu reserva en Sabor y Origen" />
-      <section className="pt-8 pb-20 px-6 bg-cream-50 min-h-screen">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-10">
-            <span className="text-olive-500 font-semibold text-sm tracking-[0.15em] uppercase">Reservas</span>
-            <h1 className="text-3xl md:text-4xl font-display font-bold text-espresso-800 mt-2">Gestión de Reservas</h1>
-          </div>
+    <div>
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-10">
+          <span className="text-olive-500 font-semibold text-sm tracking-[0.15em] uppercase">Reservas</span>
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-espresso-800 mt-2">Gestión de Reservas</h1>
+        </div>
 
-          <div className="bg-white rounded-3xl shadow-card border border-cream-200 p-8 mb-6">
+        <div className="bg-white rounded-3xl shadow-card border border-cream-200 p-8 mb-6">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 relative">
                 <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
@@ -120,8 +117,7 @@ export default function GestionReserva() {
               <p className="text-xs text-steel/50 mt-2">Ej: RES-A1B2C3 o correo@ejemplo.com</p>
             </div>
           )}
-        </div>
-      </section>
-    </>
+      </div>
+    </div>
   )
 }

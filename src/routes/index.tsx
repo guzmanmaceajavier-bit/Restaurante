@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import AppLayout from '../layouts/App.layout'
+import AdminLayout from '../layouts/AdminLayout'
 import { AdminGuard } from '../components/core/AdminGuard'
 
 // Public pages
@@ -40,8 +41,8 @@ import { RoutesPath } from './routes'
 export default function MainRoutes() {
   return (
     <Routes>
+      {/* Public routes */}
       <Route element={<AppLayout />}>
-        {/* Public routes */}
         <Route path={RoutesPath.home} element={<Home />} />
         <Route path={RoutesPath.menu} element={<Menu />} />
         <Route path={RoutesPath.menuDetail(':id')} element={<MenuDetail />} />
@@ -60,23 +61,27 @@ export default function MainRoutes() {
         <Route path={RoutesPath.clientLogin} element={<ClientLogin />} />
         <Route path={RoutesPath.clientRegister} element={<ClientLogin />} />
         <Route path={RoutesPath.clientPanel} element={<ClientPanel />} />
-
-        {/* Admin routes */}
-        <Route path={RoutesPath.adminLogin} element={<AdminLogin />} />
-        <Route path={RoutesPath.gestionReserva} element={<AdminGuard><GestionReserva /></AdminGuard>} />
-        <Route path={RoutesPath.adminReservas} element={<AdminGuard><AdminReservas /></AdminGuard>} />
-        <Route path={RoutesPath.adminOrdenes} element={<AdminGuard><AdminOrdenes /></AdminGuard>} />
-        <Route path={RoutesPath.adminDashboard} element={<AdminGuard><AdminDashboard /></AdminGuard>} />
-        <Route path={RoutesPath.adminWhatsApp} element={<AdminGuard><AdminWhatsApp /></AdminGuard>} />
-        <Route path={RoutesPath.adminProductos} element={<AdminGuard><AdminProductos /></AdminGuard>} />
-        <Route path={RoutesPath.adminClientes} element={<AdminGuard><AdminClientes /></AdminGuard>} />
-        <Route path={RoutesPath.adminResenas} element={<AdminGuard><AdminResenas /></AdminGuard>} />
-        <Route path={RoutesPath.adminCocina} element={<AdminGuard><AdminCocina /></AdminGuard>} />
-        <Route path={RoutesPath.adminMesas} element={<AdminGuard><AdminMesas /></AdminGuard>} />
-
-        {/* 404 */}
-        <Route path="*" element={<NotFound />} />
       </Route>
+
+      {/* Admin login */}
+      <Route path={RoutesPath.adminLogin} element={<AdminLogin />} />
+
+      {/* Admin routes with sidebar */}
+      <Route element={<AdminGuard><AdminLayout /></AdminGuard>}>
+        <Route path={RoutesPath.adminDashboard} element={<AdminDashboard />} />
+        <Route path={RoutesPath.gestionReserva} element={<GestionReserva />} />
+        <Route path={RoutesPath.adminReservas} element={<AdminReservas />} />
+        <Route path={RoutesPath.adminOrdenes} element={<AdminOrdenes />} />
+        <Route path={RoutesPath.adminWhatsApp} element={<AdminWhatsApp />} />
+        <Route path={RoutesPath.adminProductos} element={<AdminProductos />} />
+        <Route path={RoutesPath.adminClientes} element={<AdminClientes />} />
+        <Route path={RoutesPath.adminResenas} element={<AdminResenas />} />
+        <Route path={RoutesPath.adminCocina} element={<AdminCocina />} />
+        <Route path={RoutesPath.adminMesas} element={<AdminMesas />} />
+      </Route>
+
+      {/* 404 */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }

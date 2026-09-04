@@ -1,8 +1,7 @@
-import { useEffect, useState, useMemo } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { useClientStore } from '../store/useClientStore'
-import { SEO } from '../lib/seo'
 import { FaSearch, FaSignOutAlt } from 'react-icons/fa'
 import clsx from 'clsx'
 
@@ -12,10 +11,6 @@ export default function AdminClientes() {
   const [filtroNivel, setFiltroNivel] = useState('')
   const [selected, setSelected] = useState<string | null>(null)
   const navigate = useNavigate()
-
-  useEffect(() => {
-    if (!storage.isAdmin()) { navigate('/admin-login'); return }
-  }, [navigate])
 
   const clientesFiltrados = useMemo(() => {
     return clientes.filter((c) => {
@@ -31,8 +26,7 @@ export default function AdminClientes() {
   const clienteDetalle = clientes.find((c) => c.id === selected)
 
   return (
-    <div className="min-h-screen bg-cream-50 p-6">
-      <SEO title="Admin - Clientes" />
+    <div>
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
@@ -40,7 +34,6 @@ export default function AdminClientes() {
             <p className="text-steel text-sm mt-1">{clientes.length} clientes registrados</p>
           </div>
           <div className="flex gap-2">
-            <Link to="/admin-dashboard" className="bg-white text-espresso-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-cream-100 transition-all border border-cream-200">Dashboard</Link>
             <button onClick={() => { storage.clearAdmin(); navigate('/admin-login') }} className="flex items-center gap-1.5 text-steel hover:text-red-500 px-4 py-2 rounded-xl text-sm font-medium transition-all hover:bg-red-50">
               <FaSignOutAlt size={12} /> Salir
             </button>

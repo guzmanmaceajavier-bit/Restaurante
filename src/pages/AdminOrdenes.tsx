@@ -1,10 +1,8 @@
 import { useEffect, useState, useMemo } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
 import { toast } from 'sonner'
-import { SEO } from '../lib/seo'
-import { FaSignOutAlt, FaSearch, FaWhatsapp } from 'react-icons/fa'
+import { FaSearch, FaWhatsapp } from 'react-icons/fa'
 import type { Order } from '../types/order'
 import clsx from 'clsx'
 
@@ -23,12 +21,10 @@ export default function AdminOrdenes() {
   const [filtroEstado, setFiltroEstado] = useState('')
   const [filtroTipo, setFiltroTipo] = useState('')
   const [busqueda, setBusqueda] = useState('')
-  const navigate = useNavigate()
 
   useEffect(() => {
-    if (!storage.isAdmin()) { navigate('/admin-login'); return }
     setOrdenes(storage.getOrdenes<Order>())
-  }, [navigate])
+  }, [])
 
   const ordenesFiltradas = useMemo(() => {
     return ordenes.filter((o) => {
@@ -55,19 +51,12 @@ export default function AdminOrdenes() {
   }
 
   return (
-    <div className="min-h-screen bg-cream-50 p-6">
-      <SEO title="Admin - Pedidos" />
+    <div>
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-display font-bold text-espresso-800">Pedidos</h1>
             <p className="text-steel text-sm mt-1">{ordenesFiltradas.length} de {ordenes.length} pedido{ordenes.length !== 1 ? 's' : ''}</p>
-          </div>
-          <div className="flex gap-2">
-            <Link to="/admin-dashboard" className="bg-white text-espresso-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-cream-100 transition-all border border-cream-200">Dashboard</Link>
-            <button onClick={() => { storage.clearAdmin(); navigate('/admin-login') }} className="flex items-center gap-1.5 text-steel hover:text-red-500 px-4 py-2 rounded-xl text-sm font-medium transition-all hover:bg-red-50">
-              <FaSignOutAlt size={12} /> Salir
-            </button>
           </div>
         </div>
 

@@ -1,7 +1,4 @@
 import { useEffect, useState, useMemo } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { storage } from '../lib/storage'
-import { SEO } from '../lib/seo'
 import { toast } from 'sonner'
 import clsx from 'clsx'
 
@@ -36,10 +33,8 @@ export default function AdminMesas() {
   const [mesas, setMesas] = useState<IMesa[]>([])
   const [filtroUbicacion, setFiltroUbicacion] = useState('')
   const [selected, setSelected] = useState<IMesa | null>(null)
-  const navigate = useNavigate()
 
   useEffect(() => {
-    if (!storage.isAdmin()) { navigate('/admin-login'); return }
     const stored = localStorage.getItem('mesas-storage')
     if (stored) {
       try { setMesas(JSON.parse(stored).state?.mesas || JSON.parse(stored)) } catch { setMesas(MESAS_INICIALES) }
@@ -47,7 +42,7 @@ export default function AdminMesas() {
       setMesas(MESAS_INICIALES)
       localStorage.setItem('mesas-storage', JSON.stringify({ state: { mesas: MESAS_INICIALES } }))
     }
-  }, [navigate])
+  }, [])
 
   const guardarMesas = (nuevas: IMesa[]) => { setMesas(nuevas); localStorage.setItem('mesas-storage', JSON.stringify({ state: { mesas: nuevas } })) }
   const cambiarEstado = (id: string, nuevoEstado: EstadoMesa) => { guardarMesas(mesas.map((m) => m.id === id ? { ...m, estado: nuevoEstado } : m)); setSelected(null); toast.success(`Mesa → ${estadoColores[nuevoEstado].label}`) }
@@ -60,15 +55,13 @@ export default function AdminMesas() {
   }), [mesas])
 
   return (
-    <div className="min-h-screen bg-cream-50 p-6">
-      <SEO title="Admin - Mesas" />
+    <div>
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-display font-bold text-espresso-800">Mesas</h1>
             <p className="text-steel text-sm mt-1">{stats.disponibles} disponibles · {stats.ocupadas} ocupadas · {stats.reservadas} reservadas</p>
           </div>
-          <Link to="/admin-dashboard" className="bg-white text-espresso-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-cream-100 transition-all border border-cream-200">Dashboard</Link>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-6">

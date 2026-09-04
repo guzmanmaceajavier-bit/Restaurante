@@ -1,18 +1,15 @@
 import { useEffect, useState, useMemo } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { storage } from '../lib/storage'
-import { SEO } from '../lib/seo'
 import { toast } from 'sonner'
 import type { Order } from '../types/order'
 
 export default function AdminCocina() {
   const [ordenes, setOrdenes] = useState<Order[]>([])
-  const navigate = useNavigate()
 
   useEffect(() => {
-    if (!storage.isAdmin()) { navigate('/admin-login'); return }
     setOrdenes(storage.getOrdenes<Order>())
-  }, [navigate])
+  }, [])
 
   const ordenesCocina = useMemo(() => {
     return ordenes.filter((o) => o.estado === 'recibido' || o.estado === 'preparando')
@@ -33,8 +30,7 @@ export default function AdminCocina() {
   const preparando = ordenesCocina.filter(o => o.estado === 'preparando')
 
   return (
-    <div className="min-h-screen bg-cream-50 p-6">
-      <SEO title="Admin - Cocina" />
+    <div>
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
@@ -42,7 +38,6 @@ export default function AdminCocina() {
             <p className="text-steel text-sm mt-1">{ordenesCocina.length} ordenes pendientes</p>
           </div>
           <div className="flex gap-2">
-            <Link to="/admin-dashboard" className="bg-white text-espresso-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-cream-100 transition-all border border-cream-200">Dashboard</Link>
             <Link to="/admin-ordenes" className="bg-white text-espresso-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-cream-100 transition-all border border-cream-200">Todos los pedidos</Link>
           </div>
         </div>

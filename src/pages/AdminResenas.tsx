@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { storage } from '../lib/storage'
-import { SEO } from '../lib/seo'
 import { toast } from 'sonner'
 import { FaSearch, FaSignOutAlt, FaStar } from 'react-icons/fa'
 
@@ -18,9 +17,8 @@ export default function AdminResenas() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!storage.isAdmin()) { navigate('/admin-login'); return }
     setReseñas(storage.getResenas<IResena>())
-  }, [navigate])
+  }, [])
 
   const filtradas = useMemo(() => {
     return reseñas.filter((r) => {
@@ -48,8 +46,7 @@ export default function AdminResenas() {
   const promedio = reseñas.length ? (reseñas.reduce((a, r) => a + r.estrellas, 0) / reseñas.length).toFixed(1) : '0.0'
 
   return (
-    <div className="min-h-screen bg-cream-50 p-6">
-      <SEO title="Admin - Reseñas" />
+    <div>
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
@@ -57,7 +54,6 @@ export default function AdminResenas() {
             <p className="text-steel text-sm mt-1 flex items-center gap-2">{reseñas.length} reseñas — <span className="text-gold-500 font-semibold">{promedio}</span> <FaStar size={12} className="text-gold-400" /></p>
           </div>
           <div className="flex gap-2">
-            <Link to="/admin-dashboard" className="bg-white text-espresso-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-cream-100 transition-all border border-cream-200">Dashboard</Link>
             <button onClick={() => { storage.clearAdmin(); navigate('/admin-login') }} className="flex items-center gap-1.5 text-steel hover:text-red-500 px-4 py-2 rounded-xl text-sm font-medium transition-all hover:bg-red-50">
               <FaSignOutAlt size={12} /> Salir
             </button>

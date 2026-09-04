@@ -1,8 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
-import { SEO } from '../lib/seo'
 import { FaWhatsapp, FaSearch, FaRegSquare, FaCheckSquare, FaExternalLinkAlt } from 'react-icons/fa'
 
 interface Customer { name: string; phone: string; source: 'pedido' | 'reserva'; lastDate: string }
@@ -19,7 +17,6 @@ const plantillas = [
 function normalizePhone(phone: string): string { return phone.replace(/[\s\-\(\)]/g, '') }
 
 export default function AdminWhatsApp() {
-  const navigate = useNavigate()
   const [customers, setCustomers] = useState<Customer[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [message, setMessage] = useState('')
@@ -30,7 +27,6 @@ export default function AdminWhatsApp() {
   const [historial, setHistorial] = useState<MensajeEnviado[]>([])
 
   useEffect(() => {
-    if (!storage.isAdmin()) { navigate('/admin-login'); return }
     const map = new Map<string, Customer>()
     storage.getOrdenes<any>().forEach((o) => {
       const phone = normalizePhone(o.phone || '')
@@ -47,7 +43,7 @@ export default function AdminWhatsApp() {
     setCustomers(Array.from(map.values()).sort((a, b) => b.lastDate.localeCompare(a.lastDate)))
     const hist = localStorage.getItem('whatsapp-historial')
     if (hist) { try { setHistorial(JSON.parse(hist)) } catch {} }
-  }, [navigate])
+  }, [])
 
   const filtered = useMemo(() => customers.filter((c) => {
     if (filtroSource !== 'todos' && c.source !== filtroSource) return false
@@ -71,15 +67,13 @@ export default function AdminWhatsApp() {
   }
 
   return (
-    <div className="min-h-screen bg-cream-50 p-6">
-      <SEO title="Admin - WhatsApp" />
+    <div>
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-display font-bold text-espresso-800">WhatsApp Masivo</h1>
             <p className="text-sm text-steel mt-1">{customers.length} clientes registrados</p>
           </div>
-          <Link to="/admin-dashboard" className="text-sm text-olive-500 hover:text-olive-600 font-medium transition-colors">Volver al dashboard</Link>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
