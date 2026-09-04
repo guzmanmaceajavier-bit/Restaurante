@@ -149,3 +149,89 @@ export const CONFIG = {
     { id: '2', titulo: 'Recomendados del chef', descripcion: 'Selección especial del chef', imagen: '', link: '/menu' },
   ] as ProductoDestacado[],
 }
+
+export interface RestaurantConfig {
+  nombre: string
+  slogan: string
+  descripcion: string
+  direccion: string
+  telefono: string
+  email: string
+  whatsapp: string
+  horarioApertura: string
+  horarioCierre: string
+  diasAtencion: string[]
+  envioGratisMinimo: number
+  costoDomicilio: number
+  radioDomicilio: number
+  moneda: string
+  impuesto: number
+  servicioMesa: number
+  mapaUrl: string
+  logoUrl: string
+  bannerUrl: string
+  faviconUrl: string
+  redes: { instagram: string; facebook: string; tiktok: string; twitter: string }
+  metodosPago: string[]
+  maxReservasPorDia: number
+  tiempoMinimoReserva: number
+  politicaReserva: string
+  tiempoDomicilio: number
+  tiempoRecoger: number
+  tiempoMesa: number
+  barrios: string[]
+  adminNombre: string
+  colorPrimario: string
+  monedaSimbolo: string
+}
+
+const defaultRestaurantConfig: RestaurantConfig = {
+  nombre: CONFIG.restaurante.nombre,
+  slogan: CONFIG.restaurante.slogan,
+  descripcion: CONFIG.restaurante.descripcion,
+  direccion: CONFIG.contacto.direccion,
+  telefono: CONFIG.contacto.telefono,
+  email: CONFIG.contacto.email,
+  whatsapp: CONFIG.contacto.whatsapp,
+  horarioApertura: CONFIG.horarios.apertura,
+  horarioCierre: CONFIG.horarios.cierre,
+  diasAtencion: CONFIG.horarios.dias,
+  envioGratisMinimo: CONFIG.delivery.minimoGratis,
+  costoDomicilio: CONFIG.delivery.tarifa,
+  radioDomicilio: 5,
+  moneda: 'COP',
+  impuesto: 0,
+  servicioMesa: 0,
+  mapaUrl: CONFIG.contacto.mapaUrl,
+  logoUrl: '',
+  bannerUrl: '',
+  faviconUrl: '',
+  redes: { instagram: '', facebook: '', tiktok: '', twitter: '' },
+  metodosPago: ['Efectivo', 'Nequi', 'Daviplata', 'Bancolombia'],
+  maxReservasPorDia: 20,
+  tiempoMinimoReserva: 60,
+  politicaReserva: CONFIG.reservas.politica,
+  tiempoDomicilio: CONFIG.entrega.tiempoDomicilio,
+  tiempoRecoger: CONFIG.entrega.tiempoRecoger,
+  tiempoMesa: CONFIG.entrega.tiempoMesa,
+  barrios: CONFIG.delivery.barrios,
+  adminNombre: CONFIG.admin.nombre,
+  colorPrimario: '#667A22',
+  monedaSimbolo: '$',
+}
+
+export function getRestaurantConfig(): RestaurantConfig {
+  try {
+    const stored = JSON.parse(localStorage.getItem('restaurant-config') || '{}')
+    return { ...defaultRestaurantConfig, ...stored }
+  } catch {
+    return defaultRestaurantConfig
+  }
+}
+
+export function saveRestaurantConfig(config: Partial<RestaurantConfig>) {
+  const current = getRestaurantConfig()
+  const updated = { ...current, ...config }
+  localStorage.setItem('restaurant-config', JSON.stringify(updated))
+  return updated
+}

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
 import { storage } from '../lib/storage'
-import { CONFIG } from '../lib/config'
+import { getRestaurantConfig } from '../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
 import { FaUser, FaShoppingBag, FaCalendarAlt, FaStar, FaSignOutAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaUtensils, FaGift, FaCog, FaHome, FaTrophy, FaCheckCircle, FaEdit, FaChevronRight, FaBell } from 'react-icons/fa'
@@ -39,6 +39,8 @@ export default function ClientPanel() {
     const all = dataService.getProductos()
     return all.filter(p => favorites.includes(p.id || p.nombre))
   }, [favorites])
+
+  const config = getRestaurantConfig()
 
   if (!clienteActual) {
     return (
@@ -244,7 +246,7 @@ export default function ClientPanel() {
                         className="flex items-center gap-1.5 bg-olive-50 text-olive-600 py-2 px-3 rounded-xl text-xs font-medium hover:bg-olive-100 transition-all border border-olive-200">
                         <FaRedo size={10} /> Repetir
                       </button>
-                      <a href={`https://wa.me/${CONFIG.contacto.whatsapp}?text=${encodeURIComponent(`Seguimiento pedido #${o.id}`)}`} target="_blank" rel="noopener noreferrer"
+                      <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Seguimiento pedido #${o.id}`)}`} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 py-2 px-3 rounded-xl text-xs font-medium hover:bg-emerald-100 transition-all border border-emerald-200">
                         <FaWhatsapp size={10} /> WhatsApp
                       </a>
@@ -283,7 +285,7 @@ export default function ClientPanel() {
                         Cancelar
                       </button>
                     )}
-                    <a href={`https://wa.me/${CONFIG.contacto.whatsapp}?text=${encodeURIComponent(`Consulta reserva #${r.id} - ${r.fecha} ${r.hora}`)}`}
+                    <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Consulta reserva #${r.id} - ${r.fecha} ${r.hora}`)}`}
                       target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 font-medium px-3 py-1.5 rounded-lg hover:bg-emerald-50 transition-all">
                       <FaWhatsapp size={10} /> WhatsApp

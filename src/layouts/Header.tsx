@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { RoutesPath } from '@/routes/routes'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
-import { CONFIG } from '@/lib/config'
+import { getRestaurantConfig } from '@/lib/config'
 import { useState, useEffect, useRef } from 'react'
 import { FaShoppingBag, FaUser, FaSignOutAlt, FaSearch } from 'react-icons/fa'
 import { BiMenu, BiX } from 'react-icons/bi'
@@ -33,6 +33,7 @@ export default function Header({ onCartClick }: Props) {
   const [searchQuery, setSearchQuery] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   const prevCount = useRef(count)
+  const config = getRestaurantConfig()
 
   useEffect(() => {
     if (count > prevCount.current) {
@@ -314,7 +315,7 @@ export default function Header({ onCartClick }: Props) {
 
             <div className="border-t border-cream-200 px-6 py-3 bg-cream-50/50">
               <p className="text-[10px] text-steel uppercase tracking-widest">Horario</p>
-              <p className="text-xs text-espresso-700 font-medium mt-0.5">{CONFIG.contacto.horario}</p>
+              <p className="text-xs text-espresso-700 font-medium mt-0.5">{`${config.horarioApertura} - ${config.horarioCierre}`}</p>
             </div>
           </div>
         </div>

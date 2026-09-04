@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
-import { CONFIG } from '../lib/config'
+import { getRestaurantConfig } from '../lib/config'
 import { FaArrowLeft, FaShoppingBag, FaSignOutAlt } from 'react-icons/fa'
 import { useCartStore } from '../store/useCartStore'
 import DarkModeToggle from '../components/core/DarkModeToggle'
@@ -9,6 +9,7 @@ export default function ClientLayout() {
   const { clienteActual, logout } = useAuthStore()
   const navigate = useNavigate()
   const count = useCartStore((s) => s.count)
+  const config = getRestaurantConfig()
 
   const handleLogout = () => {
     logout()
@@ -26,10 +27,10 @@ export default function ClientLayout() {
             </Link>
             <Link to="/" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-olive-500 rounded-lg flex items-center justify-center text-white font-bold text-xs">
-                {CONFIG.restaurante.nombre.charAt(0)}
+                {config.nombre.charAt(0)}
               </div>
               <span className="text-sm font-display font-bold text-espresso-800 dark:text-cream-200 hidden sm:inline">
-                {CONFIG.restaurante.nombre}
+                {config.nombre}
               </span>
             </Link>
           </div>

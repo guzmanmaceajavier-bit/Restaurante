@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import { RoutesPath } from '@/routes/routes'
-import { CONFIG } from '@/lib/config'
+import { getRestaurantConfig } from '@/lib/config'
 import { FaInstagram, FaWhatsapp, FaMapMarkerAlt, FaPhone, FaClock } from 'react-icons/fa'
 
 export default function Footer() {
+  const config = getRestaurantConfig()
   return (
     <footer className="bg-espresso-900 text-white/60">
       <div className="max-w-content mx-auto px-6">
@@ -11,12 +12,12 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to={RoutesPath.home} className="text-lg font-display font-bold text-white">Sabor y Origen</Link>
-            <p className="text-xs mt-2 leading-relaxed">{CONFIG.restaurante.descripcion}</p>
+            <p className="text-xs mt-2 leading-relaxed">{config.descripcion}</p>
             <div className="flex gap-2 mt-3">
-              <a href={CONFIG.redes[0].url} target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-white/8 rounded-lg flex items-center justify-center hover:bg-olive-500 hover:text-white transition-all">
+              <a href={config.redes?.instagram || '#'} target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-white/8 rounded-lg flex items-center justify-center hover:bg-olive-500 hover:text-white transition-all">
                 <FaInstagram size={13} />
               </a>
-              <a href={CONFIG.redes[2].url} target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-white/8 rounded-lg flex items-center justify-center hover:bg-sage-500 hover:text-white transition-all">
+              <a href={`https://wa.me/${config.whatsapp}`} target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-white/8 rounded-lg flex items-center justify-center hover:bg-sage-500 hover:text-white transition-all">
                 <FaWhatsapp size={13} />
               </a>
             </div>
@@ -45,15 +46,15 @@ export default function Footer() {
           <div>
             <h4 className="text-[10px] font-semibold text-white/30 uppercase tracking-widest mb-3">Contacto</h4>
             <ul className="space-y-2.5">
-              <li className="flex items-start gap-2"><FaMapMarkerAlt className="text-olive-400 mt-0.5 shrink-0" size={11} /><span className="text-xs">{CONFIG.contacto.direccion}</span></li>
-              <li className="flex items-center gap-2"><FaPhone className="text-olive-400 shrink-0" size={11} /><a href={`tel:${CONFIG.contacto.telefono}`} className="text-xs hover:text-white transition-colors">{CONFIG.contacto.telefono}</a></li>
-              <li className="flex items-center gap-2"><FaClock className="text-olive-400 shrink-0" size={11} /><span className="text-xs">{CONFIG.contacto.horario}</span></li>
+              <li className="flex items-start gap-2"><FaMapMarkerAlt className="text-olive-400 mt-0.5 shrink-0" size={11} /><span className="text-xs">{config.direccion}</span></li>
+              <li className="flex items-center gap-2"><FaPhone className="text-olive-400 shrink-0" size={11} /><a href={`tel:${config.telefono}`} className="text-xs hover:text-white transition-colors">{config.telefono}</a></li>
+              <li className="flex items-center gap-2"><FaClock className="text-olive-400 shrink-0" size={11} /><span className="text-xs">{`${config.horarioApertura} - ${config.horarioCierre}`}</span></li>
             </ul>
           </div>
         </div>
 
         <div className="py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-[11px] text-white/20">&copy; {new Date().getFullYear()} {CONFIG.restaurante.nombre}</p>
+          <p className="text-[11px] text-white/20">&copy; {new Date().getFullYear()} {config.nombre}</p>
           <div className="flex gap-4">
             <Link to={RoutesPath.politicaPrivacidad} className="text-[11px] text-white/20 hover:text-white/40 transition-colors">Privacidad</Link>
             <Link to={RoutesPath.terminosCondiciones} className="text-[11px] text-white/20 hover:text-white/40 transition-colors">Términos</Link>

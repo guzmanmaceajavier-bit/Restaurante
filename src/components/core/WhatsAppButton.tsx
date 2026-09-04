@@ -1,10 +1,11 @@
 import { FaWhatsapp } from 'react-icons/fa'
-import { CONFIG } from '@/lib/config'
+import { getRestaurantConfig } from '@/lib/config'
 
 const WHATSAPP_MESSAGE = '¡Hola! Me gustaría hacer un pedido o reservar una mesa. 🍽️'
 
 export default function WhatsAppButton() {
-  const whatsappUrl = `https://wa.me/${CONFIG.contacto.whatsapp}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`
+  const config = getRestaurantConfig()
+  const whatsappUrl = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`
 
   return (
     <a

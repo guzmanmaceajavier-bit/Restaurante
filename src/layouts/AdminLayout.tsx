@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom'
 import { storage } from '../lib/storage'
-import { CONFIG } from '../lib/config'
+import { getRestaurantConfig } from '../lib/config'
 import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog, FaTags, FaTag, FaClipboardList, FaDollarSign, FaChartBar, FaUserFriends, FaHistory, FaDatabase, FaClock } from 'react-icons/fa'
 import DarkModeToggle from '../components/core/DarkModeToggle'
 import { AdminSkeleton } from '../components/core/LoadingSkeleton'
@@ -45,6 +45,7 @@ export default function AdminLayout() {
   }
 
   const currentNav = navItems.find(n => location.pathname.startsWith(n.link))
+  const config = getRestaurantConfig()
 
   if (loading) return <AdminSkeleton />
 
@@ -55,10 +56,10 @@ export default function AdminLayout() {
         <div className="p-5 border-b border-cream-200">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-olive-500 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm shadow-olive-500/20">
-              {CONFIG.restaurante.nombre.charAt(0)}
+              {config.nombre.charAt(0)}
             </div>
             <div>
-              <h2 className="text-sm font-bold text-espresso-800 dark:text-cream-200">{CONFIG.restaurante.nombre}</h2>
+              <h2 className="text-sm font-bold text-espresso-800 dark:text-cream-200">{config.nombre}</h2>
               <p className="text-[10px] text-steel uppercase tracking-wider">Panel Admin</p>
             </div>
           </div>
@@ -104,10 +105,10 @@ export default function AdminLayout() {
             <div className="p-5 border-b border-cream-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-olive-500 rounded-xl flex items-center justify-center text-white font-bold text-sm">
-                  {CONFIG.restaurante.nombre.charAt(0)}
+                  {config.nombre.charAt(0)}
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-espresso-800">{CONFIG.restaurante.nombre}</h2>
+                  <h2 className="text-sm font-bold text-espresso-800">{config.nombre}</h2>
                   <p className="text-[10px] text-steel uppercase tracking-wider">Panel Admin</p>
                 </div>
               </div>
@@ -156,7 +157,7 @@ export default function AdminLayout() {
           </button>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-olive-500 rounded-lg flex items-center justify-center text-white font-bold text-xs">
-              {CONFIG.restaurante.nombre.charAt(0)}
+              {config.nombre.charAt(0)}
             </div>
             <span className="text-sm font-semibold text-espresso-800">{currentNav?.label || 'Admin'}</span>
           </div>
