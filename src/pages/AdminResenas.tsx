@@ -1,131 +1,172 @@
 import { useEffect, useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { toast } from 'sonner'
-import { FaSearch, FaSignOutAlt, FaStar } from 'react-icons/fa'
+import { FaSearch, FaStar, FaReply, FaTrash } from 'react-icons/fa'
+import { Pagination } from '../components/admin/Pagination'
 
-interface IResena {
-  id: number; nombre: string; estrellas: number; comentario: string; fecha: string; respuestaAdmin?: string; respondedAt?: string
-}
+const ITEMS_PER_PAGE = 8
+
+interface Resena { id: number; nombre: string; estrellas: number; comentario: string; fecha: string; respuestaAdmin?: string; respondedAt?: string }
 
 export default function AdminResenas() {
-  const [reseñas, setReseñas] = useState<IResena[]>([])
-  const [busqueda, setBusqueda] = useState('')
-  const [filtroEstrellas, setFiltroEstrellas] = useState(0)
-  const [respondiendo, setRespondiendo] = useState<IResena | null>(null)
+  const [resenas, setResenas] = useState<Resena[]>([])
+  const [respondiendo, setRespondiendo] = useState<Resena | null>(null)
   const [respuesta, setRespuesta] = useState('')
-  const navigate = useNavigate()
+  const [filtroEstrellas, setFiltroEstrellas] = useState(0)
+  const [busqueda, setBusqueda] = useState('')
+  const [page, setPage] = useState(1)
 
-  useEffect(() => {
-    setReseñas(storage.getResenas<IResena>())
-  }, [])
+  useEffect(() => { setResenas(storage.getResenas()) }, [])
 
   const filtradas = useMemo(() => {
-    return reseñas.filter((r) => {
-      if (filtroEstrellas && r.estrellas !== filtroEstrellas) return false
-      if (busqueda.trim()) {
-        const q = busqueda.toLowerCase()
-        return r.nombre.toLowerCase().includes(q) || r.comentario.toLowerCase().includes(q)
+    return resenas.filter((r) => {
+      if (filtroEstrellas > 0 && r.estrellas !== filtroEstrellas) return false
+      if (busqueda) {
+        const b = busqueda.toLowerCase()
+        return r.nombre?.toLowerCase().includes(b) || r.comentario?.toLowerCase().includes(b)
       }
       return true
-    })
-  }, [reseñas, busqueda, filtroEstrellas])
+    }).sort((a, b) => new Date(b.fecha || 0).getTime() - new Date(a.fecha || 0).getTime())
+  }, [resenas, filtroEstrellas, busqueda])
 
-  const eliminarResena = (id: number) => {
-    if (!confirm('¿Eliminar esta reseña?')) return
-    const updated = reseñas.filter((r) => r.id !== id)
-    setReseñas(updated); storage.setResenas(updated); toast.success('Reseña eliminada')
-  }
+  const totalPages = Math.ceil(filtradas.length / ITEMS_PER_PAGE)
+  const pagina = filtradas.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
 
-  const enviarRespuesta = () => {
+  const promedio = useMemo(() => {
+    if (resenas.length === 0) return 0
+    return (resenas.reduce((sum, r) => sum + r.estrellas, 0) / resenas.length).toFixed(1)
+  }, [resenas])
+
+  const distribution = useMemo(() => {
+    const dist: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+    resenas.forEach((r) => { if (dist[r.estrellas] !== undefined) dist[r.estrellas]++ })
+    return dist
+  }, [resenas])
+
+  const responder = () => {
     if (!respondiendo || !respuesta.trim()) return
-    const updated = reseñas.map((r) => r.id === respondiendo.id ? { ...r, respuestaAdmin: respuesta.trim(), respondedAt: new Date().toISOString() } : r)
-    setReseñas(updated); storage.setResenas(updated); setRespondiendo(null); setRespuesta(''); toast.success('Respuesta guardada')
+    const updated = resenas.map((r) => r.id === respondiendo.id ? { ...r, respuestaAdmin: respuesta.trim(), respondedAt: new Date().toISOString() } : r)
+    setResenas(updated); storage.setResenas(updated); setRespondiendo(null); setRespuesta('')
+    toast.success('Respuesta enviada')
   }
 
-  const promedio = reseñas.length ? (reseñas.reduce((a, r) => a + r.estrellas, 0) / reseñas.length).toFixed(1) : '0.0'
+  const eliminar = (id: number) => {
+    if (!confirm('¿Eliminar esta reseña?')) return
+    const updated = resenas.filter((r) => r.id !== id)
+    setResenas(updated); storage.setResenas(updated); toast.success('Reseña eliminada')
+  }
 
   return (
     <div>
-      <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-display font-bold text-espresso-800">Reseñas</h1>
-            <p className="text-steel text-sm mt-1 flex items-center gap-2">{reseñas.length} reseñas — <span className="text-gold-500 font-semibold">{promedio}</span> <FaStar size={12} className="text-gold-400" /></p>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => { storage.clearAdmin(); navigate('/admin-login') }} className="flex items-center gap-1.5 text-steel hover:text-red-500 px-4 py-2 rounded-xl text-sm font-medium transition-all hover:bg-red-50">
-              <FaSignOutAlt size={12} /> Salir
-            </button>
-          </div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-display font-bold text-espresso-800">Reseñas</h1>
+          <p className="text-steel text-sm mt-1">{filtradas.length} reseña{filtradas.length !== 1 ? 's' : ''}</p>
         </div>
-
-        <div className="bg-white rounded-2xl border border-cream-200 p-4 mb-6 flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
-            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
-            <input type="text" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar por nombre o comentario..." className="input-base pl-11 text-sm" />
-          </div>
-          <select value={filtroEstrellas} onChange={(e) => setFiltroEstrellas(Number(e.target.value))} className="input-base text-sm w-auto">
-            <option value={0}>Todas las estrellas</option>
-            {[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{n} estrella{n > 1 ? 's' : ''}</option>)}
-          </select>
+        <div className="relative">
+          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
+          <input type="text" value={busqueda} onChange={(e) => { setBusqueda(e.target.value); setPage(1) }} placeholder="Buscar..." className="input-base pl-11 text-sm w-64" />
         </div>
-
-        <div className="space-y-4">
-          {filtradas.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 text-center border border-cream-200">
-              <p className="text-3xl mb-3">⭐</p>
-              <p className="text-lg font-display font-bold text-espresso-800 mb-1">No hay reseñas</p>
-              <p className="text-sm text-steel">Las reseñas aparecerán aquí cuando los clientes las dejen.</p>
-            </div>
-          ) : filtradas.map((r) => (
-            <div key={r.id} className="bg-white rounded-2xl border border-cream-200 p-6">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-olive-400 to-olive-600 flex items-center justify-center text-white font-bold">
-                    {r.nombre.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-espresso-800">{r.nombre}</p>
-                    <p className="text-xs text-steel">{r.fecha}</p>
-                  </div>
-                </div>
-                <div className="flex gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <FaStar key={i} size={14} className={i < r.estrellas ? 'text-gold-400' : 'text-cream-200'} />
-                  ))}
-                </div>
-              </div>
-              <p className="text-steel italic mb-3">"{r.comentario}"</p>
-              {r.respuestaAdmin && (
-                <div className="bg-cream-50 border border-cream-200 rounded-xl p-4 mb-3">
-                  <p className="text-xs font-semibold text-espresso-700 mb-1">Respuesta del admin:</p>
-                  <p className="text-sm text-espresso-800">{r.respuestaAdmin}</p>
-                </div>
-              )}
-              <div className="flex gap-2">
-                <button onClick={() => { setRespondiendo(r); setRespuesta(r.respuestaAdmin || '') }} className="bg-espresso-800 hover:bg-espresso-900 text-white px-4 py-1.5 rounded-lg text-xs font-medium transition-all">
-                  {r.respuestaAdmin ? 'Editar respuesta' : 'Responder'}
-                </button>
-                <button onClick={() => eliminarResena(r.id)} className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg text-xs font-medium transition-all">Eliminar</button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {respondiendo && (
-          <div className="fixed inset-0 bg-espresso-900/50 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setRespondiendo(null)}>
-            <div className="bg-white p-8 rounded-3xl w-full max-w-lg shadow-xl mx-4" onClick={(e) => e.stopPropagation()}>
-              <h3 className="text-xl font-display font-bold text-espresso-800 mb-5">Responder a {respondiendo.nombre}</h3>
-              <textarea value={respuesta} onChange={(e) => setRespuesta(e.target.value)} rows={4} className="input-base resize-none" placeholder="Escribe tu respuesta..." />
-              <div className="flex justify-end gap-3 mt-5">
-                <button onClick={() => setRespondiendo(null)} className="btn-secondary text-sm py-2.5">Cancelar</button>
-                <button onClick={enviarRespuesta} className="btn-primary text-sm py-2.5">Guardar</button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Stats */}
+      <div className="bg-white rounded-2xl border border-cream-200 p-6 mb-6">
+        <div className="flex flex-col sm:flex-row items-center gap-6">
+          <div className="text-center">
+            <p className="text-4xl font-display font-bold text-espresso-800">{promedio}</p>
+            <div className="flex gap-0.5 justify-center my-1">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <FaStar key={i} size={14} className={i < Math.round(Number(promedio)) ? 'text-gold-400' : 'text-cream-300'} />
+              ))}
+            </div>
+            <p className="text-xs text-steel">{resenas.length} reseñas</p>
+          </div>
+          <div className="flex-1 space-y-1.5 w-full">
+            {[5, 4, 3, 2, 1].map((n) => (
+              <button key={n} onClick={() => setFiltroEstrellas(filtroEstrellas === n ? 0 : n)}
+                className={`flex items-center gap-2 w-full group ${filtroEstrellas === n ? 'opacity-100' : 'hover:opacity-80'}`}>
+                <span className="text-xs text-steel w-3">{n}</span>
+                <FaStar size={10} className="text-gold-400" />
+                <div className="flex-1 bg-cream-100 rounded-full h-2 overflow-hidden">
+                  <div className="bg-gold-400 h-full rounded-full transition-all" style={{ width: `${resenas.length > 0 ? (distribution[n] / resenas.length) * 100 : 0}%` }} />
+                </div>
+                <span className="text-xs text-steel w-6 text-right">{distribution[n]}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {pagina.length === 0 ? (
+        <div className="bg-white rounded-2xl p-16 text-center border border-cream-200">
+          <FaStar className="text-cream-300 mx-auto mb-3" size={40} />
+          <p className="text-lg font-display font-bold text-espresso-800 mb-1">No hay reseñas</p>
+          <p className="text-sm text-steel">Las reseñas aparecerán aquí cuando los clientes las dejen.</p>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3">
+            {pagina.map((r) => (
+              <div key={r.id} className="bg-white rounded-2xl border border-cream-200 p-5 hover:shadow-lift transition-all">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-olive-100 rounded-xl flex items-center justify-center text-sm font-bold text-olive-600">
+                      {r.nombre?.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-espresso-800">{r.nombre}</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <FaStar key={i} size={10} className={i < r.estrellas ? 'text-gold-400' : 'text-cream-300'} />
+                          ))}
+                        </div>
+                        <span className="text-[10px] text-steel">{r.fecha}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    {!r.respuestaAdmin && (
+                      <button onClick={() => { setRespondiendo(r); setRespuesta('') }} className="p-1.5 rounded-lg hover:bg-cream-100 transition-all" title="Responder">
+                        <FaReply size={12} className="text-olive-600" />
+                      </button>
+                    )}
+                    <button onClick={() => eliminar(r.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-all" title="Eliminar">
+                      <FaTrash size={12} className="text-red-400" />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-sm text-espresso-700 leading-relaxed">{r.comentario}</p>
+                {r.respuestaAdmin && (
+                  <div className="mt-3 bg-olive-50 border border-olive-200 rounded-xl p-3">
+                    <p className="text-[10px] text-olive-600 font-semibold mb-1">Respuesta del admin</p>
+                    <p className="text-xs text-olive-800">{r.respuestaAdmin}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+        </>
+      )}
+
+      {respondiendo && (
+        <div className="fixed inset-0 bg-espresso-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setRespondiendo(null)}>
+          <div className="bg-white rounded-3xl w-full max-w-md shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 border-b border-cream-200">
+              <h3 className="text-lg font-display font-bold text-espresso-800">Responder a {respondiendo.nombre}</h3>
+              <p className="text-xs text-steel mt-1">"{respondiendo.comentario.slice(0, 80)}..."</p>
+            </div>
+            <div className="p-6 space-y-4">
+              <textarea value={respuesta} onChange={(e) => setRespuesta(e.target.value)} className="input-base resize-none" placeholder="Escribe tu respuesta..." rows={4} />
+              <div className="flex justify-end gap-3">
+                <button onClick={() => setRespondiendo(null)} className="btn-secondary text-sm py-2.5">Cancelar</button>
+                <button onClick={responder} disabled={!respuesta.trim()} className="btn-primary text-sm py-2.5 disabled:opacity-50">Enviar respuesta</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

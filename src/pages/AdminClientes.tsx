@@ -1,101 +1,136 @@
-import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState, useMemo } from 'react'
 import { storage } from '../lib/storage'
-import { useClientStore } from '../store/useClientStore'
-import { FaSearch, FaSignOutAlt } from 'react-icons/fa'
-import clsx from 'clsx'
+import { FaSearch, FaEye, FaUsers, FaShoppingBag, FaPhone, FaEnvelope } from 'react-icons/fa'
+import { Pagination } from '../components/admin/Pagination'
+
+const ITEMS_PER_PAGE = 10
+
+interface ClientData {
+  nombre: string; email: string; telefono: string; password?: string
+  totalOrders?: number; totalSpent?: number; lastOrder?: string; level?: string
+}
 
 export default function AdminClientes() {
-  const { clientes } = useClientStore()
+  const [clientes, setClientes] = useState<ClientData[]>([])
+  const [selected, setSelected] = useState<ClientData | null>(null)
   const [busqueda, setBusqueda] = useState('')
-  const [filtroNivel, setFiltroNivel] = useState('')
-  const [selected, setSelected] = useState<string | null>(null)
-  const navigate = useNavigate()
+  const [page, setPage] = useState(1)
 
-  const clientesFiltrados = useMemo(() => {
-    return clientes.filter((c) => {
-      if (filtroNivel && c.nivel !== filtroNivel) return false
-      if (busqueda.trim()) {
-        const q = busqueda.toLowerCase()
-        return c.nombre.toLowerCase().includes(q) || c.telefono.includes(q) || c.email?.toLowerCase().includes(q)
+  useEffect(() => {
+    const stored: ClientData[] = JSON.parse(localStorage.getItem('clientes') || '[]')
+    const ordenes: any[] = storage.getOrdenes<any>()
+    const enriched = stored.map((c: ClientData) => {
+      const clientOrders = ordenes.filter((o: any) => o.phone === c.telefono || o.email === c.email)
+      return {
+        ...c,
+        totalOrders: clientOrders.length,
+        totalSpent: clientOrders.reduce((sum: number, o: any) => sum + (o.total || 0), 0),
+        lastOrder: clientOrders.length > 0 ? clientOrders.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())[0].createdAt : null,
+        level: clientOrders.length >= 20 ? 'Diamante' : clientOrders.length >= 10 ? 'Oro' : clientOrders.length >= 5 ? 'Plata' : 'Bronce',
       }
-      return true
     })
-  }, [clientes, busqueda, filtroNivel])
+    setClientes(enriched)
+  }, [])
 
-  const clienteDetalle = clientes.find((c) => c.id === selected)
+  const filtrados = useMemo(() => {
+    if (!busqueda) return clientes
+    const b = busqueda.toLowerCase()
+    return clientes.filter((c) => c.nombre?.toLowerCase().includes(b) || c.email?.toLowerCase().includes(b) || c.telefono?.includes(b))
+  }, [clientes, busqueda])
+
+  const totalPages = Math.ceil(filtrados.length / ITEMS_PER_PAGE)
+  const pagina = filtrados.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
+
+  const levelColors: Record<string, string> = { Diamante: 'bg-blue-50 text-blue-700 border-blue-200', Oro: 'bg-gold-50 text-gold-700 border-gold-200', Plata: 'bg-cream-200 text-espresso-600 border-cream-300', Bronce: 'bg-orange-50 text-orange-700 border-orange-200' }
+
+  const stats = useMemo(() => ({
+    total: clientes.length,
+    activos: clientes.filter((c) => c.totalOrders && c.totalOrders > 0).length,
+    diamante: clientes.filter((c) => c.level === 'Diamante').length,
+    oro: clientes.filter((c) => c.level === 'Oro').length,
+  }), [clientes])
 
   return (
     <div>
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-display font-bold text-espresso-800">Clientes</h1>
-            <p className="text-steel text-sm mt-1">{clientes.length} clientes registrados</p>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => { storage.clearAdmin(); navigate('/admin-login') }} className="flex items-center gap-1.5 text-steel hover:text-red-500 px-4 py-2 rounded-xl text-sm font-medium transition-all hover:bg-red-50">
-              <FaSignOutAlt size={12} /> Salir
-            </button>
-          </div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-display font-bold text-espresso-800">Clientes</h1>
+          <p className="text-steel text-sm mt-1">{filtrados.length} cliente{filtrados.length !== 1 ? 's' : ''}</p>
         </div>
-
-        <div className="bg-white rounded-2xl border border-cream-200 p-4 mb-6 flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
-            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
-            <input type="text" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} placeholder="Buscar por nombre, teléfono o email..." className="input-base pl-11 text-sm" />
-          </div>
-          <select value={filtroNivel} onChange={(e) => setFiltroNivel(e.target.value)} className="input-base text-sm w-auto">
-            <option value="">Todos los niveles</option>
-            <option value="bronce">Bronce</option>
-            <option value="plata">Plata</option>
-            <option value="oro">Oro</option>
-          </select>
+        <div className="relative">
+          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
+          <input type="text" value={busqueda} onChange={(e) => { setBusqueda(e.target.value); setPage(1) }} placeholder="Buscar..." className="input-base pl-11 text-sm w-64" />
         </div>
+      </div>
 
-        {clientesFiltrados.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-cream-200">
-            <p className="text-3xl mb-3">👥</p>
-            <p className="text-lg font-display font-bold text-espresso-800 mb-1">No hay clientes</p>
-            <p className="text-sm text-steel">Los clientes aparecerán cuando realicen pedidos.</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        {[
+          { label: 'Total', value: stats.total, icon: FaUsers, color: 'bg-blue-500' },
+          { label: 'Con pedidos', value: stats.activos, icon: FaShoppingBag, color: 'bg-olive-500' },
+          { label: 'Diamante', value: stats.diamante, icon: FaEye, color: 'bg-sage-500' },
+          { label: 'Oro', value: stats.oro, icon: FaEye, color: 'bg-gold-500' },
+        ].map((s) => (
+          <div key={s.label} className="bg-white rounded-2xl p-4 border border-cream-200 flex items-center gap-3">
+            <div className={`w-10 h-10 ${s.color} rounded-xl flex items-center justify-center`}>
+              <s.icon size={16} className="text-white" />
+            </div>
+            <div>
+              <p className="text-xl font-display font-bold text-espresso-800">{s.value}</p>
+              <p className="text-[10px] text-steel">{s.label}</p>
+            </div>
           </div>
-        ) : (
+        ))}
+      </div>
+
+      {pagina.length === 0 ? (
+        <div className="bg-white rounded-2xl p-16 text-center border border-cream-200">
+          <FaUsers className="text-cream-300 mx-auto mb-3" size={40} />
+          <p className="text-lg font-display font-bold text-espresso-800 mb-1">No hay clientes</p>
+          <p className="text-sm text-steel">Los clientes aparecerán cuando se registren.</p>
+        </div>
+      ) : (
+        <>
           <div className="bg-white rounded-2xl border border-cream-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-cream-50 text-left text-espresso-700 border-b border-cream-200">
-                    <th className="p-3 font-semibold text-xs uppercase tracking-wider">Cliente</th>
-                    <th className="p-3 font-semibold text-xs uppercase tracking-wider">Teléfono</th>
-                    <th className="p-3 font-semibold text-xs uppercase tracking-wider">Nivel</th>
-                    <th className="p-3 font-semibold text-xs uppercase tracking-wider">Puntos</th>
-                    <th className="p-3 font-semibold text-xs uppercase tracking-wider">Pedidos</th>
-                    <th className="p-3 font-semibold text-xs uppercase tracking-wider text-center">Acción</th>
+                  <tr className="bg-cream-50 border-b border-cream-200">
+                    <th className="p-3 text-left text-xs font-semibold text-espresso-700 uppercase tracking-wider">Cliente</th>
+                    <th className="p-3 text-left text-xs font-semibold text-espresso-700 uppercase tracking-wider">Contacto</th>
+                    <th className="p-3 text-center text-xs font-semibold text-espresso-700 uppercase tracking-wider">Pedidos</th>
+                    <th className="p-3 text-right text-xs font-semibold text-espresso-700 uppercase tracking-wider">Total gastado</th>
+                    <th className="p-3 text-center text-xs font-semibold text-espresso-700 uppercase tracking-wider">Nivel</th>
+                    <th className="p-3 text-center text-xs font-semibold text-espresso-700 uppercase tracking-wider">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {clientesFiltrados.map((c) => (
-                    <tr key={c.id} className="border-t border-cream-100 hover:bg-cream-50/50 transition-colors">
+                  {pagina.map((c, i) => (
+                    <tr key={i} className="border-t border-cream-100 hover:bg-cream-50/50 transition-colors">
                       <td className="p-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-olive-400 to-olive-600 flex items-center justify-center text-white text-sm font-bold">
-                            {c.nombre.charAt(0)}
+                          <div className="w-9 h-9 bg-olive-100 rounded-xl flex items-center justify-center text-sm font-bold text-olive-600">
+                            {c.nombre?.charAt(0) || '?'}
                           </div>
-                          <span className="font-medium text-espresso-800">{c.nombre}</span>
+                          <div>
+                            <p className="text-sm font-medium text-espresso-800">{c.nombre}</p>
+                            <p className="text-[10px] text-steel">{c.email}</p>
+                          </div>
                         </div>
                       </td>
-                      <td className="p-3 text-sm text-steel">{c.telefono}</td>
-                      <td className="p-3">
-                        <span className={clsx('px-3 py-1 rounded-full text-xs font-semibold capitalize border',
-                          c.nivel === 'oro' ? 'bg-gold-50 border-gold-200 text-gold-700' :
-                          c.nivel === 'plata' ? 'bg-cream-100 border-cream-200 text-steel' :
-                          'bg-cream-100 border-cream-200 text-espresso-500'
-                        )}>{c.nivel}</span>
-                      </td>
-                      <td className="p-3 text-sm font-bold text-olive-500">{c.puntos}</td>
-                      <td className="p-3 text-sm text-espresso-700">{c.historialPedidos.length}</td>
+                      <td className="p-3 text-xs text-steel">{c.telefono || '—'}</td>
                       <td className="p-3 text-center">
-                        <button onClick={() => setSelected(c.id)} className="bg-espresso-800 hover:bg-espresso-900 text-white px-4 py-1.5 rounded-lg text-xs font-medium transition-all">Ver</button>
+                        <span className="w-8 h-8 bg-cream-100 rounded-lg flex items-center justify-center text-xs font-bold text-espresso-700 mx-auto">
+                          {c.totalOrders || 0}
+                        </span>
+                      </td>
+                      <td className="p-3 text-right text-sm font-semibold text-espresso-800">${(c.totalSpent || 0).toLocaleString('es-CO')}</td>
+                      <td className="p-3 text-center">
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-semibold border ${levelColors[c.level || 'Bronce']}`}>{c.level}</span>
+                      </td>
+                      <td className="p-3 text-center">
+                        <button onClick={() => setSelected(c)} className="p-1.5 rounded-lg hover:bg-cream-100 transition-all" title="Ver detalle">
+                          <FaEye size={13} className="text-steel" />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -103,34 +138,50 @@ export default function AdminClientes() {
               </table>
             </div>
           </div>
-        )}
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+        </>
+      )}
 
-        {clienteDetalle && (
-          <div className="fixed inset-0 bg-espresso-900/50 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setSelected(null)}>
-            <div className="bg-white p-8 rounded-3xl w-full max-w-lg shadow-xl mx-4" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-olive-400 to-olive-600 flex items-center justify-center text-white text-xl font-bold">
-                  {clienteDetalle.nombre.charAt(0)}
+      {selected && (
+        <div className="fixed inset-0 bg-espresso-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setSelected(null)}>
+          <div className="bg-white rounded-3xl w-full max-w-md shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 border-b border-cream-200 flex items-center justify-between">
+              <h3 className="text-lg font-display font-bold text-espresso-800">Detalle del cliente</h3>
+              <button onClick={() => setSelected(null)} className="p-2 hover:bg-cream-100 rounded-xl text-steel">✕</button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-olive-400 to-olive-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
+                  {selected.nombre?.charAt(0)}
                 </div>
-                <div>
-                  <h3 className="text-xl font-display font-bold text-espresso-800">{clienteDetalle.nombre}</h3>
-                  <p className="text-sm text-steel">{clienteDetalle.email || 'Sin email'}</p>
+                <h4 className="text-lg font-bold text-espresso-800">{selected.nombre}</h4>
+                <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold border mt-2 ${levelColors[selected.level || 'Bronce']}`}>{selected.level}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-cream-50 rounded-xl p-3 flex items-center gap-2">
+                  <FaEnvelope size={12} className="text-steel" />
+                  <span className="text-xs text-espresso-700 truncate">{selected.email}</span>
+                </div>
+                <div className="bg-cream-50 rounded-xl p-3 flex items-center gap-2">
+                  <FaPhone size={12} className="text-steel" />
+                  <span className="text-xs text-espresso-700">{selected.telefono || '—'}</span>
+                </div>
+                <div className="bg-cream-50 rounded-xl p-3">
+                  <p className="text-[10px] text-steel">Pedidos totales</p>
+                  <p className="text-lg font-bold text-espresso-800">{selected.totalOrders || 0}</p>
+                </div>
+                <div className="bg-cream-50 rounded-xl p-3">
+                  <p className="text-[10px] text-steel">Total gastado</p>
+                  <p className="text-lg font-bold text-olive-600">${(selected.totalSpent || 0).toLocaleString('es-CO')}</p>
                 </div>
               </div>
-              <div className="bg-cream-50 rounded-2xl p-5 space-y-3 text-sm border border-cream-200">
-                <div className="flex justify-between"><span className="text-steel">Teléfono</span><span className="font-semibold text-espresso-800">{clienteDetalle.telefono}</span></div>
-                <div className="flex justify-between"><span className="text-steel">Nivel</span><span className={`font-bold capitalize ${clienteDetalle.nivel === 'oro' ? 'text-gold-500' : 'text-espresso-800'}`}>{clienteDetalle.nivel}</span></div>
-                <div className="flex justify-between"><span className="text-steel">Puntos</span><span className="font-bold text-olive-500">{clienteDetalle.puntos}</span></div>
-                <div className="flex justify-between"><span className="text-steel">Pedidos</span><span className="font-semibold text-espresso-800">{clienteDetalle.historialPedidos.length}</span></div>
-                <div className="flex justify-between"><span className="text-steel">Registro</span><span className="font-semibold text-espresso-800">{new Date(clienteDetalle.createdAt).toLocaleDateString('es-CO')}</span></div>
-              </div>
-              <div className="flex justify-end mt-6">
-                <button onClick={() => setSelected(null)} className="btn-secondary text-sm py-2.5">Cerrar</button>
-              </div>
+              {selected.lastOrder && (
+                <p className="text-xs text-steel text-center">Último pedido: {new Date(selected.lastOrder).toLocaleDateString('es-CO')}</p>
+              )}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
