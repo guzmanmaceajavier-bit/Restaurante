@@ -39,6 +39,14 @@ import AdminResenas from '../pages/AdminResenas'
 import AdminCocina from '../pages/AdminCocina'
 import AdminMesas from '../pages/AdminMesas'
 import AdminConfig from '../pages/AdminConfig'
+import AdminCategorias from '../pages/AdminCategorias'
+import AdminPromociones from '../pages/AdminPromociones'
+import AdminInventario from '../pages/AdminInventario'
+import AdminFinanzas from '../pages/AdminFinanzas'
+import AdminReportes from '../pages/AdminReportes'
+import AdminSegmentacion from '../pages/AdminSegmentacion'
+import AdminActividad from '../pages/AdminActividad'
+import AdminBackup from '../pages/AdminBackup'
 
 import { RoutesPath } from './routes'
 
@@ -87,6 +95,14 @@ export default function MainRoutes() {
         <Route path={RoutesPath.adminCocina} element={<AdminCocina />} />
         <Route path={RoutesPath.adminMesas} element={<AdminMesas />} />
         <Route path="/admin-config" element={<AdminConfig />} />
+        <Route path={RoutesPath.adminCategorias} element={<AdminCategorias />} />
+        <Route path={RoutesPath.adminPromociones} element={<AdminPromociones />} />
+        <Route path={RoutesPath.adminInventario} element={<AdminInventario />} />
+        <Route path={RoutesPath.adminFinanzas} element={<AdminFinanzas />} />
+        <Route path={RoutesPath.adminReportes} element={<AdminReportes />} />
+        <Route path={RoutesPath.adminSegmentacion} element={<AdminSegmentacion />} />
+        <Route path={RoutesPath.adminActividad} element={<AdminActividad />} />
+        <Route path={RoutesPath.adminBackup} element={<AdminBackup />} />
       </Route>
 
       {/* 404 */}

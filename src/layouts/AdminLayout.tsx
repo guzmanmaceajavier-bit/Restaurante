@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
-import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog } from 'react-icons/fa'
+import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog, FaTags, FaTag, FaClipboardList, FaDollarSign, FaChartBar, FaUserFriends, FaHistory, FaDatabase } from 'react-icons/fa'
 import DarkModeToggle from '../components/core/DarkModeToggle'
 import { AdminSkeleton } from '../components/core/LoadingSkeleton'
 import { useLoading } from '../hooks/useLoading'
@@ -17,6 +17,14 @@ const navItems = [
   { label: 'Clientes', icon: FaUsers, link: '/admin-clientes' },
   { label: 'Reseñas', icon: FaStar, link: '/admin-resenas' },
   { label: 'WhatsApp', icon: FaComments, link: '/admin-whatsapp' },
+  { label: 'Categorías', icon: FaTags, link: '/admin-categorias' },
+  { label: 'Promociones', icon: FaTag, link: '/admin-promociones' },
+  { label: 'Inventario', icon: FaClipboardList, link: '/admin-inventario' },
+  { label: 'Finanzas', icon: FaDollarSign, link: '/admin-finanzas' },
+  { label: 'Reportes', icon: FaChartBar, link: '/admin-reportes' },
+  { label: 'Segmentación', icon: FaUserFriends, link: '/admin-segmentacion' },
+  { label: 'Actividad', icon: FaHistory, link: '/admin-actividad' },
+  { label: 'Backup', icon: FaDatabase, link: '/admin-backup' },
   { label: 'Configuración', icon: FaCog, link: '/admin-config' },
 ]
 

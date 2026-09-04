@@ -32,4 +32,12 @@ export const RoutesPath = {
   orderTrackingBase: '/seguimiento',
   aboutUs: '/nosotros',
   forgotPassword: '/recuperar-contrasena',
+  adminCategorias: '/admin-categorias',
+  adminPromociones: '/admin-promociones',
+  adminInventario: '/admin-inventario',
+  adminFinanzas: '/admin-finanzas',
+  adminReportes: '/admin-reportes',
+  adminSegmentacion: '/admin-segmentacion',
+  adminActividad: '/admin-actividad',
+  adminBackup: '/admin-backup',
 }
