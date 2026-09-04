@@ -47,6 +47,7 @@ import AdminReportes from '../pages/AdminReportes'
 import AdminSegmentacion from '../pages/AdminSegmentacion'
 import AdminActividad from '../pages/AdminActividad'
 import AdminBackup from '../pages/AdminBackup'
+import AdminHorarios from '../pages/AdminHorarios'
 
 import { RoutesPath } from './routes'
 
@@ -103,6 +104,7 @@ export default function MainRoutes() {
         <Route path={RoutesPath.adminSegmentacion} element={<AdminSegmentacion />} />
         <Route path={RoutesPath.adminActividad} element={<AdminActividad />} />
         <Route path={RoutesPath.adminBackup} element={<AdminBackup />} />
+        <Route path={RoutesPath.adminHorarios} element={<AdminHorarios />} />
       </Route>
 
       {/* 404 */}

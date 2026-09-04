@@ -40,4 +40,5 @@ export const RoutesPath = {
   adminSegmentacion: '/admin-segmentacion',
   adminActividad: '/admin-actividad',
   adminBackup: '/admin-backup',
+  adminHorarios: '/admin-horarios',
 }

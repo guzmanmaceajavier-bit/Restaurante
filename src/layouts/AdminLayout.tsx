@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
-import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog, FaTags, FaTag, FaClipboardList, FaDollarSign, FaChartBar, FaUserFriends, FaHistory, FaDatabase } from 'react-icons/fa'
+import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog, FaTags, FaTag, FaClipboardList, FaDollarSign, FaChartBar, FaUserFriends, FaHistory, FaDatabase, FaClock } from 'react-icons/fa'
 import DarkModeToggle from '../components/core/DarkModeToggle'
 import { AdminSkeleton } from '../components/core/LoadingSkeleton'
 import { useLoading } from '../hooks/useLoading'
@@ -25,6 +25,7 @@ const navItems = [
   { label: 'Segmentación', icon: FaUserFriends, link: '/admin-segmentacion' },
   { label: 'Actividad', icon: FaHistory, link: '/admin-actividad' },
   { label: 'Backup', icon: FaDatabase, link: '/admin-backup' },
+  { label: 'Horarios', icon: FaClock, link: '/admin-horarios' },
   { label: 'Configuración', icon: FaCog, link: '/admin-config' },
 ]
 

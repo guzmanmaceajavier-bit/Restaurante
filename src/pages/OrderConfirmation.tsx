@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
-import { FaCheckCircle, FaWhatsapp, FaHome, FaUtensils, FaStar, FaMotorcycle, FaShoppingBag, FaClock } from 'react-icons/fa'
+import { FaCheckCircle, FaWhatsapp, FaHome, FaUtensils, FaStar, FaMotorcycle, FaShoppingBag, FaClock, FaPrint } from 'react-icons/fa'
 import { SEO } from '../lib/seo'
+import { imprimirPedido } from '../components/admin/PrintTicket'
 import type { Order } from '../types/order'
 import { toast } from 'sonner'
 
@@ -123,6 +124,14 @@ export default function OrderConfirmation() {
               className="flex items-center justify-center gap-2 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3.5 rounded-xl transition-all shadow-md shadow-emerald-500/20 active:scale-95">
               <FaWhatsapp size={18} /> Dar seguimiento por WhatsApp
             </a>
+
+            {/* Print */}
+            <button
+              onClick={() => imprimirPedido(order)}
+              className="flex items-center justify-center gap-2 w-full bg-cream-100 hover:bg-cream-200 text-espresso-700 font-semibold py-3.5 rounded-xl border border-cream-200 transition-all active:scale-95"
+            >
+              <FaPrint size={16} /> Imprimir ticket
+            </button>
 
             {/* Feedback */}
             <div className="bg-olive-50 border border-olive-200 rounded-2xl p-5 text-center">

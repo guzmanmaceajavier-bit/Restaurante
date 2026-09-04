@@ -1,11 +1,12 @@
 import { useEffect, useState, useMemo } from 'react'
 import { storage } from '../lib/storage'
 import { toast } from 'sonner'
-import { FaSearch, FaWhatsapp, FaEye, FaFilter, FaTimes } from 'react-icons/fa'
+import { FaSearch, FaWhatsapp, FaEye, FaFilter, FaTimes, FaPrint } from 'react-icons/fa'
 import EmptyState from '../components/core/EmptyState'
 import type { Order } from '../types/order'
 import { Pagination } from '../components/admin/Pagination'
 import { ExportButton } from '../components/admin/ExportButton'
+import { imprimirPedido } from '../components/admin/PrintTicket'
 
 const ITEMS_PER_PAGE = 10
 
@@ -136,6 +137,9 @@ export default function AdminOrdenes() {
                             <button onClick={() => setSelected(o)} className="p-1.5 rounded-lg hover:bg-cream-100 transition-all" title="Ver detalle">
                               <FaEye size={13} className="text-steel" />
                             </button>
+                            <button onClick={() => imprimirPedido(o)} className="p-1.5 rounded-lg hover:bg-cream-100 transition-all" title="Imprimir">
+                              <FaPrint size={13} className="text-steel" />
+                            </button>
                             {o.phone && (
                               <a href={`https://wa.me/${o.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hola ${o.fullName}, sobre tu pedido #${o.id}: `)}`}
                                 target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg hover:bg-emerald-50 transition-all" title="WhatsApp">
@@ -205,6 +209,12 @@ export default function AdminOrdenes() {
                   <span className="font-bold text-espresso-800">Total</span>
                   <span className="font-bold text-olive-600 text-lg">${Number(selected.total).toLocaleString('es-CO')}</span>
                 </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button onClick={() => imprimirPedido(selected)} className="flex items-center gap-2 bg-cream-100 hover:bg-cream-200 text-espresso-700 py-2 px-4 rounded-xl text-sm font-medium transition-all border border-cream-200">
+                  <FaPrint size={13} /> Imprimir
+                </button>
               </div>
 
               <div>
