@@ -48,6 +48,7 @@ import AdminSegmentacion from '../pages/AdminSegmentacion'
 import AdminActividad from '../pages/AdminActividad'
 import AdminBackup from '../pages/AdminBackup'
 import AdminHorarios from '../pages/AdminHorarios'
+import ClientLayout from '../layouts/ClientLayout'
 
 import { RoutesPath } from './routes'
 
@@ -71,12 +72,16 @@ export default function MainRoutes() {
         <Route path={RoutesPath.orderHistory} element={<OrderHistory />} />
         <Route path={RoutesPath.politicaPrivacidad} element={<PoliticaPrivacidad />} />
         <Route path={RoutesPath.terminosCondiciones} element={<TerminosCondiciones />} />
+        <Route path={RoutesPath.aboutUs} element={<AboutUs />} />
+        <Route path={RoutesPath.orderTrackingBase} element={<OrderTracking />} />
+        <Route path={RoutesPath.orderTracking(':id')} element={<OrderTracking />} />
+      </Route>
+
+      {/* Client portal - independent layout */}
+      <Route element={<ClientLayout />}>
         <Route path={RoutesPath.clientLogin} element={<ClientLogin />} />
         <Route path={RoutesPath.clientRegister} element={<ClientLogin />} />
         <Route path={RoutesPath.clientPanel} element={<ClientPanel />} />
-        <Route path={RoutesPath.orderTrackingBase} element={<OrderTracking />} />
-        <Route path={RoutesPath.orderTracking(':id')} element={<OrderTracking />} />
-        <Route path={RoutesPath.aboutUs} element={<AboutUs />} />
         <Route path={RoutesPath.forgotPassword} element={<ForgotPassword />} />
       </Route>
 
