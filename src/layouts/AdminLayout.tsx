@@ -4,6 +4,8 @@ import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
 import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog } from 'react-icons/fa'
 import DarkModeToggle from '../components/core/DarkModeToggle'
+import { AdminSkeleton } from '../components/core/LoadingSkeleton'
+import { useLoading } from '../hooks/useLoading'
 
 const navItems = [
   { label: 'Dashboard', icon: FaHome, link: '/admin-dashboard' },
@@ -22,6 +24,7 @@ export default function AdminLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const loading = useLoading(300)
 
   useEffect(() => {
     if (!storage.isAdmin()) navigate('/admin-login')
@@ -33,6 +36,8 @@ export default function AdminLayout() {
   }
 
   const currentNav = navItems.find(n => location.pathname.startsWith(n.link))
+
+  if (loading) return <AdminSkeleton />
 
   return (
     <div className="min-h-screen bg-cream-50 dark:bg-[#1a1f16] flex">
