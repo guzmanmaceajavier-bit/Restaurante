@@ -6,6 +6,7 @@ import { FaSearch, FaWhatsapp, FaFilter, FaTimes, FaCheck, FaBan, FaEdit, FaTras
 import type { ReservaData as Reserva } from '../types/ReservaData'
 import clsx from 'clsx'
 import { Pagination } from '../components/admin/Pagination'
+import { ExportButton } from '../components/admin/ExportButton'
 
 const ITEMS_PER_PAGE = 10
 
@@ -63,6 +64,11 @@ export default function AdminReservas() {
           <p className="text-steel text-sm mt-1">{reservasFiltradas.length} reserva{reservasFiltradas.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="flex items-center gap-2">
+          <ExportButton data={reservasFiltradas} filename="reservas" columns={[
+            { key: 'id', label: 'ID' }, { key: 'nombre', label: 'Nombre' }, { key: 'email', label: 'Email' },
+            { key: 'fecha', label: 'Fecha' }, { key: 'hora', label: 'Hora' }, { key: 'personas', label: 'Personas' },
+            { key: 'estado', label: 'Estado' }
+          ]} />
           <button onClick={() => setShowFilters(!showFilters)} className={clsx('flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border', showFilters ? 'bg-olive-50 border-olive-200 text-olive-700' : 'bg-white border-cream-200 text-espresso-600 hover:bg-cream-50')}>
             <FaFilter size={12} /> Filtros {(filtroEstado || busqueda) && <span className="w-2 h-2 bg-olive-500 rounded-full" />}
           </button>

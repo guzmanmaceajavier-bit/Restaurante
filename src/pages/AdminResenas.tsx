@@ -3,6 +3,7 @@ import { storage } from '../lib/storage'
 import { toast } from 'sonner'
 import { FaSearch, FaStar, FaReply, FaTrash } from 'react-icons/fa'
 import { Pagination } from '../components/admin/Pagination'
+import { ExportButton } from '../components/admin/ExportButton'
 
 const ITEMS_PER_PAGE = 8
 
@@ -63,9 +64,15 @@ export default function AdminResenas() {
           <h1 className="text-2xl font-display font-bold text-espresso-800">Reseñas</h1>
           <p className="text-steel text-sm mt-1">{filtradas.length} reseña{filtradas.length !== 1 ? 's' : ''}</p>
         </div>
-        <div className="relative">
-          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
-          <input type="text" value={busqueda} onChange={(e) => { setBusqueda(e.target.value); setPage(1) }} placeholder="Buscar..." className="input-base pl-11 text-sm w-64" />
+        <div className="flex items-center gap-3">
+          <ExportButton data={filtradas} filename="resenas" columns={[
+            { key: 'nombre', label: 'Nombre' }, { key: 'estrellas', label: 'Estrellas' }, { key: 'comentario', label: 'Comentario' },
+            { key: 'fecha', label: 'Fecha' }, { key: 'respuestaAdmin', label: 'Respuesta' }
+          ]} />
+          <div className="relative">
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
+            <input type="text" value={busqueda} onChange={(e) => { setBusqueda(e.target.value); setPage(1) }} placeholder="Buscar..." className="input-base pl-11 text-sm w-64" />
+          </div>
         </div>
       </div>
 

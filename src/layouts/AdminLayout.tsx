@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
-import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft } from 'react-icons/fa'
+import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog } from 'react-icons/fa'
 
 const navItems = [
   { label: 'Dashboard', icon: FaHome, link: '/admin-dashboard' },
@@ -14,6 +14,7 @@ const navItems = [
   { label: 'Clientes', icon: FaUsers, link: '/admin-clientes' },
   { label: 'Reseñas', icon: FaStar, link: '/admin-resenas' },
   { label: 'WhatsApp', icon: FaComments, link: '/admin-whatsapp' },
+  { label: 'Configuración', icon: FaCog, link: '/admin-config' },
 ]
 
 export default function AdminLayout() {

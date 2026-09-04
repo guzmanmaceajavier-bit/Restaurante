@@ -35,6 +35,7 @@ import AdminClientes from '../pages/AdminClientes'
 import AdminResenas from '../pages/AdminResenas'
 import AdminCocina from '../pages/AdminCocina'
 import AdminMesas from '../pages/AdminMesas'
+import AdminConfig from '../pages/AdminConfig'
 
 import { RoutesPath } from './routes'
 
@@ -78,6 +79,7 @@ export default function MainRoutes() {
         <Route path={RoutesPath.adminResenas} element={<AdminResenas />} />
         <Route path={RoutesPath.adminCocina} element={<AdminCocina />} />
         <Route path={RoutesPath.adminMesas} element={<AdminMesas />} />
+        <Route path="/admin-config" element={<AdminConfig />} />
       </Route>
 
       {/* 404 */}

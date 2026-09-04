@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { FaSearch, FaWhatsapp, FaEye, FaFilter, FaTimes } from 'react-icons/fa'
 import type { Order } from '../types/order'
 import { Pagination } from '../components/admin/Pagination'
+import { ExportButton } from '../components/admin/ExportButton'
 
 const ITEMS_PER_PAGE = 10
 
@@ -65,6 +66,10 @@ export default function AdminOrdenes() {
           <p className="text-steel text-sm mt-1">{ordenesFiltradas.length} pedido{ordenesFiltradas.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="flex items-center gap-2">
+          <ExportButton data={ordenesFiltradas} filename="pedidos" columns={[
+            { key: 'id', label: 'ID' }, { key: 'fullName', label: 'Cliente' }, { key: 'phone', label: 'Teléfono' },
+            { key: 'total', label: 'Total' }, { key: 'estado', label: 'Estado' }, { key: 'createdAt', label: 'Fecha' }
+          ]} />
           <button onClick={() => setShowFilters(!showFilters)} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${showFilters ? 'bg-olive-50 border-olive-200 text-olive-700' : 'bg-white border-cream-200 text-espresso-600 hover:bg-cream-50'}`}>
             <FaFilter size={12} /> Filtros {(filtroEstado || busqueda) && <span className="w-2 h-2 bg-olive-500 rounded-full" />}
           </button>

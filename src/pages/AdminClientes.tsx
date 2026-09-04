@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { storage } from '../lib/storage'
 import { FaSearch, FaEye, FaUsers, FaShoppingBag, FaPhone, FaEnvelope } from 'react-icons/fa'
 import { Pagination } from '../components/admin/Pagination'
+import { ExportButton } from '../components/admin/ExportButton'
 
 const ITEMS_PER_PAGE = 10
 
@@ -57,9 +58,15 @@ export default function AdminClientes() {
           <h1 className="text-2xl font-display font-bold text-espresso-800">Clientes</h1>
           <p className="text-steel text-sm mt-1">{filtrados.length} cliente{filtrados.length !== 1 ? 's' : ''}</p>
         </div>
-        <div className="relative">
-          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
-          <input type="text" value={busqueda} onChange={(e) => { setBusqueda(e.target.value); setPage(1) }} placeholder="Buscar..." className="input-base pl-11 text-sm w-64" />
+        <div className="flex items-center gap-3">
+          <ExportButton data={filtrados} filename="clientes" columns={[
+            { key: 'nombre', label: 'Nombre' }, { key: 'email', label: 'Email' }, { key: 'telefono', label: 'Teléfono' },
+            { key: 'totalOrders', label: 'Pedidos' }, { key: 'totalSpent', label: 'Total gastado' }, { key: 'level', label: 'Nivel' }
+          ]} />
+          <div className="relative">
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
+            <input type="text" value={busqueda} onChange={(e) => { setBusqueda(e.target.value); setPage(1) }} placeholder="Buscar..." className="input-base pl-11 text-sm w-64" />
+          </div>
         </div>
       </div>
 
