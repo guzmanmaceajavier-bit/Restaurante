@@ -12,6 +12,7 @@ import DarkModeToggle from '../components/core/DarkModeToggle'
 const navLinks = [
   { label: 'Inicio', path: RoutesPath.home },
   { label: 'Menú', path: RoutesPath.menu },
+  { label: 'Nosotros', path: RoutesPath.aboutUs },
   { label: 'Reservas', path: RoutesPath.reserve },
   { label: 'Contacto', path: RoutesPath.contact },
 ]

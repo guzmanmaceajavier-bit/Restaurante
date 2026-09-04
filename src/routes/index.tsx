@@ -20,6 +20,9 @@ import PoliticaPrivacidad from '../pages/PoliticaPrivacidad'
 import TerminosCondiciones from '../pages/TerminosCondiciones'
 import ClientLogin from '../pages/ClientLogin'
 import ClientPanel from '../pages/ClientPanel'
+import OrderTracking from '../pages/OrderTracking'
+import AboutUs from '../pages/AboutUs'
+import ForgotPassword from '../pages/ForgotPassword'
 
 // Admin pages
 import GestionReserva from '../pages/GestionReserva'
@@ -62,6 +65,10 @@ export default function MainRoutes() {
         <Route path={RoutesPath.clientLogin} element={<ClientLogin />} />
         <Route path={RoutesPath.clientRegister} element={<ClientLogin />} />
         <Route path={RoutesPath.clientPanel} element={<ClientPanel />} />
+        <Route path={RoutesPath.orderTrackingBase} element={<OrderTracking />} />
+        <Route path={RoutesPath.orderTracking(':id')} element={<OrderTracking />} />
+        <Route path={RoutesPath.aboutUs} element={<AboutUs />} />
+        <Route path={RoutesPath.forgotPassword} element={<ForgotPassword />} />
       </Route>
 
       {/* Admin login */}

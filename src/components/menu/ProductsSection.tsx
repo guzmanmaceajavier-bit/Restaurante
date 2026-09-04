@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { dataService } from '../../lib/dataService'
 import { ProductCard } from '../core/ProductCard'
-import { FaSearch, FaSlidersH, FaTimes } from 'react-icons/fa'
+import { FaSearch, FaSlidersH, FaTimes, FaSortAmountDown } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 import { useLoading } from '@/hooks/useLoading'
 import { MenuSkeleton } from '../core/LoadingSkeleton'
@@ -22,6 +22,14 @@ const timeRanges = [
   { label: 'Rápido (< 15 min)', min: 0, max: 15 },
   { label: '15-30 min', min: 15, max: 30 },
   { label: 'Más de 30 min', min: 30, max: Infinity },
+]
+
+const sortOptions = [
+  { value: 'default', label: 'Predeterminado' },
+  { value: 'price-asc', label: 'Menor precio' },
+  { value: 'price-desc', label: 'Mayor precio' },
+  { value: 'best-sellers', label: 'Más vendidos' },
+  { value: 'newest', label: 'Nuevos primero' },
 ]
 
 export function ProductsSection() {
@@ -47,6 +55,7 @@ export function ProductsSection() {
   const [priceRange, setPriceRange] = useState(0)
   const [timeRange, setTimeRange] = useState(0)
   const [maxPicante, setMaxPicante] = useState(3)
+  const [sortBy, setSortBy] = useState('default')
   const { ref, isVisible } = useScrollAnimate(0.05)
 
   useEffect(() => { if (categoriaUrl) setCategoriaSeleccionada(categoriaUrl) }, [categoriaUrl])
@@ -77,8 +86,14 @@ export function ProductsSection() {
     const tr = timeRanges[timeRange]
     filtrados = filtrados.filter((item) => (item.tiempoPreparacion ?? 0) >= tr.min && (item.tiempoPreparacion ?? 0) < tr.max)
     filtrados = filtrados.filter((item) => (item.picante ?? 0) <= maxPicante)
+    switch (sortBy) {
+      case 'price-asc': filtrados = [...filtrados].sort((a, b) => (a.precio ?? 0) - (b.precio ?? 0)); break
+      case 'price-desc': filtrados = [...filtrados].sort((a, b) => (b.precio ?? 0) - (a.precio ?? 0)); break
+      case 'best-sellers': filtrados = [...filtrados].sort((a, b) => ((b as any).ventas ?? 0) - ((a as any).ventas ?? 0)); break
+      case 'newest': filtrados = [...filtrados].sort((a, b) => ((b as any).nuevo ? 1 : 0) - ((a as any).nuevo ? 1 : 0)); break
+    }
     return filtrados
-  }, [categoriaSeleccionada, busqueda, allProducts, priceRange, timeRange, maxPicante])
+  }, [categoriaSeleccionada, busqueda, allProducts, priceRange, timeRange, maxPicante, sortBy])
 
   const totalPaginas = Math.ceil(productosFiltrados.length / ITEMS_PER_PAGE)
   const productosPagina = productosFiltrados.slice((paginaActual - 1) * ITEMS_PER_PAGE, paginaActual * ITEMS_PER_PAGE)
@@ -155,8 +170,15 @@ export function ProductsSection() {
           </div>
         </div>
 
-        {/* Filter toggle */}
-        <div className="flex justify-end mb-4">
+        {/* Filter toggle + Sort */}
+        <div className="flex justify-end items-center gap-2 mb-4">
+          <div className="relative">
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
+              className="appearance-none bg-white border border-cream-200 hover:border-olive-300 text-espresso-600 text-sm font-medium rounded-xl px-4 py-2 pr-8 cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-olive-200">
+              {sortOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+            <FaSortAmountDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-steel pointer-events-none" />
+          </div>
           <button onClick={() => setShowFilters(!showFilters)}
             className={clsx('flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border',
               showFilters || hasActiveFilters ? 'bg-olive-500 text-white border-olive-500' : 'bg-white text-espresso-600 border-cream-200 hover:border-olive-300')}>

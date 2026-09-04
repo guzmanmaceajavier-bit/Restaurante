@@ -1,6 +1,6 @@
 import { MdDeliveryDining } from 'react-icons/md'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useProducts } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
 import { numberFormatter } from '../../utils/numberFormatter'
@@ -11,8 +11,13 @@ import LogoEfectivo from '../../assets/efectivo.avif'
 import LogoBancolombia from '../../assets/logo-bancolombia.png'
 import LogoNequi from '../../assets/nequi _logo.webp'
 import type { IProduct, Adicional } from '../../types/product'
-import { FaClock, FaFire, FaLeaf, FaArrowLeft, FaCheck } from 'react-icons/fa'
+import { FaClock, FaFire, FaLeaf, FaArrowLeft, FaCheck, FaHeart, FaShareAlt, FaStar } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
+import { useFavorites } from '@/hooks/useFavorites'
+import { storage } from '../../lib/storage'
+import { toast } from 'sonner'
+
+interface ResenaLocal { id: number; nombre: string; estrellas: number; comentario: string; fecha: string }
 
 const picanteLabels = ['', '🌶️ Poco picante', '🌶️🌶️ Picante', '🌶️🌶️🌶️ Muy picante']
 
@@ -28,6 +33,17 @@ export function DetailView() {
   const [selectedAdicionales, setSelectedAdicionales] = useState<Adicional[]>([])
   const [addedToCart, setAddedToCart] = useState(false)
   const { ref } = useScrollAnimate(0.1)
+  const { isFavorite, toggleFavorite } = useFavorites()
+
+  const reviews = useMemo(() => {
+    const all = storage.getResenas<ResenaLocal>()
+    return all.filter((r) => r.nombre?.toLowerCase().includes(productById?.nombre?.toLowerCase() || ''))
+  }, [productById])
+
+  const avgRating = useMemo(() => {
+    if (reviews.length === 0) return 0
+    return reviews.reduce((s, r) => s + r.estrellas, 0) / reviews.length
+  }, [reviews])
 
   useEffect(() => {
     if (!productById) return
@@ -101,6 +117,16 @@ export function DetailView() {
                 {productById.recomendado && <span className="bg-sage-600 text-white text-xs font-bold px-3 py-1 rounded-full">Del chef</span>}
                 {productById.nuevo && <span className="bg-gold-500 text-espresso-900 text-xs font-bold px-3 py-1 rounded-full">Nuevo</span>}
               </div>
+
+              {/* Favorite & Share buttons */}
+              <div className="absolute top-4 right-4 flex gap-2">
+                <button onClick={() => toggleFavorite(productById.id)} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg ${isFavorite(productById.id) ? 'bg-red-500 text-white' : 'bg-white/90 text-espresso-600 hover:bg-white hover:text-red-500'}`}>
+                  <FaHeart size={16} fill={isFavorite(productById.id) ? 'currentColor' : 'none'} />
+                </button>
+                <button onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success('Enlace copiado') }} className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center text-espresso-600 hover:bg-white hover:text-olive-600 transition-all shadow-lg">
+                  <FaShareAlt size={16} />
+                </button>
+              </div>
             </div>
 
             <div className="flex flex-col p-8 md:p-10">
@@ -142,6 +168,21 @@ export function DetailView() {
                 {productById.alergenos && productById.alergenos.length > 0 && (
                   <div className="mt-4 p-3 bg-gold-50 border border-gold-200 rounded-xl">
                     <p className="text-xs font-semibold text-gold-700">⚠️ Contiene: {productById.alergenos.join(', ')}</p>
+                  </div>
+                )}
+
+                {/* Ratings summary */}
+                {reviews.length > 0 && (
+                  <div className="mt-5 p-4 bg-cream-50 rounded-xl border border-cream-200">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map(s => (
+                          <FaStar key={s} size={14} className={s <= Math.round(avgRating) ? 'text-gold-400' : 'text-cream-300'} fill={s <= Math.round(avgRating) ? 'currentColor' : 'none'} />
+                        ))}
+                      </div>
+                      <span className="text-sm font-bold text-espresso-700">{avgRating.toFixed(1)}</span>
+                      <span className="text-xs text-steel">({reviews.length} reseña{reviews.length !== 1 ? 's' : ''})</span>
+                    </div>
                   </div>
                 )}
 

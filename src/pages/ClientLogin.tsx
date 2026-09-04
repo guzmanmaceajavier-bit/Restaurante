@@ -89,6 +89,9 @@ export default function ClientLogin() {
                   {showPass ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
                 </button>
               </div>
+              {!isRegister && (
+                <Link to="/recuperar-contrasena" className="text-xs text-olive-500 hover:text-olive-600 mt-2 inline-block">¿Olvidaste tu contraseña?</Link>
+              )}
             </div>
             <button type="submit" className="w-full btn-primary py-4 text-base flex items-center justify-center gap-2">
               {isRegister ? 'Crear cuenta' : 'Iniciar sesión'}

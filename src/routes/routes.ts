@@ -28,4 +28,8 @@ export const RoutesPath = {
   clientLogin: '/login',
   clientRegister: '/registro',
   clientPanel: '/mi-cuenta',
+  orderTracking: '/seguimiento/:id',
+  orderTrackingBase: '/seguimiento',
+  aboutUs: '/nosotros',
+  forgotPassword: '/recuperar-contrasena',
 }
