@@ -1,5 +1,4 @@
 import { Component, type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 import { FaRedo } from 'react-icons/fa'
 
 interface Props { children: ReactNode }
@@ -29,9 +28,9 @@ export default class ErrorBoundary extends Component<Props, State> {
               <button onClick={() => this.setState({ hasError: false })} className="btn-primary inline-flex items-center gap-2">
                 <FaRedo size={14} /> Reintentar
               </button>
-              <Link to="/" className="inline-flex items-center gap-2 px-6 py-3 border border-cream-200 dark:border-[#3d4a2e] rounded-xl text-espresso-600 dark:text-cream-400 hover:bg-cream-50 dark:hover:bg-[#252e1e] transition-colors font-medium">
+              <a href="/" className="inline-flex items-center gap-2 px-6 py-3 border border-cream-200 dark:border-[#3d4a2e] rounded-xl text-espresso-600 dark:text-cream-400 hover:bg-cream-50 dark:hover:bg-[#252e1e] transition-colors font-medium">
                 Volver al inicio
-              </Link>
+              </a>
             </div>
           </div>
         </section>

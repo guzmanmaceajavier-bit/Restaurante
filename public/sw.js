@@ -1,24 +1,6 @@
-const CACHE_NAME = 'sabor-y-origen-v2'
-const STATIC_CACHE = 'sabor-static-v2'
-const DYNAMIC_CACHE = 'sabor-dynamic-v2'
+const CACHE_NAME = 'sabor-y-origen-v3'
 
-const STATIC_ASSETS = [
-  '/',
-  '/menu',
-  '/reservas',
-  '/contacto',
-  '/galeria',
-  '/eventos',
-  '/promociones',
-  '/nosotros',
-  '/login',
-  '/mi-cuenta',
-]
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS))
-  )
+self.addEventListener('install', () => {
   self.skipWaiting()
 })
 
@@ -27,7 +9,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key !== STATIC_CACHE && key !== DYNAMIC_CACHE)
+          .filter((key) => key !== CACHE_NAME)
           .map((key) => caches.delete(key))
       )
     )
@@ -39,17 +21,21 @@ self.addEventListener('fetch', (event) => {
   const { request } = event
   if (request.method !== 'GET') return
 
+  const url = new URL(request.url)
+
+  if (url.origin !== location.origin) return
+
   event.respondWith(
     caches.match(request).then((cached) => {
       const fetchPromise = fetch(request)
         .then((response) => {
-          if (response && response.status === 200) {
+          if (response && response.status === 200 && response.type === 'basic') {
             const clone = response.clone()
-            caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, clone))
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone))
           }
           return response
         })
-        .catch(() => cached)
+        .catch(() => cached || new Response('Offline', { status: 503 }))
 
       return cached || fetchPromise
     })
