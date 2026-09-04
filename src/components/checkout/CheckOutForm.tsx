@@ -4,7 +4,7 @@ import { CONFIG } from '../../lib/config'
 import { toast } from 'sonner'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import { validarCodigo, aplicarDescuento } from '../../lib/promociones'
+import { validarCodigo } from '../../lib/promociones'
 import type { Promocion } from '../../lib/config'
 import clsx from 'clsx'
 

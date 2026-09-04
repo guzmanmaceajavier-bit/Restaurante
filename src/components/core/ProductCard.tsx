@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { RoutesPath } from '../../routes/routes'
 import { TbShoppingBagPlus } from 'react-icons/tb'
-import { FaHeart, FaShareAlt, FaClock, FaWhatsapp } from 'react-icons/fa'
+import { FaHeart, FaShareAlt, FaClock } from 'react-icons/fa'
 import { useCartStore } from '../../store/useCartStore'
 import { useAuthStore } from '../../store/useAuthStore'
 import { useFavorites } from '../../hooks/useFavorites'
@@ -30,10 +30,9 @@ export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, 
   const clienteActual = useAuthStore((s) => s.clienteActual)
   const { toggleFavorite, isFavorite } = useFavorites(clienteActual?.telefono)
   const [descExpanded, setDescExpanded] = useState(false)
-  const [showShare, setShowShare] = useState(false)
   const url = id ? encodeURIComponent(id) : ''
   const isInMenu = pathname === RoutesPath.menu
-  const productId = id || nombre
+  const productId = id || nombre || ''
   const isFav = isFavorite(productId)
 
   const stockLevel = stock !== undefined
@@ -52,7 +51,7 @@ export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, 
     e.preventDefault()
     e.stopPropagation()
     if (stockLevel === 'out') { toast.error(`${nombre} agotado`); return }
-    addToCart({ nombre, descripcion, precio, quantity: 1, imagen })
+    addToCart({ nombre: nombre || '', descripcion, precio: precio ?? 0, quantity: 1, imagen })
     toast.success(`${nombre} agregado`, {
       description: 'Tu pedido está en el carrito',
       action: { label: 'Ver carrito', onClick: () => {} },
@@ -77,7 +76,6 @@ export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, 
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`
     window.open(url, '_blank')
     toast.success('Compartido por WhatsApp')
-    setShowShare(false)
   }
 
   const content = (

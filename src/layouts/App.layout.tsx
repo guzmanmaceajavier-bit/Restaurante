@@ -2,14 +2,12 @@ import { Outlet, useLocation } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
 import { CartModal } from '../components/cart/CartModal'
-import { useCartStore } from '../store/useCartStore'
 import { useState } from 'react'
 import WhatsAppButton from '../components/core/WhatsAppButton'
 import BackToTop from '../components/core/BackToTop'
 
 export default function AppLayout() {
   const [cartOpen, setCartOpen] = useState(false)
-  const count = useCartStore((s) => s.count)
   const { pathname } = useLocation()
   const isAdmin = pathname.startsWith('/admin')
 

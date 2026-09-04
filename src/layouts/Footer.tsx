@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { RoutesPath } from '@/routes/routes'
 import { CONFIG } from '@/lib/config'
-import { FaInstagram, FaWhatsapp, FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock } from 'react-icons/fa'
+import { FaInstagram, FaWhatsapp, FaMapMarkerAlt, FaPhone, FaClock } from 'react-icons/fa'
 
 export default function Footer() {
   return (

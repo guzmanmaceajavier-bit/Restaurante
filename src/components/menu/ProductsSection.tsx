@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { dataService } from '../../lib/dataService'
 import { ProductCard } from '../core/ProductCard'
 import { FaSearch, FaSlidersH, FaTimes } from 'react-icons/fa'
@@ -24,7 +24,6 @@ const timeRanges = [
 
 export function ProductsSection() {
   const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
   const categoriaUrl = searchParams.get('categoria')
   const buscarUrl = searchParams.get('buscar')
   const allProducts = dataService.getProductos()

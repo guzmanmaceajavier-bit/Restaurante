@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import { FaCalendarAlt, FaUser, FaEnvelope, FaPhone, FaArrowRight, FaArrowLeft, FaMinus, FaPlus, FaUsers, FaCheck, FaBan, FaWhatsapp, FaCalendarPlus } from 'react-icons/fa'
+import { FaCalendarAlt, FaUser, FaArrowRight, FaArrowLeft, FaMinus, FaPlus, FaUsers, FaCheck, FaBan, FaWhatsapp, FaCalendarPlus } from 'react-icons/fa'
 import clsx from 'clsx'
 
 const HORAS = (() => { const h = []; for (let i = 11; i <= 21; i++) { h.push(`${i.toString().padStart(2, '0')}:00`); if (i < 21) h.push(`${i.toString().padStart(2, '0')}:30`) } return h })()
@@ -131,7 +131,7 @@ export default function Reserve() {
           initialValues={{ nombre: '', email: '', telefono: '', fecha: '', hora: '', personas: 2, ocasion: '', ocasionOtra: '', comentarios: '' }}
           validationSchema={fullSchema}
           validateOnMount={false}
-          onSubmit={(values, { resetForm }) => {
+          onSubmit={(values) => {
             const reservas = storage.getReservas()
             const id = `RES-${Date.now().toString(36).toUpperCase()}`
             const ocasionFinal = values.ocasion === 'Otra' ? values.ocasionOtra : values.ocasion

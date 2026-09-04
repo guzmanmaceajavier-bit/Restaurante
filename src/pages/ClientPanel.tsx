@@ -6,7 +6,7 @@ import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
-import { FaUser, FaShoppingBag, FaCalendarAlt, FaStar, FaSignOutAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaHeartBroken, FaUtensils } from 'react-icons/fa'
+import { FaUser, FaShoppingBag, FaCalendarAlt, FaStar, FaSignOutAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaUtensils } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 import { useFavorites } from '../hooks/useFavorites'
 import { dataService } from '../lib/dataService'
@@ -289,13 +289,12 @@ function MenuTab() {
   const [priceRange, setPriceRange] = useState<string | null>(null)
   const [prepTime, setPrepTime] = useState<string | null>(null)
   const [spiceLevel, setSpiceLevel] = useState(0)
-  const [showResults, setShowResults] = useState(false)
   const { favorites, toggleFavorite } = useFavorites()
   const allProducts = dataService.getProductos()
-  const { ref, isVisible } = useScrollAnimate(0.1)
+  const { isVisible } = useScrollAnimate(0.1)
 
   const categorias = useMemo(() => {
-    const cats = new Set(allProducts.map(p => p.categoria).filter(Boolean))
+    const cats = new Set(allProducts.map(p => (p as any)['categoría']).filter(Boolean))
     return Array.from(cats) as string[]
   }, [allProducts])
 
@@ -341,12 +340,12 @@ function MenuTab() {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setShowResults(e.target.value.length > 0) }}
+            onChange={(e) => { setSearchQuery(e.target.value) }}
             placeholder="Buscar platos, bebidas..."
             className="flex-1 bg-transparent text-sm text-espresso-800 placeholder:text-steel/50 outline-none"
           />
           {searchQuery && (
-            <button onClick={() => { setSearchQuery(''); setShowResults(false) }} className="text-steel hover:text-espresso-600 transition-colors text-xs">
+            <button onClick={() => { setSearchQuery('') }} className="text-steel hover:text-espresso-600 transition-colors text-xs">
               Limpiar
             </button>
           )}

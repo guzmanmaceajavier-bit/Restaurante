@@ -2,12 +2,6 @@ import { useState, useEffect, useCallback } from 'react'
 
 const FAV_KEY = 'sabor-favorites'
 
-function getFavorites(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(FAV_KEY) || '[]')
-  } catch { return [] }
-}
-
 export function useFavorites(clientId?: string) {
   const key = clientId ? `${FAV_KEY}-${clientId}` : FAV_KEY
   const [favorites, setFavorites] = useState<string[]>(() => {

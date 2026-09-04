@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import { dataService } from '../../lib/dataService'
 import { ProductCard } from '../../components/core/ProductCard'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
-import { FaStar } from 'react-icons/fa'
 
 export default function FeaturedItems() {
   const allProducts = dataService.getProductos()

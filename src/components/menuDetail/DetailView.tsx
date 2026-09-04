@@ -5,7 +5,7 @@ import { useProducts } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
 import { numberFormatter } from '../../utils/numberFormatter'
 import { Quantity } from '../cart/Quantity'
-import { ButtonCart } from '../cart/ButtonCart'
+import { CONFIG } from '../../lib/config'
 import ProductsSlider from '../home/ProductsSlider'
 import LogoEfectivo from '../../assets/efectivo.avif'
 import LogoBancolombia from '../../assets/logo-bancolombia.png'
@@ -27,7 +27,7 @@ export function DetailView() {
   const [isLoading, setIsLoading] = useState(true)
   const [selectedAdicionales, setSelectedAdicionales] = useState<Adicional[]>([])
   const [addedToCart, setAddedToCart] = useState(false)
-  const { ref, isVisible } = useScrollAnimate(0.1)
+  const { ref } = useScrollAnimate(0.1)
 
   useEffect(() => {
     if (!productById) return
