@@ -6,9 +6,10 @@ import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
-import { FaUser, FaShoppingBag, FaCalendarAlt, FaStar, FaSignOutAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaUtensils } from 'react-icons/fa'
+import { FaUser, FaShoppingBag, FaCalendarAlt, FaStar, FaSignOutAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaUtensils, FaGift, FaCog, FaHome, FaTrophy, FaCheckCircle, FaEdit, FaChevronRight, FaBell } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 import EmptyState from '../components/core/EmptyState'
+import ConfirmModal from '../components/core/ConfirmModal'
 import { useFavorites } from '../hooks/useFavorites'
 import { dataService } from '../lib/dataService'
 import type { Order } from '../types/order'
@@ -23,13 +24,14 @@ const estadoBadge: Record<string, { bg: string; text: string }> = {
   cancelado: { bg: 'bg-red-50 border-red-200', text: 'text-red-700' },
 }
 
-type Tab = 'perfil' | 'menu' | 'pedidos' | 'reservas' | 'favoritos'
+type Tab = 'inicio' | 'perfil' | 'menu' | 'pedidos' | 'reservas' | 'favoritos' | 'puntos' | 'recompensas' | 'config'
 
 export default function ClientPanel() {
   const { clienteActual, logout } = useAuthStore()
   const navigate = useNavigate()
   const addToCart = useCartStore((s) => s.addToCart)
   const [tab, setTab] = useState<Tab>('perfil')
+  const [confirmCancel, setConfirmCancel] = useState<string | null>(null)
   const { ref, isVisible } = useScrollAnimate(0.1)
   const { favorites, toggleFavorite } = useFavorites(clienteActual?.telefono)
 
@@ -73,15 +75,20 @@ export default function ClientPanel() {
     const reservas = storage.getReservas()
     const updated = reservas.map((res: any) => res.id === r.id ? { ...res, estado: 'Cancelada' } : res)
     storage.setReservas(updated)
+    setConfirmCancel(null)
     toast.success('Reserva cancelada')
   }
 
   const tabs: { id: Tab; icon: any; label: string }[] = [
+    { id: 'inicio', icon: FaHome, label: 'Inicio' },
     { id: 'perfil', icon: FaUser, label: 'Perfil' },
     { id: 'menu', icon: FaUtensils, label: 'Menú' },
     { id: 'pedidos', icon: FaShoppingBag, label: `Pedidos (${ordenes.length})` },
     { id: 'reservas', icon: FaCalendarAlt, label: `Reservas (${reservas.length})` },
     { id: 'favoritos', icon: FaHeart, label: `Favoritos (${favorites.length})` },
+    { id: 'puntos', icon: FaTrophy, label: 'Puntos' },
+    { id: 'recompensas', icon: FaGift, label: 'Recompensas' },
+    { id: 'config', icon: FaCog, label: 'Config' },
   ]
 
   return (
@@ -110,6 +117,48 @@ export default function ClientPanel() {
             </button>
           ))}
         </div>
+
+        {/* Inicio / Dashboard */}
+        {tab === 'inicio' && (
+          <div className="space-y-5">
+            <div className="bg-gradient-to-br from-olive-500 to-olive-700 rounded-3xl p-6 text-white">
+              <p className="text-sm opacity-80">Bienvenido de vuelta</p>
+              <h2 className="text-2xl font-display font-bold mt-1">{clienteActual.nombre.split(' ')[0]} 👋</h2>
+              <div className="flex items-center gap-2 mt-3">
+                <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-medium">{clienteActual.nivel || 'bronce'}</span>
+                <span className="text-sm opacity-80">{clienteActual.puntos || 0} puntos</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white rounded-2xl p-5 border border-cream-200 text-center">
+                <FaShoppingBag className="text-olive-500 mx-auto mb-2" size={20} />
+                <p className="text-2xl font-bold text-espresso-800">{ordenes.length}</p>
+                <p className="text-xs text-steel">Pedidos</p>
+              </div>
+              <div className="bg-white rounded-2xl p-5 border border-cream-200 text-center">
+                <FaCalendarAlt className="text-olive-500 mx-auto mb-2" size={20} />
+                <p className="text-2xl font-bold text-espresso-800">{reservas.length}</p>
+                <p className="text-xs text-steel">Reservas</p>
+              </div>
+            </div>
+            {ordenes.length > 0 && (
+              <div className="bg-white rounded-2xl border border-cream-200 p-5">
+                <h3 className="font-semibold text-espresso-800 mb-3 text-sm">Último pedido</h3>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-espresso-700">{ordenes[0].id}</p>
+                    <p className="text-xs text-steel">{new Date(ordenes[0].createdAt).toLocaleDateString('es-CO')}</p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${(estadoBadge[ordenes[0].estado] || estadoBadge.recibido).bg} ${(estadoBadge[ordenes[0].estado] || estadoBadge.recibido).text}`}>{ordenes[0].estado}</span>
+                </div>
+              </div>
+            )}
+            <div className="flex gap-3">
+              <Link to="/menu" className="flex-1 btn-primary text-center flex items-center justify-center gap-2 text-sm">Hacer pedido <FaArrowRight size={12} /></Link>
+              <Link to="/reservas" className="flex-1 py-3 bg-white border border-cream-200 text-espresso-700 font-semibold rounded-xl text-center text-sm hover:bg-cream-50 transition-all">Reservar mesa</Link>
+            </div>
+          </div>
+        )}
 
         {/* Profile */}
         {tab === 'perfil' && (
@@ -154,6 +203,11 @@ export default function ClientPanel() {
           </div>
         )}
 
+        {/* Menu inside panel */}
+        {tab === 'menu' && (
+          <MenuTab />
+        )}
+
         {/* Orders */}
         {tab === 'pedidos' && (
           <div className="space-y-3">
@@ -174,7 +228,6 @@ export default function ClientPanel() {
                         <p className="font-bold text-olive-500 text-sm mt-1">${Number(o.total).toLocaleString('es-CO')}</p>
                       </div>
                     </div>
-                    {/* Items list */}
                     <div className="bg-cream-50 rounded-xl p-3 mb-3 border border-cream-100">
                       {o.items?.map((item: any, j: number) => (
                         <div key={j} className="flex justify-between text-xs py-1">
@@ -225,7 +278,7 @@ export default function ClientPanel() {
                   </div>
                   <div className="flex gap-2">
                     {r.estado !== 'Cancelada' && (
-                      <button onClick={() => handleCancelReserva(r)}
+                      <button onClick={() => setConfirmCancel(r.id)}
                         className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-600 font-medium px-3 py-1.5 rounded-lg hover:bg-red-50 transition-all">
                         Cancelar
                       </button>
@@ -273,11 +326,96 @@ export default function ClientPanel() {
           </div>
         )}
 
-        {/* Menu inside panel */}
-        {tab === 'menu' && (
-          <MenuTab />
+        {/* Puntos */}
+        {tab === 'puntos' && (
+          <div className="space-y-5">
+            <div className="bg-gradient-to-br from-gold-400 to-gold-600 rounded-3xl p-6 text-white text-center">
+              <FaTrophy size={32} className="mx-auto mb-3 opacity-80" />
+              <p className="text-4xl font-display font-bold">{clienteActual.puntos || 0}</p>
+              <p className="text-sm opacity-80 mt-1">Puntos acumulados</p>
+              <div className="mt-4 bg-white/20 rounded-full h-2 overflow-hidden">
+                <div className="h-full bg-white rounded-full transition-all" style={{ width: `${Math.min(((clienteActual.puntos || 0) % 100), 100)}%` }} />
+              </div>
+              <p className="text-xs opacity-70 mt-2">{100 - ((clienteActual.puntos || 0) % 100)} puntos para el siguiente nivel</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-cream-200 p-5">
+              <h3 className="font-semibold text-espresso-800 mb-3 text-sm">Nivel actual: {clienteActual.nivel || 'bronce'}</h3>
+              <div className="space-y-2">
+                {[{ name: 'Bronce', min: 0, color: 'bg-orange-400' }, { name: 'Plata', min: 5, color: 'bg-gray-400' }, { name: 'Oro', min: 10, color: 'bg-gold-400' }, { name: 'Diamante', min: 20, color: 'bg-blue-400' }].map(l => (
+                  <div key={l.name} className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${l.color}`} />
+                    <span className="text-xs text-espresso-700 flex-1">{l.name} ({l.min}+ pedidos)</span>
+                    {(ordenes.length >= l.min) && <FaCheckCircle size={14} className="text-sage-500" />}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-cream-200 p-5">
+              <h3 className="font-semibold text-espresso-800 mb-3 text-sm">Cómo ganar puntos</h3>
+              <div className="space-y-2 text-xs text-steel">
+                <p>• Gana 1 punto por cada $10.000 gastados</p>
+                <p>• 100 puntos = $10.000 de descuento</p>
+                <p>• Acumula pedidos para subir de nivel</p>
+              </div>
+            </div>
+          </div>
         )}
+
+        {/* Recompensas */}
+        {tab === 'recompensas' && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl border border-cream-200 p-5 text-center">
+              <p className="text-sm text-steel">Tienes</p>
+              <p className="text-3xl font-display font-bold text-olive-600">{clienteActual.puntos || 0} puntos</p>
+            </div>
+            {[{ name: 'Descuento $10.000', cost: 100, icon: '🏷️', desc: 'Canjea por $10.000 de descuento' }, { name: 'Bebida gratis', cost: 50, icon: '🥤', desc: 'Una bebida gratuita' }, { name: 'Postre gratis', cost: 75, icon: '🍰', desc: 'Un postre del menú gratis' }, { name: 'Envío gratis', cost: 30, icon: '🚴', desc: 'Envío gratis en tu próximo pedido' }].map(r => (
+              <div key={r.name} className="bg-white rounded-2xl border border-cream-200 p-5 flex items-center gap-4">
+                <span className="text-3xl">{r.icon}</span>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-espresso-800 text-sm">{r.name}</h4>
+                  <p className="text-xs text-steel">{r.desc}</p>
+                  <p className="text-xs font-bold text-olive-600 mt-1">{r.cost} puntos</p>
+                </div>
+                <button onClick={() => { if ((clienteActual.puntos || 0) >= r.cost) toast.success(`¡${r.name} canjeado!`); else toast.error('No tienes suficientes puntos') }}
+                  disabled={(clienteActual.puntos || 0) < r.cost}
+                  className="px-4 py-2 bg-olive-500 text-white text-xs font-semibold rounded-xl hover:bg-olive-600 disabled:bg-cream-200 disabled:text-steel transition-colors">Canjear</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Configuración */}
+        {tab === 'config' && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl border border-cream-200 divide-y divide-cream-200">
+              {[{ label: 'Editar perfil', icon: FaEdit, action: () => setTab('perfil') }, { label: 'Notificaciones', icon: FaBell, action: () => toast.info('Próximamente') }, { label: 'Política de privacidad', icon: FaEye, action: () => navigate('/politica-privacidad') }, { label: 'Términos y condiciones', icon: FaEye, action: () => navigate('/terminos-condiciones') }].map(item => (
+                <button key={item.label} onClick={item.action} className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-cream-50 transition-colors">
+                  <item.icon size={16} className="text-steel" />
+                  <span className="flex-1 text-sm font-medium text-espresso-700">{item.label}</span>
+                  <FaChevronRight size={12} className="text-steel/40" />
+                </button>
+              ))}
+            </div>
+            <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 font-semibold rounded-xl hover:bg-red-100 transition-colors text-sm">
+              <FaSignOutAlt size={14} /> Cerrar sesión
+            </button>
+          </div>
+        )}
+
       </div>
+
+      <ConfirmModal
+        open={!!confirmCancel}
+        onClose={() => setConfirmCancel(null)}
+        onConfirm={() => {
+          const r = reservas.find((r: any) => r.id === confirmCancel)
+          if (r) handleCancelReserva(r)
+        }}
+        title="Cancelar reserva"
+        message="¿Estás seguro de que quieres cancelar esta reserva? Esta acción no se puede deshacer."
+        confirmText="Sí, cancelar"
+        cancelText="No, mantener"
+      />
     </section>
   )
 }
