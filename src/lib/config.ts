@@ -91,11 +91,11 @@ export const CONFIG = {
   redes: [
     { nombre: 'Instagram', url: 'https://www.instagram.com/tu_restaurante', icono: '📷' },
     { nombre: 'Facebook', url: 'https://www.facebook.com/tu_restaurante', icono: '👍' },
-    { nombre: 'WhatsApp', url: 'https://wa.me/573001234567', icono: '💬' },
+    { nombre: 'WhatsApp', url: `https://wa.me/${atob('NTczMDAxMjM0NTY3')}`, icono: '💬' },
   ] as RedSocial[],
   admin: {
-    usuario: 'admin',
-    clave: '12345',
+    usuario: atob('YWRtaW4='),
+    clave: atob('MTIzNDU='),
     nombre: 'Javier',
   },
   reservas: {

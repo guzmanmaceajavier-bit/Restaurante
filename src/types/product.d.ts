@@ -1,4 +1,13 @@
+export interface Adicional {
+  id: string
+  nombre: string
+  precio: number
+  categoria?: string
+  disponible?: boolean
+}
+
 export interface IProduct {
+  id: string
   nombre: string
   descripcion: string
   precio: number
@@ -16,6 +25,7 @@ export interface IProduct {
   nuevo?: boolean
   descuento?: number
   combo?: string
+  adicionales?: Adicional[]
 }
 
 export interface IProductCart {
@@ -24,4 +34,6 @@ export interface IProductCart {
   precio: number
   imagen?: string
   quantity: number
+  adicionales?: { id: string; nombre: string; precio: number }[]
+  precioUnitario?: number
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { IProduct } from '../types/product'
-import menuData from '../mockData/mock_data.json'
+import { dataService } from '../lib/dataService'
 
 interface IProps {
   productId?: string
@@ -22,10 +22,10 @@ export function useProducts({ productId }: IProps) {
         return
       }
 
-      const product = menuData.find((item) => item.nombre === productId)
+      const product = dataService.getProductoById(productId)
 
       if (!product) {
-        setError(`No se encontró el producto con nombre: ${productId}`)
+        setError(`No se encontró el producto: ${productId}`)
         setProductById(undefined)
       } else {
         setProductById(product)
@@ -38,7 +38,7 @@ export function useProducts({ productId }: IProps) {
   }, [productId])
 
   const filterProducts = (category: string) => {
-    return menuData.filter((product) => product.categoría === category && product.nombre !== productId)
+    return dataService.getProductos().filter((product) => product.categoría === category && product.nombre !== productId)
   }
 
   return {

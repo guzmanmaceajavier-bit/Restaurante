@@ -25,27 +25,27 @@ export function TotalOrder({ cart, showDelivery, orderType }: IProps) {
     <div className='w-full space-y-2'>
       <div className='flex justify-between text-sm text-steel'>
         <span>Subtotal</span>
-        <span>$ {numberFormatter(subtotal)}</span>
+        <span>${numberFormatter(subtotal)}</span>
       </div>
       {showDelivery && orderType === 'delivery' && (
         <div className='flex justify-between text-sm'>
           {deliveryFee > 0 ? (
             <>
               <span className='text-steel'>Delivery</span>
-              <span className='text-steel'>$ {numberFormatter(deliveryFee)}</span>
+              <span className='text-steel'>${numberFormatter(deliveryFee)}</span>
             </>
           ) : (
-            <span className='text-green-600 font-medium'>Delivery gratis</span>
+            <span className='text-sage-600 font-medium'>Delivery gratis</span>
           )}
         </div>
       )}
-      <div className='flex justify-between border-t border-smoke pt-2 font-bold text-lg'>
-        <span>Total</span>
-        <span className='text-brick-600'>$ {numberFormatter(total)}</span>
+      <div className='flex justify-between border-t border-cream-200 pt-3 font-bold text-lg'>
+        <span className='text-espresso-800'>Total</span>
+        <span className='text-olive-500'>${numberFormatter(total)}</span>
       </div>
       {showDelivery && orderType === 'delivery' && subtotal < CONFIG.delivery.minimoGratis && (
         <p className='text-xs text-steel text-right'>
-          Falta $ {numberFormatter(CONFIG.delivery.minimoGratis - subtotal)} para delivery gratis
+          Falta ${numberFormatter(CONFIG.delivery.minimoGratis - subtotal)} para delivery gratis
         </p>
       )}
     </div>

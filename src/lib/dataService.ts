@@ -14,22 +14,18 @@ export interface IDataService {
   getProductosDestacados: () => ProductoDestacado[]
 }
 
-let rawCache: IProduct[] | null = null
-
 export const dataService: IDataService = {
   getProductos: () => {
-    if (rawCache) return rawCache
     const raw = localStorage.getItem('productos')
     if (raw) {
-      rawCache = JSON.parse(raw) as IProduct[]
-      return rawCache
+      return JSON.parse(raw) as IProduct[]
     }
     return []
   },
 
   getProductoById: (id: string) => {
     const productos = dataService.getProductos()
-    return productos[Number(id)]
+    return productos.find((p) => p.id === id || p.nombre === id)
   },
 
   getCategorias: () => {
@@ -67,7 +63,12 @@ export const dataService: IDataService = {
 }
 
 export async function initDataService(): Promise<void> {
+  const existing = localStorage.getItem('productos')
+  if (existing) return
   const data = await import('../mockData/mock_data.json')
-  rawCache = data.default as IProduct[]
-  localStorage.setItem('productos', JSON.stringify(rawCache))
+  const productos = (data.default as IProduct[]).map((p, i) => ({
+    ...p,
+    id: p.id || `prod-${i}`,
+  }))
+  localStorage.setItem('productos', JSON.stringify(productos))
 }
