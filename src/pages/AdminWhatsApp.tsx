@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
 import { SEO } from '../lib/seo'
-import { FaWhatsapp, FaSearch, FaCheckDouble, FaRegSquare, FaCheckSquare, FaExternalLinkAlt } from 'react-icons/fa'
+import { FaWhatsapp, FaSearch, FaRegSquare, FaCheckSquare, FaExternalLinkAlt } from 'react-icons/fa'
 
 interface Customer { name: string; phone: string; source: 'pedido' | 'reserva'; lastDate: string }
 interface MensajeEnviado { id: string; mensaje: string; destinatarios: number; fecha: string }

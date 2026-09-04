@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { CONFIG, type Promocion, type Combo } from '../lib/config'
+import { CONFIG } from '../lib/config'
 import { SEO } from '../lib/seo'
 import { FaTag, FaPercent, FaBox, FaArrowRight, FaFire } from 'react-icons/fa'
 

@@ -292,6 +292,7 @@ function MenuTab() {
   const [showResults, setShowResults] = useState(false)
   const { favorites, toggleFavorite } = useFavorites()
   const allProducts = dataService.getProductos()
+  const { ref, isVisible } = useScrollAnimate(0.1)
 
   const categorias = useMemo(() => {
     const cats = new Set(allProducts.map(p => p.categoria).filter(Boolean))
@@ -305,7 +306,7 @@ function MenuTab() {
       result = result.filter(p => p.nombre.toLowerCase().includes(q) || p.descripcion?.toLowerCase().includes(q))
     }
     if (selectedCategory) {
-      result = result.filter(p => p.categoria === selectedCategory)
+      result = result.filter(p => (p as any)['categoría'] === selectedCategory)
     }
     if (priceRange) {
       const [min, max] = priceRange.split('-').map(Number)

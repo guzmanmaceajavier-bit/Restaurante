@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/useAuthStore'
 import { CONFIG } from '../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
-import { FaSearch, FaEye, FaWhatsapp, FaUser, FaArrowRight } from 'react-icons/fa'
+import { FaSearch, FaWhatsapp, FaUser, FaArrowRight } from 'react-icons/fa'
 import type { Order } from '../types/order'
 import clsx from 'clsx'
 

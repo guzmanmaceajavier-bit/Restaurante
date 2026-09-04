@@ -4,7 +4,6 @@ import { storage } from '../lib/storage'
 import { SEO } from '../lib/seo'
 import { toast } from 'sonner'
 import type { Order } from '../types/order'
-import clsx from 'clsx'
 
 export default function AdminCocina() {
   const [ordenes, setOrdenes] = useState<Order[]>([])

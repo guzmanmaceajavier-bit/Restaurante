@@ -4,7 +4,7 @@ import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
-import { FaSignOutAlt, FaSearch } from 'react-icons/fa'
+import { FaSignOutAlt, FaSearch, FaWhatsapp } from 'react-icons/fa'
 import type { Order } from '../types/order'
 import clsx from 'clsx'
 

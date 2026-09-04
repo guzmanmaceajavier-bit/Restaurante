@@ -4,7 +4,6 @@ import { storage } from '../lib/storage'
 import { SEO } from '../lib/seo'
 import { toast } from 'sonner'
 import { FaSearch, FaSignOutAlt, FaStar } from 'react-icons/fa'
-import clsx from 'clsx'
 
 interface IResena {
   id: number; nombre: string; estrellas: number; comentario: string; fecha: string; respuestaAdmin?: string; respondedAt?: string

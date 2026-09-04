@@ -43,7 +43,7 @@ export function ProductForm({ initialData, categorias, onSubmit, onCancel }: IPr
       }}
       validationSchema={validationSchema}
       onSubmit={(values) => {
-        onSubmit({ ...values, ingredientes: values.ingredientes ? values.ingredientes.split(',').map((s) => s.trim()) : [], alergenos: values.alergenos ? values.alergenos.split(',').map((s) => s.trim()) : [], adicionales })
+        onSubmit({ ...values, picante: values.picante as 0 | 1 | 2 | 3, ingredientes: values.ingredientes ? values.ingredientes.split(',').map((s) => s.trim()) : [], alergenos: values.alergenos ? values.alergenos.split(',').map((s) => s.trim()) : [], adicionales })
       }}
     >
       {({ isSubmitting }) => (
