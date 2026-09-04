@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react'
 import { FaShoppingBag, FaUser, FaSignOutAlt, FaSearch } from 'react-icons/fa'
 import { BiMenu, BiX } from 'react-icons/bi'
 import clsx from 'clsx'
+import DarkModeToggle from '../components/core/DarkModeToggle'
 
 const navLinks = [
   { label: 'Inicio', path: RoutesPath.home },
@@ -69,7 +70,7 @@ export default function Header({ onCartClick }: Props) {
   return (
     <>
       {/* Desktop header */}
-      <header className={`hidden lg:block fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-cream-200 transition-all duration-300 ${scrolled ? 'navbar-scrolled' : ''}`}>
+      <header className={`hidden lg:block fixed top-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#1a1f16]/95 backdrop-blur-md border-b border-cream-200 dark:border-[#2d3523] transition-all duration-300 ${scrolled ? 'navbar-scrolled' : ''}`}>
         <div className="max-w-content mx-auto px-6 h-[72px] flex items-center justify-between">
           {/* Logo */}
           <Link to={RoutesPath.home} className="flex items-center gap-3 shrink-0 group">
@@ -93,8 +94,8 @@ export default function Header({ onCartClick }: Props) {
                   className={clsx(
                     'relative px-4 py-2 text-[15px] font-medium transition-colors duration-200',
                     active
-                      ? 'text-olive-700'
-                      : 'text-espresso-500 hover:text-espresso-800'
+                      ? 'text-olive-700 dark:text-olive-400'
+                      : 'text-espresso-500 dark:text-cream-400 hover:text-espresso-800 dark:hover:text-cream-200'
                   )}
                 >
                   {l.label}
@@ -107,7 +108,10 @@ export default function Header({ onCartClick }: Props) {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Dark Mode Toggle */}
+            <DarkModeToggle />
+
             {/* Search */}
             <div className="relative">
               <button
@@ -180,7 +184,7 @@ export default function Header({ onCartClick }: Props) {
       </header>
 
       {/* Mobile top bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-cream-200 shadow-sm">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#1a1f16] border-b border-cream-200 dark:border-[#2d3523] shadow-sm">
         <div className="flex items-center justify-between px-4 h-14">
           <Link to={RoutesPath.home} className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-olive-600 rounded-lg flex items-center justify-center">
@@ -189,6 +193,9 @@ export default function Header({ onCartClick }: Props) {
             <span className="font-display font-bold text-espresso-900 text-sm">Sabor y Origen</span>
           </Link>
           <div className="flex items-center gap-1">
+            {/* Dark Mode Toggle Mobile */}
+            <DarkModeToggle className="lg:hidden" />
+
             {/* Mobile search */}
             <div className="relative">
               <button

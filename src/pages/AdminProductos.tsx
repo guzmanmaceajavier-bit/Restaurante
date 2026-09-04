@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { FaSearch, FaPlus, FaEdit, FaTrash, FaFilter, FaTimes, FaImage } from 'react-icons/fa'
 import { ProductForm } from '../components/admin/ProductForm'
 import { Pagination } from '../components/admin/Pagination'
+import ConfirmModal from '../components/core/ConfirmModal'
 import type { IProduct } from '../types/product'
 
 const ITEMS_PER_PAGE = 8
@@ -21,6 +22,7 @@ export default function AdminProductos() {
   const [filtroCategoria, setFiltroCategoria] = useState('')
   const [page, setPage] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
   const categorias = useMemo(() => {
     const cats = new Set(productos.map((p) => p['categoría']).filter(Boolean))
@@ -54,7 +56,6 @@ export default function AdminProductos() {
   }
 
   const eliminar = (id: string) => {
-    if (!confirm('¿Eliminar este producto?')) return
     const updated = productos.filter((p) => p.id !== id)
     setProductos(updated); localStorage.setItem('productos', JSON.stringify(updated)); toast.success('Producto eliminado')
   }
@@ -116,7 +117,7 @@ export default function AdminProductos() {
                     <button onClick={() => { setEditing(p); setShowForm(true) }} className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-all">
                       <FaEdit size={13} className="text-olive-600" />
                     </button>
-                    <button onClick={() => eliminar(p.id)} className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-all">
+                    <button onClick={() => setConfirmDelete(p.id)} className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-all">
                       <FaTrash size={13} className="text-red-500" />
                     </button>
                   </div>
@@ -153,6 +154,15 @@ export default function AdminProductos() {
           </div>
         </div>
       )}
+      <ConfirmModal
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={() => { if (confirmDelete) eliminar(confirmDelete) }}
+        title="Eliminar producto"
+        message="¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        variant="danger"
+      />
     </div>
   )
 }

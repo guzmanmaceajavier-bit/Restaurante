@@ -7,6 +7,7 @@ import type { ReservaData as Reserva } from '../types/ReservaData'
 import clsx from 'clsx'
 import { Pagination } from '../components/admin/Pagination'
 import { ExportButton } from '../components/admin/ExportButton'
+import ConfirmModal from '../components/core/ConfirmModal'
 
 const ITEMS_PER_PAGE = 10
 
@@ -25,6 +26,7 @@ export default function AdminReservas() {
   const [busqueda, setBusqueda] = useState('')
   const [page, setPage] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
   useEffect(() => { setReservas(storage.getReservas()) }, [])
 
@@ -43,7 +45,7 @@ export default function AdminReservas() {
   const reservasPagina = reservasFiltradas.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
 
   const guardar = (data: Reserva[]) => { setReservas(data); storage.setReservas(data) }
-  const eliminar = (id: string) => { if (!confirm('¿Eliminar esta reserva?')) return; guardar(reservas.filter((r) => r.id !== id)); toast.success('Reserva eliminada') }
+  const eliminar = (id: string) => { guardar(reservas.filter((r) => r.id !== id)); toast.success('Reserva eliminada') }
   const guardarEdicion = () => { if (!editando) return; guardar(reservas.map((r) => (r.id === editando.id ? editando : r))); setEditando(null); toast.success('Reserva actualizada') }
 
   const confirmarReserva = (id: string) => {
@@ -148,7 +150,7 @@ export default function AdminReservas() {
                             <button onClick={() => setEditando(r)} className="p-1.5 rounded-lg hover:bg-cream-100 transition-all" title="Editar">
                               <FaEdit size={12} className="text-steel" />
                             </button>
-                            <button onClick={() => eliminar(r.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-all" title="Eliminar">
+                            <button onClick={() => setConfirmDelete(r.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-all" title="Eliminar">
                               <FaTrash size={12} className="text-red-400" />
                             </button>
                             <a href={`https://wa.me/${(r.telefono || CONFIG.contacto.whatsapp).replace(/[^0-9]/g, '')}?text=${encodeURIComponent(mensaje || `Hola ${r.nombre}, sobre tu reserva #${r.id}`)}`}
@@ -222,6 +224,15 @@ export default function AdminReservas() {
           </div>
         </div>
       )}
+      <ConfirmModal
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={() => { if (confirmDelete) eliminar(confirmDelete) }}
+        title="Eliminar reserva"
+        message="¿Estás seguro de que deseas eliminar esta reserva? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        variant="danger"
+      />
     </div>
   )
 }

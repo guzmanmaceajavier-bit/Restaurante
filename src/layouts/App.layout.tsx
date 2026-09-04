@@ -21,7 +21,7 @@ export default function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-cream-50 flex flex-col">
+    <div className="min-h-screen bg-cream-50 dark:bg-[#1a1f16] flex flex-col">
       <Header onCartClick={() => setCartOpen(true)} />
       <main className="flex-1 pt-14 lg:pt-16">
         <Outlet />

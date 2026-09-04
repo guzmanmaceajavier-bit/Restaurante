@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { FaSearch, FaStar, FaReply, FaTrash } from 'react-icons/fa'
 import { Pagination } from '../components/admin/Pagination'
 import { ExportButton } from '../components/admin/ExportButton'
+import ConfirmModal from '../components/core/ConfirmModal'
 
 const ITEMS_PER_PAGE = 8
 
@@ -16,6 +17,7 @@ export default function AdminResenas() {
   const [filtroEstrellas, setFiltroEstrellas] = useState(0)
   const [busqueda, setBusqueda] = useState('')
   const [page, setPage] = useState(1)
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
 
   useEffect(() => { setResenas(storage.getResenas()) }, [])
 
@@ -52,7 +54,6 @@ export default function AdminResenas() {
   }
 
   const eliminar = (id: number) => {
-    if (!confirm('¿Eliminar esta reseña?')) return
     const updated = resenas.filter((r) => r.id !== id)
     setResenas(updated); storage.setResenas(updated); toast.success('Reseña eliminada')
   }
@@ -138,7 +139,7 @@ export default function AdminResenas() {
                         <FaReply size={12} className="text-olive-600" />
                       </button>
                     )}
-                    <button onClick={() => eliminar(r.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-all" title="Eliminar">
+                    <button onClick={() => setConfirmDelete(r.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-all" title="Eliminar">
                       <FaTrash size={12} className="text-red-400" />
                     </button>
                   </div>
@@ -174,6 +175,15 @@ export default function AdminResenas() {
           </div>
         </div>
       )}
+      <ConfirmModal
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={() => { if (confirmDelete) eliminar(confirmDelete) }}
+        title="Eliminar reseña"
+        message="¿Estás seguro de que deseas eliminar esta reseña? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        variant="danger"
+      />
     </div>
   )
 }

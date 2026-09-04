@@ -11,13 +11,25 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  .dark body,
+  .dark {
+    color: #e8e3dc;
+    background-color: #1a1f16;
+  }
   h1, h2, h3, h4 {
     font-family: 'Playfair Display', Georgia, serif;
     color: #30451D;
   }
+  .dark h1, .dark h2, .dark h3, .dark h4 {
+    color: #e8e3dc;
+  }
   ::selection {
     background-color: rgba(102,122,34,0.2);
     color: #30451D;
+  }
+  .dark ::selection {
+    background-color: rgba(102,122,34,0.4);
+    color: #fff;
   }
 }
 
@@ -87,8 +99,16 @@
     color: #30451D;
     transition: all 0.25s ease;
   }
+  .dark .input-base {
+    background-color: #252e1e;
+    border-color: #3d4a2e;
+    color: #e8e3dc;
+  }
   .input-base::placeholder {
     color: rgba(115,91,67,0.5);
+  }
+  .dark .input-base::placeholder {
+    color: rgba(169,180,191,0.5);
   }
   .input-base:focus {
     outline: none;
