@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { storage } from '../lib/storage'
 import { toast } from 'sonner'
 import { FaSearch, FaWhatsapp, FaEye, FaFilter, FaTimes } from 'react-icons/fa'
+import EmptyState from '../components/core/EmptyState'
 import type { Order } from '../types/order'
 import { Pagination } from '../components/admin/Pagination'
 import { ExportButton } from '../components/admin/ExportButton'
@@ -97,11 +98,7 @@ export default function AdminOrdenes() {
       )}
 
       {ordenesPagina.length === 0 ? (
-        <div className="bg-white rounded-2xl p-16 text-center border border-cream-200">
-          <FaSearch className="text-cream-300 mx-auto mb-3" size={40} />
-          <p className="text-lg font-display font-bold text-espresso-800 mb-1">No hay pedidos</p>
-          <p className="text-sm text-steel">Los pedidos aparecerán aquí cuando los clientes hagan órdenes.</p>
-        </div>
+        <EmptyState icon={<FaSearch size={24} />} title="No hay pedidos" description="Los pedidos aparecerán aquí" />
       ) : (
         <>
           <div className="bg-white rounded-2xl border border-cream-200 overflow-hidden">

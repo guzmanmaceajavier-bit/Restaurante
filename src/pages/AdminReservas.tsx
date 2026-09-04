@@ -2,7 +2,8 @@ import { useEffect, useState, useMemo } from 'react'
 import { storage } from '../lib/storage'
 import { CONFIG } from '../lib/config'
 import { toast } from 'sonner'
-import { FaSearch, FaWhatsapp, FaFilter, FaTimes, FaCheck, FaBan, FaEdit, FaTrash } from 'react-icons/fa'
+import { FaSearch, FaWhatsapp, FaFilter, FaTimes, FaCheck, FaBan, FaEdit, FaTrash, FaCalendarAlt } from 'react-icons/fa'
+import EmptyState from '../components/core/EmptyState'
 import type { ReservaData as Reserva } from '../types/ReservaData'
 import clsx from 'clsx'
 import { Pagination } from '../components/admin/Pagination'
@@ -96,11 +97,7 @@ export default function AdminReservas() {
       )}
 
       {reservasPagina.length === 0 ? (
-        <div className="bg-white rounded-2xl p-16 text-center border border-cream-200">
-          <p className="text-4xl mb-3">📅</p>
-          <p className="text-lg font-display font-bold text-espresso-800 mb-1">No hay reservas</p>
-          <p className="text-sm text-steel">Las reservas aparecerán aquí cuando los clientes las creen.</p>
-        </div>
+        <EmptyState icon={<FaCalendarAlt size={24} />} title="No hay reservas" description="Las reservas aparecerán aquí" />
       ) : (
         <>
           <div className="bg-white rounded-2xl border border-cream-200 overflow-hidden">

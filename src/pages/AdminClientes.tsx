@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { storage } from '../lib/storage'
 import { FaSearch, FaEye, FaUsers, FaShoppingBag, FaPhone, FaEnvelope } from 'react-icons/fa'
+import EmptyState from '../components/core/EmptyState'
 import { Pagination } from '../components/admin/Pagination'
 import { ExportButton } from '../components/admin/ExportButton'
 
@@ -90,11 +91,7 @@ export default function AdminClientes() {
       </div>
 
       {pagina.length === 0 ? (
-        <div className="bg-white rounded-2xl p-16 text-center border border-cream-200">
-          <FaUsers className="text-cream-300 mx-auto mb-3" size={40} />
-          <p className="text-lg font-display font-bold text-espresso-800 mb-1">No hay clientes</p>
-          <p className="text-sm text-steel">Los clientes aparecerán cuando se registren.</p>
-        </div>
+        <EmptyState icon={<FaUsers size={24} />} title="No hay clientes" description="Los clientes aparecerán cuando se registren" />
       ) : (
         <>
           <div className="bg-white rounded-2xl border border-cream-200 overflow-hidden">

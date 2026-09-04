@@ -6,6 +6,7 @@ import { CONFIG } from '../lib/config'
 import type { Order } from '../types/order'
 import type { ReservaData } from '../types/ReservaData'
 import { FaBox, FaCalendarAlt, FaDollarSign, FaUsers, FaArrowUp, FaArrowDown, FaUtensils, FaThLarge, FaStar, FaComments, FaClock, FaShoppingBag } from 'react-icons/fa'
+import EmptyState from '../components/core/EmptyState'
 
 export default function AdminDashboard() {
   const [ordenes, setOrdenes] = useState<Order[]>([])
@@ -146,10 +147,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl border border-cream-200 p-6">
           <h2 className="font-display font-bold text-espresso-800 mb-5">Top productos</h2>
           {topProductos.length === 0 ? (
-            <div className="text-center py-8">
-              <FaShoppingBag className="text-cream-300 mx-auto mb-2" size={32} />
-              <p className="text-sm text-steel">Sin datos aún</p>
-            </div>
+            <EmptyState icon={<FaShoppingBag size={24} />} title="Sin datos aún" description="Las estadísticas aparecerán cuando haya actividad" />
           ) : (
             <div className="space-y-3">
               {topProductos.map((p, i) => (
@@ -179,10 +177,7 @@ export default function AdminDashboard() {
             <Link to="/admin-ordenes" className="text-xs text-olive-600 hover:text-olive-700 font-medium">Ver todos →</Link>
           </div>
           {ultimasOrdenes.length === 0 ? (
-            <div className="text-center py-8">
-              <FaBox className="text-cream-300 mx-auto mb-2" size={32} />
-              <p className="text-sm text-steel">Sin pedidos hoy</p>
-            </div>
+            <EmptyState icon={<FaBox size={24} />} title="Sin pedidos hoy" description="Los pedidos aparecerán aquí" />
           ) : (
             <div className="space-y-2">
               {ultimasOrdenes.map((o) => {

@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
 import { FaUser, FaShoppingBag, FaCalendarAlt, FaStar, FaSignOutAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaUtensils } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
+import EmptyState from '../components/core/EmptyState'
 import { useFavorites } from '../hooks/useFavorites'
 import { dataService } from '../lib/dataService'
 import type { Order } from '../types/order'
@@ -157,7 +158,7 @@ export default function ClientPanel() {
         {tab === 'pedidos' && (
           <div className="space-y-3">
             {ordenes.length === 0 ? (
-              <EmptyState icon="📋" title="Sin pedidos aún" link="/menu" linkText="Ver menú" />
+              <EmptyState icon={<FaShoppingBag size={24} />} title="Sin pedidos aún" description="Explora nuestro menú y haz tu primer pedido" action={{ label: 'Ver menú', onClick: () => navigate('/menu') }} />
             ) : (
               ordenes.map((o, i) => {
                 const badge = estadoBadge[o.estado] || { bg: 'bg-cream-100', text: 'text-steel' }
@@ -206,7 +207,7 @@ export default function ClientPanel() {
         {tab === 'reservas' && (
           <div className="space-y-3">
             {reservas.length === 0 ? (
-              <EmptyState icon="📅" title="Sin reservas aún" link="/reservas" linkText="Reservar mesa" />
+              <EmptyState icon={<FaCalendarAlt size={24} />} title="Sin reservas aún" description="Reserva tu mesa favorita en unos pasos" action={{ label: 'Reservar mesa', onClick: () => navigate('/reservas') }} />
             ) : (
               reservas.map((r: any, i) => (
                 <div key={r.id} className={`bg-white rounded-2xl border border-cream-200 p-5 hover:shadow-lift transition-all ${isVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{ transitionDelay: `${Math.min((i + 1) * 60, 400)}ms` }}>
@@ -245,7 +246,7 @@ export default function ClientPanel() {
         {tab === 'favoritos' && (
           <div className="space-y-3">
             {favoriteProducts.length === 0 ? (
-              <EmptyState icon="❤️" title="Sin favoritos aún" link="/menu" linkText="Explorar menú" />
+              <EmptyState icon={<FaHeart size={24} />} title="Sin favoritos aún" description="Guarda tus platos favoritos para ordenar rápido" action={{ label: 'Explorar menú', onClick: () => navigate('/menu') }} />
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {favoriteProducts.map((p, i) => (
@@ -455,20 +456,6 @@ function MenuTab() {
           <p className="text-sm text-steel">Intenta con otros filtros o términos de búsqueda</p>
         </div>
       )}
-    </div>
-  )
-}
-
-function EmptyState({ icon, title, link, linkText }: { icon: string; title: string; link: string; linkText: string }) {
-  return (
-    <div className="bg-white rounded-3xl p-12 text-center border border-cream-200 shadow-card">
-      <div className="w-16 h-16 bg-cream-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-        <span className="text-3xl">{icon}</span>
-      </div>
-      <p className="text-xl font-display font-bold text-espresso-800 mb-2">{title}</p>
-      <Link to={link} className="inline-flex items-center gap-2 text-olive-500 hover:text-olive-600 font-medium text-sm mt-2">
-        {linkText} <FaArrowRight size={12} />
-      </Link>
     </div>
   )
 }

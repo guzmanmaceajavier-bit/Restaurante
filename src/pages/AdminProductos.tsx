@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
 import { FaSearch, FaPlus, FaEdit, FaTrash, FaFilter, FaTimes, FaImage } from 'react-icons/fa'
+import EmptyState from '../components/core/EmptyState'
 import { ProductForm } from '../components/admin/ProductForm'
 import { Pagination } from '../components/admin/Pagination'
 import ConfirmModal from '../components/core/ConfirmModal'
@@ -94,14 +95,7 @@ export default function AdminProductos() {
       )}
 
       {pagina.length === 0 ? (
-        <div className="bg-white rounded-2xl p-16 text-center border border-cream-200">
-          <FaImage className="text-cream-300 mx-auto mb-3" size={40} />
-          <p className="text-lg font-display font-bold text-espresso-800 mb-1">No hay productos</p>
-          <p className="text-sm text-steel mb-4">Crea tu primer producto para comenzar.</p>
-          <button onClick={() => { setEditing(null); setShowForm(true) }} className="btn-primary text-sm py-2.5">
-            <FaPlus size={13} className="inline mr-2" /> Crear producto
-          </button>
-        </div>
+        <EmptyState icon={<FaImage size={24} />} title="No hay productos" description="Crea tu primer producto para comenzar" action={{ label: 'Crear producto', onClick: () => setShowForm(true) }} />
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

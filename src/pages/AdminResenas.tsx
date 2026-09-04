@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { storage } from '../lib/storage'
 import { toast } from 'sonner'
 import { FaSearch, FaStar, FaReply, FaTrash } from 'react-icons/fa'
+import EmptyState from '../components/core/EmptyState'
 import { Pagination } from '../components/admin/Pagination'
 import { ExportButton } from '../components/admin/ExportButton'
 import ConfirmModal from '../components/core/ConfirmModal'
@@ -106,11 +107,7 @@ export default function AdminResenas() {
       </div>
 
       {pagina.length === 0 ? (
-        <div className="bg-white rounded-2xl p-16 text-center border border-cream-200">
-          <FaStar className="text-cream-300 mx-auto mb-3" size={40} />
-          <p className="text-lg font-display font-bold text-espresso-800 mb-1">No hay reseñas</p>
-          <p className="text-sm text-steel">Las reseñas aparecerán aquí cuando los clientes las dejen.</p>
-        </div>
+        <EmptyState icon={<FaStar size={24} />} title="No hay reseñas" description="Las reseñas aparecerán aquí" />
       ) : (
         <>
           <div className="space-y-3">

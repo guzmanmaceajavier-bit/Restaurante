@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { toast } from 'sonner'
 import { FaUtensils, FaClock, FaCheck, FaArrowRight, FaExclamationTriangle } from 'react-icons/fa'
+import EmptyState from '../components/core/EmptyState'
 import type { Order } from '../types/order'
 
 const estadoConfig: Record<string, { bg: string; border: string; text: string; next: string | null; label: string }> = {
@@ -87,9 +88,7 @@ export default function AdminCocina() {
       </div>
       <div className="space-y-3">
         {orders.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-cream-200 p-8 text-center">
-            <p className="text-sm text-steel">Sin pedidos</p>
-          </div>
+          <EmptyState icon={<FaUtensils size={24} />} title="Sin pedidos" description="No hay pedidos en esta etapa" />
         ) : (
           orders.map((o) => <OrderCard key={o.id} o={o} showAdvance={showAdvance} />)
         )}
