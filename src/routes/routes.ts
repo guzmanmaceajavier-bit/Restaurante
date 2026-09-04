@@ -28,7 +28,7 @@ export const RoutesPath = {
   clientLogin: '/login',
   clientRegister: '/registro',
   clientPanel: '/mi-cuenta',
-  orderTracking: '/seguimiento/:id',
+  orderTracking: (id: string) => `/seguimiento/${id}`,
   orderTrackingBase: '/seguimiento',
   aboutUs: '/nosotros',
   forgotPassword: '/recuperar-contrasena',

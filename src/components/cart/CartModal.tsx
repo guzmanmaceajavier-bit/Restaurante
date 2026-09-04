@@ -3,7 +3,10 @@ import { useCartStore } from '../../store/useCartStore'
 import { TotalOrder } from './TotalOrder'
 import { ProductsList } from './ProductsList'
 import { FiShoppingBag, FiX } from 'react-icons/fi'
-import { useEffect } from 'react'
+import { FaTag } from 'react-icons/fa'
+import { useEffect, useState } from 'react'
+import { CONFIG } from '../../lib/config'
+import { toast } from 'sonner'
 import clsx from 'clsx'
 
 interface IProps {
@@ -14,6 +17,8 @@ interface IProps {
 export function CartModal({ open, setOpen }: IProps) {
   const cart = useCartStore((s) => s.cart)
   const navigate = useNavigate()
+  const [promoCode, setPromoCode] = useState('')
+  const [promoApplied, setPromoApplied] = useState(false)
 
   useEffect(() => {
     if (open) {
@@ -23,6 +28,17 @@ export function CartModal({ open, setOpen }: IProps) {
     }
     return () => { document.body.style.overflow = '' }
   }, [open])
+
+  const applyPromo = () => {
+    const code = promoCode.trim().toUpperCase()
+    const validPromo = CONFIG.promociones?.find(p => p.codigo?.toUpperCase() === code)
+    if (validPromo) {
+      setPromoApplied(true)
+      toast.success(`Cupón "${code}" aplicado: ${validPromo.descuento}% de descuento`)
+    } else {
+      toast.error('Cupón no válido')
+    }
+  }
 
   return (
     <>
@@ -59,7 +75,25 @@ export function CartModal({ open, setOpen }: IProps) {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-cream-200 p-5 space-y-4 bg-white shrink-0">
+        <div className="border-t border-cream-200 p-5 space-y-3 bg-white shrink-0">
+          {/* Promo code */}
+          {cart.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <FaTag className="absolute left-3 top-1/2 -translate-y-1/2 text-steel/40" size={12} />
+                <input type="text" value={promoCode} onChange={(e) => setPromoCode(e.target.value)}
+                  placeholder="Cupón de descuento"
+                  disabled={promoApplied}
+                  className="w-full text-xs bg-cream-50 border border-cream-200 rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-olive-400 disabled:opacity-50"
+                  onKeyDown={(e) => e.key === 'Enter' && applyPromo()} />
+              </div>
+              <button onClick={applyPromo} disabled={promoApplied || !promoCode.trim()}
+                className="text-xs font-medium px-3 py-2 rounded-lg bg-olive-500 text-white hover:bg-olive-600 disabled:bg-cream-200 disabled:text-steel transition-colors">
+                {promoApplied ? '✓' : 'Aplicar'}
+              </button>
+            </div>
+          )}
+
           <TotalOrder cart={cart} />
           <div className="flex gap-3">
             <button

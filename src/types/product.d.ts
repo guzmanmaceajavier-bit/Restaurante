@@ -36,4 +36,5 @@ export interface IProductCart {
   quantity: number
   adicionales?: { id: string; nombre: string; precio: number }[]
   precioUnitario?: number
+  notas?: string
 }

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { SEO } from '../lib/seo'
 import { CONFIG } from '../lib/config'
-import { FaUtensils, FaHeart, FaLeaf, FaUsers, FaArrowRight, FaStar } from 'react-icons/fa'
+import { FaUtensils, FaHeart, FaLeaf, FaUsers, FaArrowRight } from 'react-icons/fa'
 
 const values = [
   { icon: FaUtensils, title: 'Tradición', desc: 'Recetas heredadas de generación en generación, con el sabor auténtico de la cocina colombiana.' },
@@ -39,7 +39,7 @@ export default function AboutUs() {
             <span className="text-sm font-semibold text-olive-600 uppercase tracking-wider">Quiénes somos</span>
             <h2 className="text-3xl font-display font-bold text-espresso-800 dark:text-cream-200 mt-2 mb-4">Tradición que se saborea</h2>
             <p className="text-steel dark:text-cream-400 leading-relaxed mb-4">
-              {CONFIG.restaurante.nombre} nació del amor por la cocina colombiana y la nostalgia de los sabores de la infancia. Ubicados en {CONFIG.restaurante.direccion}, nos dedicamos a preservar las recetas tradicionales mientras innovamos con un toque moderno.
+              {CONFIG.restaurante.nombre} nació del amor por la cocina colombiana y la nostalgia de los sabores de la infancia. Nos dedicamos a preservar las recetas tradicionales mientras innovamos con un toque moderno.
             </p>
             <p className="text-steel dark:text-cream-400 leading-relaxed">
               Nuestro equipo de cocineros apasionados trabaja cada día para ofrecerte una experiencia gastronómica única, donde cada bocado te transporta a los campos y hogares de Colombia.

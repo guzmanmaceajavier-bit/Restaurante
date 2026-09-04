@@ -4,7 +4,8 @@ import { SEO } from '../lib/seo'
 import { storage } from '../lib/storage'
 import { numberFormatter } from '../utils/numberFormatter'
 import { FaSearch, FaBox, FaCheckCircle, FaUtensils, FaMotorcycle, FaWhatsapp, FaArrowLeft } from 'react-icons/fa'
-import type { IOrder } from '../types/order'
+import { CONFIG } from '../lib/config'
+import type { Order } from '../types/order'
 
 const steps = [
   { key: 'recibido', label: 'Recibido', icon: FaBox, desc: 'Tu pedido fue recibido' },
@@ -16,11 +17,11 @@ const steps = [
 export default function OrderTracking() {
   const { id } = useParams()
   const [searchId, setSearchId] = useState(id || '')
-  const [order, setOrder] = useState<IOrder | null>(null)
+  const [order, setOrder] = useState<Order | null>(null)
 
   useEffect(() => {
     if (id) {
-      const orders = storage.getOrdenes<IOrder[]>()
+      const orders = storage.getOrdenes<Order>()
       setOrder(orders.find(o => o.id === id) || null)
     }
   }, [id])
@@ -28,7 +29,7 @@ export default function OrderTracking() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchId.trim()) return
-    const orders = storage.getOrdenes<IOrder[]>()
+    const orders = storage.getOrdenes<Order>()
     setOrder(orders.find(o => o.id === searchId.trim()) || null)
   }
 
@@ -40,7 +41,7 @@ export default function OrderTracking() {
   const timeEstimate = useMemo(() => {
     if (!order) return ''
     const types: Record<string, string> = { delivery: '45-60 min', pickup: '20-30 min', dinein: '15-25 min' }
-    return types[order.tipo || 'delivery'] || '45 min'
+    return types[order.typeOrder || 'delivery'] || '45 min'
   }, [order])
 
   return (
@@ -117,7 +118,7 @@ export default function OrderTracking() {
               <div className="border-t border-cream-200 dark:border-[#2d3523] p-6">
                 <h3 className="text-sm font-bold text-espresso-800 dark:text-cream-200 mb-3">Resumen del pedido</h3>
                 <div className="space-y-2">
-                  {(order.items || []).map((item, i) => (
+                  {(order.items || []).map((item: { quantity: number; nombre: string; precio: number }, i: number) => (
                     <div key={i} className="flex justify-between text-sm">
                       <span className="text-steel dark:text-cream-400">{item.quantity}x {item.nombre}</span>
                       <span className="font-medium text-espresso-700 dark:text-cream-300">${numberFormatter((item.precio ?? 0) * (item.quantity ?? 1))}</span>
