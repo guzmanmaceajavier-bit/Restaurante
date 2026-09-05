@@ -40,8 +40,6 @@ export function ProductsSection() {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const loading = useLoading(400)
 
-  if (loading) return <MenuSkeleton />
-
   const categorias = useMemo(
     () => ['Todos', ...Array.from(new Set(allProducts.map((item) => item.categoría || 'Otros')))],
     [allProducts]
@@ -98,6 +96,8 @@ export function ProductsSection() {
   const totalPaginas = Math.ceil(productosFiltrados.length / ITEMS_PER_PAGE)
   const productosPagina = productosFiltrados.slice((paginaActual - 1) * ITEMS_PER_PAGE, paginaActual * ITEMS_PER_PAGE)
   const hasActiveFilters = priceRange > 0 || timeRange > 0 || maxPicante < 3
+
+  if (loading) return <MenuSkeleton />
 
   return (
     <section className="py-12 px-6" ref={ref}>
