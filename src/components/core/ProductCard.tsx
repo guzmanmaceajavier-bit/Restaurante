@@ -94,17 +94,17 @@ export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, 
         {/* Favorite button */}
         <button
           onClick={handleFavorite}
-          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md transition-all duration-300 hover:scale-110 active:scale-90"
+          className={`absolute ${descuento ? 'top-14' : 'top-3'} right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md transition-all duration-300 hover:scale-110 active:scale-90`}
           title={isFav ? 'Quitar de favoritos' : 'Agregar a favoritos'}
         >
-          <FaHeart size={14} className={`transition-colors duration-300 ${isFav ? 'text-red-500 fill-red-500' : 'text-steel/40'}`} />
+          <FaHeart size={14} className={`transition-all duration-300 ${isFav ? 'text-red-500 fill-red-500 scale-110' : 'text-steel/60 hover:text-red-400'}`} />
         </button>
 
         {/* Share button */}
         {isInMenu && (
           <button
             onClick={handleShare}
-            className="absolute top-14 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md text-steel/50 hover:text-olive-500 transition-all duration-300 hover:scale-110 active:scale-90"
+            className={`absolute ${descuento ? 'top-24' : 'top-14'} right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md text-steel/50 hover:text-olive-500 transition-all duration-300 hover:scale-110 active:scale-90`}
             title="Compartir"
           >
             <FaShareAlt size={13} />
