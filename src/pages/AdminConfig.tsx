@@ -1,20 +1,26 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { getRestaurantConfig, saveRestaurantConfig, type RestaurantConfig } from '../lib/config'
-import { FaSave, FaStore, FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaGlobe, FaTruck, FaCalendarAlt, FaImage, FaUpload, FaTimes, FaPalette, FaUser, FaCreditCard } from 'react-icons/fa'
+import { FaSave, FaStore, FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaGlobe, FaTruck, FaCalendarAlt, FaImage, FaUpload, FaTimes, FaPalette, FaUser, FaCreditCard, FaFileAlt } from 'react-icons/fa'
 
 const defaultConfig: RestaurantConfig = getRestaurantConfig()
 
 export default function AdminConfig() {
   const [config, setConfig] = useState<RestaurantConfig>(defaultConfig)
   const [activeTab, setActiveTab] = useState('general')
+  const [politicaPrivacidad, setPoliticaPrivacidad] = useState('')
+  const [terminosCondiciones, setTerminosCondiciones] = useState('')
 
   useEffect(() => {
     setConfig(getRestaurantConfig())
+    setPoliticaPrivacidad(localStorage.getItem('politica-privacidad-text') || '')
+    setTerminosCondiciones(localStorage.getItem('terminos-condiciones-text') || '')
   }, [])
 
   const save = () => {
     saveRestaurantConfig(config)
+    localStorage.setItem('politica-privacidad-text', politicaPrivacidad)
+    localStorage.setItem('terminos-condiciones-text', terminosCondiciones)
     toast.success('Configuración guardada')
   }
 
@@ -41,6 +47,7 @@ export default function AdminConfig() {
     { id: 'pagos', label: 'Pagos', icon: FaCreditCard },
     { id: 'redes', label: 'Redes', icon: FaGlobe },
     { id: 'tema', label: 'Tema', icon: FaPalette },
+    { id: 'textos-legales', label: 'Textos Legales', icon: FaFileAlt },
   ]
 
   const inputClass = 'w-full px-4 py-3 bg-cream-50 border border-cream-200 rounded-xl text-sm text-espresso-800 focus:outline-none focus:ring-2 focus:ring-olive-500/30 focus:border-olive-500 transition-all'
@@ -311,6 +318,34 @@ export default function AdminConfig() {
                 <div className="w-10 h-10 rounded-xl" style={{ backgroundColor: config.colorPrimario }} />
                 <div className="px-4 py-2 rounded-xl text-white text-sm font-semibold" style={{ backgroundColor: config.colorPrimario }}>Botón de ejemplo</div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* TEXTOS LEGALES */}
+        {activeTab === 'textos-legales' && (
+          <div className="space-y-6">
+            <h3 className="font-display font-bold text-espresso-800 text-lg">Textos Legales</h3>
+            <p className="text-sm text-steel">Edita los textos de las páginas legales. Se guardan en el navegador.</p>
+            <div>
+              <label className="text-xs font-semibold text-espresso-700 mb-1.5 block">Política de privacidad</label>
+              <textarea
+                value={politicaPrivacidad}
+                onChange={(e) => setPoliticaPrivacidad(e.target.value)}
+                className={`${inputClass} resize-none`}
+                rows={10}
+                placeholder="Escribe el contenido de la política de privacidad..."
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-espresso-700 mb-1.5 block">Términos y condiciones</label>
+              <textarea
+                value={terminosCondiciones}
+                onChange={(e) => setTerminosCondiciones(e.target.value)}
+                className={`${inputClass} resize-none`}
+                rows={10}
+                placeholder="Escribe el contenido de los términos y condiciones..."
+              />
             </div>
           </div>
         )}
