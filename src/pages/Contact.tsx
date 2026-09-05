@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { getRestaurantConfig, CONFIG } from '../lib/config'
 import { SEO } from '../lib/seo'
-import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaStar, FaInstagram, FaFacebook, FaWhatsapp, FaInfoCircle, FaPaperPlane } from 'react-icons/fa'
+import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaStar, FaInstagram, FaFacebook, FaWhatsapp, FaInfoCircle, FaPaperPlane, FaUtensils, FaHeart, FaLeaf, FaUsers } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 
 const config = getRestaurantConfig()
@@ -158,6 +158,26 @@ export default function Contact() {
                       <p className="text-xs text-steel mt-1">{config.direccion}</p>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <div className={`bg-white rounded-2xl shadow-card border border-cream-200 p-6 ${isVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{ transitionDelay: '80ms' }}>
+                <h2 className="text-lg font-display font-bold text-espresso-800 mb-5">Nuestros valores</h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { icon: FaUtensils, title: 'Tradición', desc: 'Recetas heredadas de generación en generación.' },
+                    { icon: FaHeart, title: 'Pasión', desc: 'Cada plato preparado con amor y dedicación.' },
+                    { icon: FaLeaf, title: 'Frescura', desc: 'Ingredientes frescos y locales de la región.' },
+                    { icon: FaUsers, title: 'Comunidad', desc: 'Un espacio para reuniones familiares.' },
+                  ].map((v) => (
+                    <div key={v.title} className="bg-cream-50 rounded-xl p-4 border border-cream-200">
+                      <div className="w-10 h-10 bg-olive-100 rounded-xl flex items-center justify-center mb-3">
+                        <v.icon size={18} className="text-olive-600" />
+                      </div>
+                      <h3 className="font-semibold text-sm text-espresso-800 mb-1">{v.title}</h3>
+                      <p className="text-xs text-steel">{v.desc}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
 
