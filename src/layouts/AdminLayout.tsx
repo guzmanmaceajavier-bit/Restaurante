@@ -3,7 +3,6 @@ import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { getRestaurantConfig } from '../lib/config'
 import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog, FaTags, FaTag, FaClipboardList, FaDollarSign, FaChartBar, FaUserFriends, FaHistory, FaDatabase, FaClock } from 'react-icons/fa'
-import DarkModeToggle from '../components/core/DarkModeToggle'
 import { AdminSkeleton } from '../components/core/LoadingSkeleton'
 import { useLoading } from '../hooks/useLoading'
 
@@ -83,10 +82,6 @@ export default function AdminLayout() {
         </nav>
 
         <div className="p-3 border-t border-cream-200 space-y-1">
-          <div className="flex items-center justify-between px-4 py-2">
-            <span className="text-xs text-steel">Tema</span>
-            <DarkModeToggle />
-          </div>
           <Link to="/" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-espresso-600 hover:bg-cream-50 transition-all">
             <FaChevronLeft size={14} className="text-steel" /> Volver al sitio
           </Link>
@@ -131,10 +126,6 @@ export default function AdminLayout() {
               })}
             </nav>
             <div className="p-3 border-t border-cream-200 space-y-1">
-              <div className="flex items-center justify-between px-4 py-2">
-                <span className="text-xs text-steel">Tema</span>
-                <DarkModeToggle />
-              </div>
               <Link to="/" onClick={() => setSidebarOpen(false)}
                 className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-espresso-600 hover:bg-cream-50">
                 <FaChevronLeft size={14} /> Volver al sitio

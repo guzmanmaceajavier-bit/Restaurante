@@ -3,7 +3,6 @@ import { useAuthStore } from '../store/useAuthStore'
 import { getRestaurantConfig } from '../lib/config'
 import { FaArrowLeft, FaShoppingBag, FaSignOutAlt } from 'react-icons/fa'
 import { useCartStore } from '../store/useCartStore'
-import DarkModeToggle from '../components/core/DarkModeToggle'
 
 export default function ClientLayout() {
   const { clienteActual, logout } = useAuthStore()
@@ -36,7 +35,6 @@ export default function ClientLayout() {
           </div>
 
           <div className="flex items-center gap-2">
-            <DarkModeToggle />
             <Link to="/menu" className="relative p-2 hover:bg-cream-100 dark:hover:bg-[#252e1e] rounded-xl transition-colors">
               <FaShoppingBag size={16} className="text-espresso-600 dark:text-cream-400" />
               {count > 0 && (

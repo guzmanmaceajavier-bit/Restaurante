@@ -7,7 +7,6 @@ import { useState, useEffect, useRef } from 'react'
 import { FaShoppingBag, FaUser, FaSignOutAlt, FaSearch } from 'react-icons/fa'
 import { BiMenu, BiX } from 'react-icons/bi'
 import clsx from 'clsx'
-import DarkModeToggle from '../components/core/DarkModeToggle'
 
 const navLinks = [
   { label: 'Inicio', path: RoutesPath.home },
@@ -110,9 +109,6 @@ export default function Header({ onCartClick }: Props) {
 
           {/* Actions */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Dark Mode Toggle */}
-            <DarkModeToggle />
-
             {/* Search */}
             <div className="relative">
               <button
@@ -194,9 +190,6 @@ export default function Header({ onCartClick }: Props) {
             <span className="font-display font-bold text-espresso-900 text-sm">Sabor y Origen</span>
           </Link>
           <div className="flex items-center gap-1">
-            {/* Dark Mode Toggle Mobile */}
-            <DarkModeToggle className="lg:hidden" />
-
             {/* Mobile search */}
             <div className="relative">
               <button

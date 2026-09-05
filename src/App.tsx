@@ -5,14 +5,12 @@ import { Toaster } from 'sonner'
 import ErrorBoundary from './lib/ErrorBoundary'
 import { initDataService } from './lib/dataService'
 import ScrollToTop from './components/core/ScrollToTop'
-import { ThemeProvider } from './hooks/useTheme'
 
 export default function App() {
   useEffect(() => { initDataService() }, [])
 
   return (
     <ErrorBoundary>
-      <ThemeProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <ScrollToTop />
           <MainRoutes />
@@ -25,7 +23,6 @@ export default function App() {
             richColors
           />
         </BrowserRouter>
-      </ThemeProvider>
     </ErrorBoundary>
   )
 }
