@@ -8,17 +8,17 @@ import { ExportButton } from '../components/admin/ExportButton'
 import { SEO } from '../lib/seo'
 import { Pagination } from '../components/admin/Pagination'
 
-interface Mesa { id: string; numero: number; capacidad: number; ubicacion: string; estado: string }
+interface Mesa { id: string; numero: number; ubicacion: string; estado: string }
 
 const initialMesas: Mesa[] = [
-  { id: 'm1', numero: 1, capacidad: 2, ubicacion: 'Interior', estado: 'disponible' },
-  { id: 'm2', numero: 2, capacidad: 2, ubicacion: 'Interior', estado: 'disponible' },
-  { id: 'm3', numero: 3, capacidad: 4, ubicacion: 'Interior', estado: 'ocupada' },
-  { id: 'm4', numero: 4, capacidad: 4, ubicacion: 'Terraza', estado: 'disponible' },
-  { id: 'm5', numero: 5, capacidad: 6, ubicacion: 'Terraza', estado: 'reservada' },
-  { id: 'm6', numero: 6, capacidad: 2, ubicacion: 'Barra', estado: 'disponible' },
-  { id: 'm7', numero: 7, capacidad: 8, ubicacion: 'Zona Privada', estado: 'disponible' },
-  { id: 'm8', numero: 8, capacidad: 4, ubicacion: 'Interior', estado: 'mantenimiento' },
+  { id: 'm1', numero: 1, ubicacion: 'Interior', estado: 'disponible' },
+  { id: 'm2', numero: 2, ubicacion: 'Interior', estado: 'disponible' },
+  { id: 'm3', numero: 3, ubicacion: 'Interior', estado: 'ocupada' },
+  { id: 'm4', numero: 4, ubicacion: 'Terraza', estado: 'disponible' },
+  { id: 'm5', numero: 5, ubicacion: 'Terraza', estado: 'reservada' },
+  { id: 'm6', numero: 6, ubicacion: 'Barra', estado: 'disponible' },
+  { id: 'm7', numero: 7, ubicacion: 'Zona Privada', estado: 'disponible' },
+  { id: 'm8', numero: 8, ubicacion: 'Interior', estado: 'mantenimiento' },
 ]
 
 const estadoColores: Record<string, { bg: string; border: string; text: string; label: string; dot: string }> = {
@@ -52,7 +52,6 @@ export default function AdminMesas() {
   const [showEstadoModal, setShowEstadoModal] = useState<Mesa | null>(null)
 
   const [formNumero, setFormNumero] = useState('')
-  const [formCapacidad, setFormCapacidad] = useState('')
   const [formUbicacion, setFormUbicacion] = useState('Interior')
   const [formEstado, setFormEstado] = useState('disponible')
   const [customUbicacion, setCustomUbicacion] = useState('')
@@ -87,7 +86,6 @@ export default function AdminMesas() {
 
   const resetForm = () => {
     setFormNumero('')
-    setFormCapacidad('')
     setFormUbicacion('Interior')
     setFormEstado('disponible')
     setCustomUbicacion('')
@@ -102,7 +100,6 @@ export default function AdminMesas() {
   const openEdit = (mesa: Mesa) => {
     setEditing(mesa)
     setFormNumero(String(mesa.numero))
-    setFormCapacidad(String(mesa.capacidad))
     setFormUbicacion(ubicacionesOptions.includes(mesa.ubicacion) ? mesa.ubicacion : mesa.ubicacion)
     setFormEstado(mesa.estado)
     setCustomUbicacion(ubicacionesOptions.includes(mesa.ubicacion) ? '' : mesa.ubicacion)
@@ -116,18 +113,15 @@ export default function AdminMesas() {
     const exists = mesas.some((m) => m.numero === numero && m.id !== editing?.id)
     if (exists) { toast.error('Ya existe una mesa con ese número'); return }
 
-    const capacidad = parseInt(formCapacidad)
-    if (isNaN(capacidad) || capacidad < 1 || capacidad > 50) { toast.error('Capacidad debe ser entre 1 y 50'); return }
-
     const ubicacionFinal = customUbicacion.trim() || formUbicacion
     if (!ubicacionFinal) { toast.error('Selecciona o escribe una ubicación'); return }
 
     if (editing) {
-      const updated = mesas.map((m) => m.id === editing.id ? { ...m, numero, capacidad, ubicacion: ubicacionFinal, estado: formEstado } : m)
+      const updated = mesas.map((m) => m.id === editing.id ? { ...m, numero, ubicacion: ubicacionFinal, estado: formEstado } : m)
       save(updated)
       toast.success('Mesa actualizada')
     } else {
-      const newMesa: Mesa = { id: 'mesa_' + Date.now(), numero, capacidad, ubicacion: ubicacionFinal, estado: formEstado }
+      const newMesa: Mesa = { id: 'mesa_' + Date.now(), numero, ubicacion: ubicacionFinal, estado: formEstado }
       const updated = [...mesas, newMesa]
       save(updated)
       toast.success('Mesa creada')
@@ -160,7 +154,7 @@ export default function AdminMesas() {
           <p className="text-steel text-sm mt-1">{filtradas.length} mesa{filtradas.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="flex items-center gap-2">
-          <ExportButton data={filtradas} filename="mesas" columns={[{ key: 'numero', label: 'Número' }, { key: 'capacidad', label: 'Capacidad' }, { key: 'ubicacion', label: 'Ubicación' }, { key: 'estado', label: 'Estado' }]} />
+          <ExportButton data={filtradas} filename="mesas" columns={[{ key: 'numero', label: 'Número' }, { key: 'ubicacion', label: 'Ubicación' }, { key: 'estado', label: 'Estado' }]} />
           <button onClick={openCreate} className="flex items-center gap-2 bg-olive-500 hover:bg-olive-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm shadow-olive-500/20">
             <FaPlus size={13} /> Nueva mesa
           </button>
@@ -231,7 +225,6 @@ export default function AdminMesas() {
                       <FaThLarge size={24} className="text-steel/40" />
                     </div>
                     <p className="text-2xl font-display font-bold text-espresso-800">#{m.numero}</p>
-                    <p className="text-xs text-steel mt-1">{m.capacidad} personas</p>
                     <div className="flex items-center justify-center gap-1 mt-2">
                       <FaMapMarkerAlt size={10} className="text-steel/40" />
                       <span className="text-[10px] text-steel">{m.ubicacion}</span>
@@ -256,10 +249,6 @@ export default function AdminMesas() {
               <div>
                 <label className="block text-xs font-semibold text-espresso-700 mb-1.5">Número de mesa *</label>
                 <input type="number" value={formNumero} onChange={(e) => setFormNumero(e.target.value)} min={1} placeholder="Ej: 1" className="w-full px-4 py-2.5 rounded-xl border border-cream-200 bg-white text-sm text-espresso-800 placeholder:text-steel/40 focus:outline-none focus:ring-2 focus:ring-olive-500/20 focus:border-olive-400 transition-all" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-espresso-700 mb-1.5">Capacidad (1-50) *</label>
-                <input type="number" value={formCapacidad} onChange={(e) => setFormCapacidad(e.target.value)} min={1} max={50} placeholder="Ej: 4" className="w-full px-4 py-2.5 rounded-xl border border-cream-200 bg-white text-sm text-espresso-800 placeholder:text-steel/40 focus:outline-none focus:ring-2 focus:ring-olive-500/20 focus:border-olive-400 transition-all" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-espresso-700 mb-1.5">Ubicación *</label>
@@ -300,7 +289,7 @@ export default function AdminMesas() {
           <div className="bg-white rounded-3xl w-full max-w-sm shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="p-6 border-b border-cream-200 text-center">
               <h3 className="text-lg font-display font-bold text-espresso-800">Mesa #{showEstadoModal.numero}</h3>
-              <p className="text-xs text-steel mt-1">{showEstadoModal.ubicacion} • {showEstadoModal.capacidad} personas</p>
+              <p className="text-xs text-steel mt-1">{showEstadoModal.ubicacion}</p>
             </div>
             <div className="p-4">
               <p className="text-xs font-semibold text-espresso-700 mb-3 px-2">Cambiar estado</p>

@@ -35,7 +35,12 @@ export default function AdminOrdenes() {
   const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
-    setOrdenes(storage.getOrdenes<Order>())
+    const load = () => setOrdenes(storage.getOrdenes<Order>())
+    load()
+    const id = setInterval(load, 5000)
+    const onStorage = () => load()
+    window.addEventListener('storage', onStorage)
+    return () => { clearInterval(id); window.removeEventListener('storage', onStorage) }
   }, [])
 
   const ordenesFiltradas = useMemo(() => {
@@ -98,6 +103,21 @@ export default function AdminOrdenes() {
         </div>
       )}
 
+      {/* Recepción: pedidos nuevos destacados */}
+      {(() => { const nuevos = ordenes.filter((o) => o.estado === 'recibido'); if (nuevos.length === 0) return null; return (
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-4">
+          <p className="text-sm font-bold text-blue-800 flex items-center gap-2"><span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" /> {nuevos.length} pedido{nuevos.length !== 1 ? 's' : ''} nuevo{nuevos.length !== 1 ? 's' : ''} — requiere atención</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+            {nuevos.slice(0, 6).map((o) => (
+              <div key={o.id} className="bg-white rounded-xl border border-blue-200 p-3 flex items-center justify-between">
+                <div><p className="text-sm font-semibold text-espresso-800">{o.fullName || (o as any).clientName || 'Cliente'}</p><p className="text-xs text-steel">{o.phone} • {o.items?.length || 0} items</p></div>
+                <div className="text-right"><p className="text-sm font-bold text-espresso-800">${Number(o.total).toLocaleString('es-CO')}</p><button onClick={() => cambiarEstado(o.id, 'preparando')} className="mt-1 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-semibold">Aceptar</button></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )})()}
+
       {ordenesPagina.length === 0 ? (
         <EmptyState icon={<FaSearch size={24} />} title="No hay pedidos" description="Los pedidos aparecerán aquí" />
       ) : (
@@ -109,7 +129,7 @@ export default function AdminOrdenes() {
                   <tr className="bg-cream-50 border-b border-cream-200">
                     <th className="p-3 text-left text-xs font-semibold text-espresso-700 uppercase tracking-wider">ID</th>
                     <th className="p-3 text-left text-xs font-semibold text-espresso-700 uppercase tracking-wider">Cliente</th>
-                    <th className="p-3 text-left text-xs font-semibold text-espresso-700 uppercase tracking-wider">Fecha</th>
+                    <th className="p-3 text-left text-xs font-semibold text-espresso-700 uppercase tracking-wider hidden sm:table-cell">Fecha</th>
                     <th className="p-3 text-center text-xs font-semibold text-espresso-700 uppercase tracking-wider">Items</th>
                     <th className="p-3 text-right text-xs font-semibold text-espresso-700 uppercase tracking-wider">Total</th>
                     <th className="p-3 text-center text-xs font-semibold text-espresso-700 uppercase tracking-wider">Estado</th>

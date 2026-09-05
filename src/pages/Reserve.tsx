@@ -5,10 +5,9 @@ import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import { FaCalendarAlt, FaUser, FaArrowRight, FaArrowLeft, FaMinus, FaPlus, FaUsers, FaCheck, FaBan, FaWhatsapp, FaCalendarPlus } from 'react-icons/fa'
+import { FaCalendarAlt, FaUser, FaArrowRight, FaArrowLeft, FaMinus, FaPlus, FaUsers, FaCheck, FaWhatsapp, FaCalendarPlus, FaClock } from 'react-icons/fa'
 import clsx from 'clsx'
 
-const HORAS = (() => { const h = []; for (let i = 11; i <= 21; i++) { h.push(`${i.toString().padStart(2, '0')}:00`); if (i < 21) h.push(`${i.toString().padStart(2, '0')}:30`) } return h })()
 const OCASIONES = [...CONFIG.reservas.ocasiones, 'Otra']
 const DAYS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do']
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
@@ -37,11 +36,19 @@ function getCalendarDays(year: number, month: number) {
 }
 
 function getAvailability(fecha: string, hora: string): 'available' | 'limited' | 'full' {
+  if (!hora) return 'available'
   const reservas = storage.getReservas()
   const same = reservas.filter((r: any) => r.fecha === fecha && r.hora === hora && r.estado !== 'Cancelada')
   if (same.length >= 3) return 'full'
   if (same.length >= 1) return 'limited'
   return 'available'
+}
+
+function getHorarioMinMax() {
+  try {
+    const cfg = JSON.parse(localStorage.getItem('restaurant-config') || '{}')
+    return { min: cfg.horarioApertura || CONFIG.horarios.apertura, max: cfg.horarioCierre || CONFIG.horarios.cierre }
+  } catch { return { min: CONFIG.horarios.apertura, max: CONFIG.horarios.cierre } }
 }
 
 export default function Reserve() {
@@ -201,29 +208,19 @@ export default function Reserve() {
                       <ErrorMessage name="fecha" component="p" className="text-red-500 text-xs mt-2" />
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-espresso-700 mb-2 block">Hora *</label>
-                      <div className="grid grid-cols-3 gap-1.5 max-h-[280px] overflow-y-auto scrollbar-hide pr-1">
-                        {HORAS.map(h => {
-                          const avail = values.fecha ? getAvailability(values.fecha, h) : 'available' as const
-                          const selected = values.hora === h
-                          const isFull = avail === 'full'
-                          return (
-                            <button key={h} type="button" disabled={isFull} onClick={() => !isFull && setFieldValue('hora', h)}
-                              className={clsx('hour-slot relative', { 'hour-selected': selected, 'hour-occupied': isFull, 'hour-available': !isFull && !selected, 'border-gold-400 bg-gold-50': avail === 'limited' && !selected })}>
-                              {selected && <FaCheck size={10} className="inline mr-1" />}
-                              {isFull && <FaBan size={10} className="inline mr-1 opacity-50" />}
-                              {h}
-                              {avail === 'limited' && !selected && <span className="absolute -top-1 -right-1 w-2 h-2 bg-gold-400 rounded-full" />}
-                            </button>
-                          )
-                        })}
-                      </div>
-                      <div className="flex gap-3 mt-3 text-[10px]">
-                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-olive-500" /> Seleccionada</span>
-                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded border border-cream-200 bg-white" /> Disponible</span>
-                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-gold-400" /> Pocos lugares</span>
-                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-cream-200" /> Completo</span>
-                      </div>
+                      <label className="text-sm font-medium text-espresso-700 mb-2 block flex items-center gap-1.5"><FaClock className="text-olive-500" size={12} /> Hora *</label>
+                      {(() => { const hm = getHorarioMinMax(); const avail = values.fecha && values.hora ? getAvailability(values.fecha, values.hora) : 'available' as const; return (
+                        <>
+                          <div className="relative">
+                            <FaClock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-steel/40 pointer-events-none" size={14} />
+                            <Field type="time" name="hora" min={hm.min} max={hm.max}
+                              className={clsx('input-base pl-10 text-sm', avail === 'full' && 'border-red-300 bg-red-50', avail === 'limited' && 'border-gold-300 bg-gold-50')} />
+                          </div>
+                          <p className="text-[11px] text-steel mt-1.5">Horario: {hm.min} – {hm.max}</p>
+                          {avail === 'limited' && <p className="text-[11px] text-gold-600 mt-1 flex items-center gap-1"><span className="w-2 h-2 bg-gold-400 rounded-full" /> Pocos lugares disponibles</p>}
+                          {avail === 'full' && <p className="text-[11px] text-red-500 mt-1">Horario completo, elige otra hora</p>}
+                        </>
+                      )})()}
                       <ErrorMessage name="hora" component="p" className="text-red-500 text-xs mt-2" />
                     </div>
                   </div>
