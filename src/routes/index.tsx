@@ -48,6 +48,13 @@ import AdminSegmentacion from '../pages/AdminSegmentacion'
 import AdminActividad from '../pages/AdminActividad'
 import AdminBackup from '../pages/AdminBackup'
 import AdminHorarios from '../pages/AdminHorarios'
+import AdminProveedores from '../pages/AdminProveedores'
+import AdminCompras from '../pages/AdminCompras'
+import AdminCaja from '../pages/AdminCaja'
+import AdminGastos from '../pages/AdminGastos'
+import AdminFacturacion from '../pages/AdminFacturacion'
+import AdminUsuarios from '../pages/AdminUsuarios'
+import AdminFidelizacion from '../pages/AdminFidelizacion'
 import ClientLayout from '../layouts/ClientLayout'
 
 import { RoutesPath } from './routes'
@@ -110,6 +117,13 @@ export default function MainRoutes() {
         <Route path={RoutesPath.adminActividad} element={<AdminActividad />} />
         <Route path={RoutesPath.adminBackup} element={<AdminBackup />} />
         <Route path={RoutesPath.adminHorarios} element={<AdminHorarios />} />
+        <Route path={RoutesPath.adminProveedores} element={<AdminProveedores />} />
+        <Route path={RoutesPath.adminCompras} element={<AdminCompras />} />
+        <Route path={RoutesPath.adminCaja} element={<AdminCaja />} />
+        <Route path={RoutesPath.adminGastos} element={<AdminGastos />} />
+        <Route path={RoutesPath.adminFacturacion} element={<AdminFacturacion />} />
+        <Route path={RoutesPath.adminUsuarios} element={<AdminUsuarios />} />
+        <Route path={RoutesPath.adminFidelizacion} element={<AdminFidelizacion />} />
       </Route>
 
       {/* 404 */}

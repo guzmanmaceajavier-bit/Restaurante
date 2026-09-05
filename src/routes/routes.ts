@@ -41,4 +41,11 @@ export const RoutesPath = {
   adminActividad: '/admin-actividad',
   adminBackup: '/admin-backup',
   adminHorarios: '/admin-horarios',
+  adminProveedores: '/admin-proveedores',
+  adminCompras: '/admin-compras',
+  adminCaja: '/admin-caja',
+  adminGastos: '/admin-gastos',
+  adminFacturacion: '/admin-facturacion',
+  adminUsuarios: '/admin-usuarios',
+  adminFidelizacion: '/admin-fidelizacion',
 }
