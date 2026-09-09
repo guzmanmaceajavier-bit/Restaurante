@@ -64,11 +64,14 @@ export const dataService: IDataService = {
 
 export async function initDataService(): Promise<void> {
   const existing = localStorage.getItem('productos')
-  if (existing) return
-  const data = await import('../mockData/mock_data.json')
-  const productos = (data.default as IProduct[]).map((p, i) => ({
-    ...p,
-    id: p.id || `prod-${i}`,
-  }))
-  localStorage.setItem('productos', JSON.stringify(productos))
+  if (!existing) {
+    const data = await import('../mockData/mock_data.json')
+    const productos = (data.default as IProduct[]).map((p, i) => ({
+      ...p,
+      id: p.id || `prod-${i}`,
+    }))
+    localStorage.setItem('productos', JSON.stringify(productos))
+  }
+  const { seedDemoData } = await import('./seedDemo')
+  seedDemoData()
 }

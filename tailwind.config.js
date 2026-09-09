@@ -7,6 +7,8 @@ export default {
       fontFamily: {
         display: ['Playfair Display', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        admin: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
       colors: {
         olive: {
@@ -91,8 +93,9 @@ export default {
         },
       },
       boxShadow: {
-        card: '0 2px 8px rgba(43,36,31,0.06), 0 1px 3px rgba(43,36,31,0.04)',
-        lift: '0 12px 40px rgba(43,36,31,0.12)',
+        card: '0 1px 3px rgba(16,24,40,0.06), 0 1px 2px rgba(16,24,40,0.04)',
+        lift: '0 8px 24px rgba(16,24,40,0.08)',
+        'card-hover': '0 4px 12px rgba(16,24,40,0.08)',
         glow: '0 0 30px rgba(102,122,34,0.15)',
       },
       maxWidth: {
@@ -115,12 +118,17 @@ export default {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-33.333%)' },
         },
+        'drawer-in': {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 0.4s ease-out',
         'slide-up': 'slide-up 0.5s ease-out',
         'scale-in': 'scale-in 0.3s ease-out',
         'marquee': 'marquee 30s linear infinite',
+        'drawer-in': 'drawer-in 0.25s cubic-bezier(0.32,0.72,0,1)',
       },
     },
   },

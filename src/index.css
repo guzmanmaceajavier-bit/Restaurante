@@ -11,6 +11,17 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  /* Admin scope: Plus Jakarta Sans for SaaS feel — only inside .admin */
+  .admin {
+    font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+  }
+  .admin h1, .admin h2, .admin h3, .admin h4, .admin button, .admin a, .admin label, .admin th {
+    font-family: 'Plus Jakarta Sans', Inter, sans-serif;
+  }
+  /* Financial numbers keep Inter for legibility */
+  .admin .font-mono, .admin [data-numeric] {
+    font-family: Inter, system-ui, sans-serif;
+  }
   .dark body,
   .dark {
     color: #e8e3dc;
@@ -80,14 +91,13 @@
 
   .card-base {
     background-color: white;
-    border-radius: 1rem;
-    border: 1px solid #e5edcf;
-    box-shadow: 0 2px 8px rgba(48,69,29,0.06), 0 1px 3px rgba(48,69,29,0.04);
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0.75rem;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 1px 3px rgba(16,24,40,0.06);
+    transition: all 0.2s ease;
   }
   .card-base:hover {
-    box-shadow: 0 12px 40px rgba(48,69,29,0.12);
-    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(16,24,40,0.08);
   }
 
   .input-base {
