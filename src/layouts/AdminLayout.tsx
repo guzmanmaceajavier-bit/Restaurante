@@ -106,11 +106,11 @@ export default function AdminLayout() {
   const contentMargin = collapsed ? 'lg:ml-[76px]' : 'lg:ml-[260px]'
 
   return (
-    <div className="admin min-h-screen bg-[#F1F5F9] flex">
+    <div className="admin min-h-screen bg-[#F8FAFC] flex">
       {/* Desktop sidebar */}
       <aside className={`hidden lg:flex flex-col bg-white border-r border-[#E5E7EB] fixed h-full z-30 transition-all duration-150 ${sidebarWidth}`}>
-        <div className="h-[48px] px-3 border-b border-[#E5E7EB] flex items-center gap-2 shrink-0">
-          <div className="w-7 h-7 rounded-md bg-[#0F172A] flex items-center justify-center text-white font-semibold text-[11px] shrink-0">{config.nombre.charAt(0)}</div>
+        <div className="h-[52px] px-3 border-b border-[#E5E7EB] flex items-center gap-2 shrink-0 bg-[#FDFCF8]">
+          <div className="w-8 h-8 rounded-lg bg-[#667A22] flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm">{config.nombre.charAt(0)}</div>
           {!collapsed && <div className="min-w-0 flex-1"><p className="text-[13px] font-semibold text-[#0F172A] leading-4 truncate">{config.nombre}</p><p className="text-[10px] text-[#94A3B8] tracking-wide uppercase">Panel administrativo</p></div>}
           <button onClick={()=> setCollapsed(v=>!v)} className="ml-auto w-6 h-6 rounded-md hover:bg-[#F1F5F9] flex items-center justify-center text-[#94A3B8]">
             {collapsed ? <FaAngleDoubleRight size={11}/> : <FaAngleDoubleLeft size={11}/>}
@@ -138,11 +138,11 @@ export default function AdminLayout() {
                       return (
                         <Link key={item.link} to={item.link}
                           title={collapsed ? item.label : undefined}
-                          className={`flex items-center gap-2.5 text-[13px] transition-colors ${collapsed ? 'justify-center px-2 py-2' : 'px-2 py-1.5'} ${active ? 'bg-[#F8FAFC] text-[#0F172A] border-l-2 border-[#667A22] -ml-px pl-[9px]' : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A] border-l-2 border-transparent'}`}>
-                          <item.icon size={13} className={active ? 'text-[#0F172A]' : 'text-[#94A3B8]'} />
+                          className={`flex items-center gap-2.5 rounded-md text-[13px] transition-colors ${collapsed ? 'justify-center px-2 py-2' : 'px-2.5 py-2'} ${active ? 'bg-[#F4F7EC] text-[#30451D] border border-[#E5EDCF] font-medium' : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A] border border-transparent'}`}>
+                          <item.icon size={13} className={active ? 'text-[#667A22]' : 'text-[#94A3B8]'} />
                           {!collapsed && <span className="flex-1 truncate leading-5">{item.label}</span>}
-                          {!collapsed && badge>0 && <span className="text-[11px] font-medium text-[#B45309]">{badge>99?'99+':badge}</span>}
-                          {collapsed && badge>0 && <span className="absolute ml-5 -mt-5 w-1.5 h-1.5 bg-[#B45309] rounded-full" />}
+                          {!collapsed && badge>0 && <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-[#F59E0B] text-white text-[10px] font-bold flex items-center justify-center">{badge>99?'99+':badge}</span>}
+                          {collapsed && badge>0 && <span className="absolute ml-5 -mt-5 w-2 h-2 bg-[#F59E0B] rounded-full border border-white" />}
                         </Link>
                       )
                     })}
@@ -194,7 +194,7 @@ export default function AdminLayout() {
       {/* Main */}
       <div className={`flex-1 min-w-0 ${contentMargin} transition-all duration-150`}>
         {/* Topbar */}
-        <div className="sticky top-0 z-20 bg-white border-b border-[#E5E7EB] h-[48px] flex items-center gap-3 px-4">
+        <div className="sticky top-0 z-20 bg-white border-b border-[#E5E7EB] h-[52px] flex items-center gap-3 px-4 shadow-sm">
           <button onClick={()=> setSidebarOpen(true)} className="lg:hidden w-7 h-7 rounded-md hover:bg-[#F1F5F9] flex items-center justify-center"><FaBars size={14} className="text-[#475569]"/></button>
           <div className="hidden sm:flex items-center gap-1 text-[13px] text-[#64748B] min-w-0">
             <span className="text-[#94A3B8]">Sabor y Origen</span>
