@@ -55,6 +55,7 @@ import AdminGastos from '../pages/AdminGastos'
 import AdminFacturacion from '../pages/AdminFacturacion'
 import AdminUsuarios from '../pages/AdminUsuarios'
 import AdminFidelizacion from '../pages/AdminFidelizacion'
+import AdminEventos from '../pages/AdminEventos'
 import ClientLayout from '../layouts/ClientLayout'
 
 import { RoutesPath } from './routes'
@@ -124,6 +125,7 @@ export default function MainRoutes() {
         <Route path={RoutesPath.adminFacturacion} element={<AdminFacturacion />} />
         <Route path={RoutesPath.adminUsuarios} element={<AdminUsuarios />} />
         <Route path={RoutesPath.adminFidelizacion} element={<AdminFidelizacion />} />
+        <Route path={RoutesPath.adminEventos} element={<AdminEventos />} />
       </Route>
 
       {/* 404 */}

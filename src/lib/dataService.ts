@@ -50,6 +50,10 @@ export const dataService: IDataService = {
   },
 
   getPromociones: () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('promociones_admin') || '[]') as Promocion[]
+      if (stored.length) return stored.filter((p) => p.vigente)
+    } catch {}
     return CONFIG.promociones.filter((p) => p.vigente)
   },
 

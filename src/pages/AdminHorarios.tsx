@@ -136,6 +136,16 @@ export default function AdminHorarios() {
 
   const save = () => {
     localStorage.setItem('horarios_config', JSON.stringify(config))
+    // Sincronizar con restaurant-config para que Reservas/Checkout usen el horario general
+    try {
+      const firstOpen = config.horarios.find(d=> d.abierto)
+      if(firstOpen){
+        const rc = JSON.parse(localStorage.getItem('restaurant-config')||'{}')
+        rc.horarioApertura = firstOpen.horaApertura
+        rc.horarioCierre = firstOpen.horaCierre
+        localStorage.setItem('restaurant-config', JSON.stringify(rc))
+      }
+    } catch {}
     toast.success('Horarios guardados correctamente')
   }
 

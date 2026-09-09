@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
+import { dataService } from '../lib/dataService'
 import { CONFIG } from '../lib/config'
 import { SEO } from '../lib/seo'
 import { FaTag, FaPercent, FaBox, FaArrowRight, FaFire } from 'react-icons/fa'
 
 export default function Promociones() {
+  const promociones = dataService.getPromociones()
   return (
     <>
       <SEO title="Promociones y Combos" description="Aprovecha nuestras promociones" />
@@ -19,7 +21,7 @@ export default function Promociones() {
 
       <section className="pb-20 px-6">
         <div className="max-w-content mx-auto space-y-8">
-          {CONFIG.promociones.length > 0 && (
+          {promociones.length > 0 && (
             <div>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 bg-olive-100 rounded-xl flex items-center justify-center">
@@ -31,7 +33,7 @@ export default function Promociones() {
                 </div>
               </div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {CONFIG.promociones.map((p, i) => (
+                {promociones.map((p, i) => (
                   <div
                     key={p.id}
                     className="group relative bg-white border border-cream-200 rounded-2xl p-6 hover:shadow-lift hover:-translate-y-1 transition-all duration-300 ease-out"

@@ -80,6 +80,12 @@ export default function Contact() {
     const updated = [newReview, ...allReviews]
     setAllReviews(updated)
     localStorage.setItem('contact-reviews', JSON.stringify(updated))
+    // Unificar con reseñas admin: mismo formato que Resenas.tsx / AdminResenas
+    try {
+      const existing = JSON.parse(localStorage.getItem('resenas') || '[]')
+      existing.unshift({ id: Date.now(), nombre: reviewName.trim(), estrellas: reviewRating, comentario: reviewComment.trim(), fecha: new Date().toISOString().split('T')[0] })
+      localStorage.setItem('resenas', JSON.stringify(existing))
+    } catch {}
     setReviewName('')
     setReviewEmail('')
     setReviewRating(0)

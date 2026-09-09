@@ -6,7 +6,7 @@ import { dataService } from '../lib/dataService'
 import { numberFormatter } from '../utils/numberFormatter'
 import { FaTimes, FaShoppingBag } from 'react-icons/fa'
 
-const galleryImages = [
+const fallbackGallery = [
   { src: '/platos/bandeja_paisa.webp', label: 'Bandeja Paisa' },
   { src: '/platos/ajiaco.webp', label: 'Ajiaco' },
   { src: '/platos/sancocho.webp', label: 'Sancocho' },
@@ -17,27 +17,13 @@ const galleryImages = [
   { src: '/platos/pescado_frito.webp', label: 'Pescado Frito' },
   { src: '/platos/cazuela_mariscos.webp', label: 'Cazuela de Mariscos' },
   { src: '/platos/carne_llanera.webp', label: 'Carne a la Llanera' },
-  { src: '/platos/arepas_rellenas.webp', label: 'Arepas Rellenas' },
-  { src: '/platos/empanadas_rellenas.webp', label: 'Empanadas' },
-  { src: '/platos/patacones.webp', label: 'Patacones' },
-  { src: '/platos/pandebonos.webp', label: 'Pandebonos' },
-  { src: '/platos/buñuelos.webp', label: 'Buñuelos' },
-  { src: '/platos/arroz_con_leche.webp', label: 'Arroz con Leche' },
-  { src: '/platos/natilla.webp', label: 'Natilla' },
-  { src: '/platos/brevas_con_arequipe.webp', label: 'Brevas con Arequipe' },
-  { src: '/platos/oblea.webp', label: 'Obleas' },
-  { src: '/platos/torta_tres_leches.webp', label: 'Torta de Tres Leches' },
-  { src: '/platos/jugo_lulo.webp', label: 'Jugo de Lulo' },
-  { src: '/platos/jugo_maracuya.webp', label: 'Jugo de Maracuyá' },
-  { src: '/platos/limonada_de_coco.webp', label: 'Limonada de Coco' },
-  { src: '/platos/Jugo_De_Mora.webp', label: 'Refresco de Mora' },
-  { src: '/platos/jugo_guayaba.webp', label: 'Jugo de Guayaba' },
 ]
 
 export default function Gallery() {
   const [loading, setLoading] = useState(true)
-  const [selected, setSelected] = useState<typeof galleryImages[number] | null>(null)
   const allProducts = dataService.getProductos()
+  const galleryImages = allProducts.length ? allProducts.filter(p=> p.imagen).map(p=> ({ src: p.imagen, label: p.nombre })) : fallbackGallery
+  const [selected, setSelected] = useState<typeof galleryImages[number] | null>(null)
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 800)

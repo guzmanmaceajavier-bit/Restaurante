@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { getRestaurantConfig } from '../lib/config'
-import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog, FaTags, FaTag, FaClipboardList, FaDollarSign, FaChartBar, FaUserFriends, FaHistory, FaDatabase, FaClock, FaCashRegister, FaFileInvoiceDollar, FaTruck, FaShoppingCart, FaTrophy, FaShieldAlt, FaMoneyBillWave, FaChevronDown, FaChevronRight, FaSearch, FaBell, FaQuestionCircle, FaAngleDoubleLeft, FaAngleDoubleRight } from 'react-icons/fa'
+import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog, FaTags, FaTag, FaClipboardList, FaDollarSign, FaChartBar, FaUserFriends, FaHistory, FaDatabase, FaClock, FaCashRegister, FaFileInvoiceDollar, FaTruck, FaShoppingCart, FaTrophy, FaShieldAlt, FaMoneyBillWave, FaChevronDown, FaChevronRight, FaSearch, FaBell, FaQuestionCircle, FaAngleDoubleLeft, FaAngleDoubleRight, FaGlassCheers, FaImages } from 'react-icons/fa'
 import { AdminSkeleton } from '../components/core/LoadingSkeleton'
 import { useLoading } from '../hooks/useLoading'
 import { CommandPalette } from '../components/admin/CommandPalette'
@@ -40,6 +40,9 @@ const sections: Section[] = [
     { label: 'Gastos', icon: FaMoneyBillWave, link: '/admin-gastos' },
     { label: 'Facturación', icon: FaFileInvoiceDollar, link: '/admin-facturacion' },
     { label: 'Finanzas', icon: FaDollarSign, link: '/admin-finanzas' },
+  ]},
+  { title: 'CONTENIDO', items: [
+    { label: 'Eventos', icon: FaGlassCheers, link: '/admin-eventos' },
   ]},
   { title: 'REPORTES', items: [{ label: 'Reportes', icon: FaChartBar, link: '/admin-reportes' }]},
   { title: 'SISTEMA', items: [

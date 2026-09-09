@@ -2,13 +2,16 @@ import { FaBirthdayCake, FaBriefcase, FaUsers, FaGlassCheers, FaPhone, FaArrowRi
 import { Link } from 'react-router-dom'
 import { SEO } from '../lib/seo'
 import { CONFIG } from '../lib/config'
+import { eventService } from '../lib/eventService'
 
-const events = [
-  { icon: FaBirthdayCake, title: 'Cumpleaños', desc: 'Celebra tu día especial con nosotros. Menú personalizado, decoración y pastel incluido.', features: ['Menú especial', 'Decoración temática', 'Pastel de cortesía', 'Música ambiental'], color: 'from-pink-500 to-rose-500', bg: 'bg-pink-50', iconColor: 'text-pink-500' },
-  { icon: FaBriefcase, title: 'Eventos Empresariales', desc: 'Reuniones de negocios, almuerzos corporativos y cenas de empresa.', features: ['Salón privado', 'Equipo audiovisual', 'Menú ejecutivo', 'Atención personalizada'], color: 'from-blue-500 to-indigo-500', bg: 'bg-blue-50', iconColor: 'text-blue-500' },
-  { icon: FaUsers, title: 'Reuniones Familiares', desc: 'Espacio perfecto para compartir en familia con un ambiente acogedor.', features: ['Menú infantil', 'Zona privada', 'Precios especiales', 'Estacionamiento'], color: 'from-olive-500 to-olive-600', bg: 'bg-olive-50', iconColor: 'text-olive-500' },
-  { icon: FaGlassCheers, title: 'Catering para Eventos', desc: 'Llevamos nuestros sabores a tus eventos. Bodas, fiestas y más.', features: ['Menú personalizado', 'Buffet o servicio a la mesa', 'Bebidas incluidas', 'Transporte'], color: 'from-amber-500 to-orange-500', bg: 'bg-amber-50', iconColor: 'text-amber-500' },
-]
+const iconMap: Record<string, any> = { FaBirthdayCake, FaBriefcase, FaUsers, FaGlassCheers }
+const colorMap: Record<string, {color:string, bg:string, iconColor:string}> = {
+  FaBirthdayCake: {color:'from-pink-500 to-rose-500', bg:'bg-pink-50', iconColor:'text-pink-500'},
+  FaBriefcase: {color:'from-blue-500 to-indigo-500', bg:'bg-blue-50', iconColor:'text-blue-500'},
+  FaUsers: {color:'from-olive-500 to-olive-600', bg:'bg-olive-50', iconColor:'text-olive-500'},
+  FaGlassCheers: {color:'from-amber-500 to-orange-500', bg:'bg-amber-50', iconColor:'text-amber-500'},
+}
+const events = eventService.getActivos().map(e=> ({ title:e.titulo, desc:e.descripcion, features:e.features, icon: iconMap[e.icono]||FaGlassCheers, ...colorMap[e.icono] }))
 
 export default function Events() {
   return (
