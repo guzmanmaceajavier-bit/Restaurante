@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from 'react'
 import { storage } from '../lib/storage'
 import { toast } from 'sonner'
-import { FaSearch, FaWhatsapp, FaPrint, FaFilter, FaTimes } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
+import { FaSearch, FaWhatsapp, FaPrint, FaFilter, FaTimes, FaHistory, FaExternalLinkAlt, FaCheckCircle } from 'react-icons/fa'
 import EmptyState from '../components/core/EmptyState'
 import type { Order } from '../types/order'
 import { Pagination } from '../components/admin/Pagination'
@@ -20,7 +21,22 @@ const estadoBadge: Record<string, { bg: string; text: string; border: string; la
   cancelado: { bg: 'bg-[#FEF2F2]', text: 'text-[#991B1B]', border: 'border-[#FECACA]', label: 'Cancelado' },
 }
 
+const nextAction: Record<string, {label:string, next:string}> = {
+  recibido: {label:'Confirmar → Enviar a cocina', next:'preparando'},
+  preparando: {label:'Marcar listo', next:'listo'},
+  listo: {label:'Entregar', next:'entregado'},
+}
+function buildHistory(o:any): {estado:string, fecha:string}[] {
+  if (Array.isArray(o.historial) && o.historial.length) return o.historial
+  const base = o.createdAt ? new Date(o.createdAt) : new Date()
+  const flow = ['recibido','preparando','listo','entregado']
+  const idx = flow.indexOf(o.estado)
+  if (idx===-1) return [{estado:o.estado, fecha: o.createdAt||new Date().toISOString()}]
+  return flow.slice(0, idx+1).map((e,i)=> ({estado:e, fecha: new Date(base.getTime()+ i*12*60000).toISOString()}))
+}
+
 export default function AdminOrdenes() {
+  const navigate = useNavigate()
   const [ordenes, setOrdenes] = useState<Order[]>([])
   const [selected, setSelected] = useState<Order | null>(null)
   const [busqueda, setBusqueda] = useState('')
@@ -49,7 +65,20 @@ export default function AdminOrdenes() {
   const totalPages=Math.ceil(ordenesFiltradas.length/ITEMS_PER_PAGE)
   const pagina=ordenesFiltradas.slice((page-1)*ITEMS_PER_PAGE, page*ITEMS_PER_PAGE)
   const hasActiveFilters = !!(filtroEstado||filtroMetodo||filtroTipo||filtroFecha||busqueda)
-  const cambiarEstado=(id:string, s:string)=>{ const u=ordenes.map(o=> o.id===id ? {...o, estado:s}:o); setOrdenes(u); storage.setOrdenes(u); if(selected?.id===id) setSelected({...selected, estado:s} as Order); toast.success(`Estado → ${estadoBadge[s]?.label||s}`)}
+  const cambiarEstado=(id:string, s:string)=>{
+    const nowIso=new Date().toISOString()
+    const u=ordenes.map(o=> {
+      if(o.id!==id) return o
+      const hist = Array.isArray((o as any).historial) ? [...(o as any).historial] : buildHistory(o)
+      hist.push({estado:s, fecha: nowIso})
+      return {...o, estado:s, historial: hist} as any
+    })
+    setOrdenes(u as any); storage.setOrdenes(u as any)
+    // audit log
+    try{ const log=JSON.parse(localStorage.getItem('activity_log')||'[]'); log.unshift({id:'act_'+Date.now(), accion:'Pedidos', detalle:`Pedido #${id.slice(0,8)} → ${estadoBadge[s]?.label||s}`, fecha: nowIso, usuario:'Admin'}); localStorage.setItem('activity_log', JSON.stringify(log.slice(0,120)))} catch{}
+    if(selected?.id===id) setSelected(prev=> prev ? ({...prev, estado:s, historial: [...buildHistory(prev), {estado:s, fecha: nowIso}]} as any) : null)
+    toast.success(`Estado → ${estadoBadge[s]?.label||s}`)
+  }
 
   return (
     <div>
@@ -177,27 +206,52 @@ export default function AdminOrdenes() {
         </>) : undefined}>
         {selected && (
           <>
+            {/* Acción contextual primaria */}
+            {nextAction[selected.estado] && (
+              <button onClick={()=> cambiarEstado(selected.id, nextAction[selected.estado].next)} className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-md bg-[#0F172A] text-white text-sm font-medium hover:bg-[#1E293B]">
+                <FaCheckCircle size={12}/> {nextAction[selected.estado].label}
+              </button>
+            )}
+            {selected.estado==='entregado' && (
+              <button onClick={()=> { imprimirPedido(selected); toast.success('Factura generada')}} className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-md border border-[#E5E7EB] bg-white text-sm font-medium text-[#0F172A] hover:bg-[#F8FAFC]">Ver factura</button>
+            )}
             <DrawerSection title="Cliente">
-              <DrawerField label="Nombre" value={selected.fullName||(selected as any).clientName||'—'} />
+              <DrawerField label="Nombre" value={<button onClick={()=> { setSelected(null); navigate('/admin-clientes'); toast.message('Abriendo cliente: '+(selected.fullName||selected.phone))}} className="inline-flex items-center gap-1 text-[#0F172A] hover:text-[#667A22] font-medium">{selected.fullName||(selected as any).clientName||'—'} <FaExternalLinkAlt size={10} className="text-[#94A3B8]"/></button>} />
               <DrawerField label="Teléfono" value={selected.phone||'—'} />
               <DrawerField label="Tipo" value={(selected as any).tipoServicio||'—'} />
               <DrawerField label="Pago" value={(selected as any).metodoPago||'—'} />
+              <button onClick={()=> { setSelected(null); navigate('/admin-clientes')}} className="text-xs font-medium text-[#667A22] hover:underline">Abrir cliente →</button>
             </DrawerSection>
             <DrawerSection title="Productos">
               <div className="space-y-2">
                 {selected.items?.map((it:any,i:number)=> (
-                  <div key={i} className="flex justify-between gap-3 py-2 border-b border-[#F1F5F9] last:border-0">
+                  <button key={i} onClick={()=> { setSelected(null); navigate('/admin-productos'); toast.message('Producto: '+it.nombre)}} className="w-full flex justify-between gap-3 py-2 border-b border-[#F1F5F9] last:border-0 hover:bg-[#F8FAFC] -mx-1 px-1 rounded text-left">
                     <span className="text-sm text-[#0F172A]"><span className="inline-flex w-6 h-6 rounded-md bg-[#F1F5F9] items-center justify-center text-xs font-semibold mr-2">{it.quantity}</span>{it.nombre}</span>
-                    <span className="text-sm font-medium" data-numeric>${Number(it.precio*it.quantity).toLocaleString('es-CO')}</span>
-                  </div>
+                    <span className="text-sm font-medium flex items-center gap-1" data-numeric>${Number(it.precio*it.quantity).toLocaleString('es-CO')} <FaExternalLinkAlt size={10} className="text-[#94A3B8]"/></span>
+                  </button>
                 ))}
                 <div className="flex justify-between pt-2"><span className="text-sm font-semibold text-[#0F172A]">Total</span><span className="text-sm font-semibold text-[#0F172A]" data-numeric>${Number(selected.total).toLocaleString('es-CO')}</span></div>
               </div>
+              <div className="flex gap-2 text-xs">
+                <button onClick={()=> { setSelected(null); navigate('/admin-inventario')}} className="text-[#667A22] hover:underline">Ver inventario →</button>
+                <button onClick={()=> { setSelected(null); navigate('/admin-facturacion')}} className="text-[#667A22] hover:underline">Ver factura →</button>
+              </div>
             </DrawerSection>
-            <DrawerSection title="Estado">
-              <div className="grid grid-cols-3 gap-2">
+            <DrawerSection title="Historial">
+              <div className="relative pl-4 border-l border-[#E5E7EB] space-y-3">
+                {buildHistory(selected).map((h,i)=> (
+                  <div key={i} className="relative">
+                    <span className={`absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full border-2 border-white ${h.estado===selected.estado ? 'bg-[#0F172A]' : 'bg-[#CBD5E1]'}`} />
+                    <p className="text-xs font-medium text-[#0F172A]">{estadoBadge[h.estado]?.label||h.estado}</p>
+                    <p className="text-[11px] text-[#94A3B8]">{new Date(h.fecha).toLocaleString('es-CO',{day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'})}</p>
+                  </div>
+                ))}
+              </div>
+            </DrawerSection>
+            <DrawerSection title="Cambiar estado">
+              <div className="grid grid-cols-3 gap-1.5">
                 {Object.entries(estadoBadge).map(([k,v])=> (
-                  <button key={k} onClick={()=> cambiarEstado(selected.id,k)} className={`py-2 rounded-lg text-xs font-semibold border ${selected.estado===k ? `${v.bg} ${v.text} ${v.border}` : 'bg-white border-[#E5E7EB] text-[#475569] hover:bg-[#F8FAFC]'}`}>{v.label}</button>
+                  <button key={k} onClick={()=> cambiarEstado(selected.id,k)} className={`py-2 rounded-md text-xs font-medium border ${selected.estado===k ? `${v.bg} ${v.text} ${v.border}` : 'bg-white border-[#E5E7EB] text-[#64748B] hover:bg-[#F8FAFC]'}`}>{v.label}</button>
                 ))}
               </div>
             </DrawerSection>

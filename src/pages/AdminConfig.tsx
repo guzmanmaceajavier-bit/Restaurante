@@ -40,40 +40,46 @@ export default function AdminConfig() {
   }
 
   const tabs = [
-    { id: 'general', label: 'General', icon: FaStore },
-    { id: 'imagenes', label: 'Imágenes', icon: FaImage },
-    { id: 'delivery', label: 'Delivery', icon: FaTruck },
-    { id: 'reservas', label: 'Reservas', icon: FaCalendarAlt },
-    { id: 'pagos', label: 'Pagos', icon: FaCreditCard },
-    { id: 'redes', label: 'Redes', icon: FaGlobe },
-    { id: 'tema', label: 'Tema', icon: FaPalette },
-    { id: 'textos-legales', label: 'Textos Legales', icon: FaFileAlt },
+    { id: 'general', label: 'General', desc: 'Restaurante, contacto, moneda', icon: FaStore },
+    { id: 'imagenes', label: 'Imágenes', desc: 'Logo, banner, favicon', icon: FaImage },
+    { id: 'delivery', label: 'Pedidos', desc: 'Delivery, tiempos, barrios', icon: FaTruck },
+    { id: 'reservas', label: 'Reservas', desc: 'Política, límites, anticipación', icon: FaCalendarAlt },
+    { id: 'pagos', label: 'Pagos', desc: 'Impuestos, métodos, servicio', icon: FaCreditCard },
+    { id: 'redes', label: 'Redes', desc: 'Instagram, Facebook, TikTok', icon: FaGlobe },
+    { id: 'tema', label: 'Apariencia', desc: 'Color primario', icon: FaPalette },
+    { id: 'textos-legales', label: 'Legales', desc: 'Privacidad y términos', icon: FaFileAlt },
   ]
 
-  const inputClass = 'w-full px-4 py-3 bg-cream-50 border border-cream-200 rounded-xl text-sm text-espresso-800 focus:outline-none focus:ring-2 focus:ring-olive-500/30 focus:border-olive-500 transition-all'
+  const inputClass = 'w-full px-3 py-2 bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#94A3B8] focus:bg-white'
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
         <div>
-          <h1 className="text-2xl font-display font-bold text-espresso-800">Configuración</h1>
-          <p className="text-steel text-sm mt-1">Administra todo el restaurante desde aquí</p>
+          <p className="text-[11px] font-medium tracking-widest uppercase text-[#94A3B8]">SISTEMA / CONFIGURACIÓN</p>
+          <h1 className="text-[18px] font-semibold tracking-tight text-[#0F172A] mt-1">Configuración</h1>
+          <p className="text-[13px] text-[#64748B] mt-1">Ajustes del restaurante, pedidos, pagos y legales. Guardado en localStorage.</p>
         </div>
-        <button onClick={save} className="flex items-center gap-2 bg-olive-500 hover:bg-olive-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm shadow-olive-500/20">
-          <FaSave size={14} /> Guardar cambios
+        <button onClick={save} className="inline-flex items-center gap-2 bg-[#0F172A] hover:bg-[#1E293B] text-white px-4 py-2 rounded-md text-[13px] font-medium">
+          <FaSave size={12} /> Guardar cambios
         </button>
       </div>
 
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
-        {tabs.map((t) => (
-          <button key={t.id} onClick={() => setActiveTab(t.id)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeTab === t.id ? 'bg-olive-500 text-white shadow-md shadow-olive-500/25' : 'bg-white border border-cream-200 text-espresso-600 hover:bg-cream-50'}`}>
-            <t.icon size={14} /> {t.label}
-          </button>
-        ))}
-      </div>
+      <div className="grid lg:grid-cols-[220px_1fr] gap-4">
+        <nav className="bg-white border border-[#E5E7EB] rounded-md p-2 h-fit lg:sticky lg:top-[64px]">
+          {tabs.map((t) => (
+            <button key={t.id} onClick={() => setActiveTab(t.id)}
+              className={`w-full text-left flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13px] transition-colors ${activeTab === t.id ? 'bg-[#F8FAFC] text-[#0F172A] border-l-2 border-[#667A22] -ml-px pl-[9px] font-medium' : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A] border-l-2 border-transparent'}`}>
+              <t.icon size={13} className={activeTab===t.id ? 'text-[#0F172A]' : 'text-[#94A3B8]'} />
+              <span className="flex-1 leading-5">{t.label}</span>
+            </button>
+          ))}
+          <div className="mt-3 pt-3 border-t border-[#F1F5F9] px-2">
+            <p className="text-[11px] text-[#94A3B8] leading-4">Los cambios aplican a sitio, reservas y pedidos. Usa Horarios y Backup para operación.</p>
+          </div>
+        </nav>
 
-      <div className="bg-white rounded-2xl border border-cream-200 p-6">
+        <div className="bg-white border border-[#E5E7EB] rounded-md p-5">
         {/* GENERAL */}
         {activeTab === 'general' && (
           <div className="space-y-6">
