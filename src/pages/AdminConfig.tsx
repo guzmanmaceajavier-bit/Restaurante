@@ -354,7 +354,9 @@ export default function AdminConfig() {
               />
             </div>
           </div>
-        )}
+          )}
+        </div>
+        </div>
       </div>
     </div>
   )
