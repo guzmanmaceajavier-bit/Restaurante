@@ -34,22 +34,22 @@ export default function ClientLogin() {
   }
 
   return (
-    <section className="pt-8 pb-20 px-6 min-h-screen bg-cream-50">
+    <section className="py-10 px-4 sm:px-6 min-h-screen bg-[#FFFBF5]">
       <SEO title={isRegister ? 'Crear cuenta' : 'Iniciar sesión'} />
       <div className="max-w-md mx-auto">
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-olive-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <FaUser className="text-olive-500" size={24} />
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1C2A0F] to-[#667A22] flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <FaUser className="text-white" size={20} />
           </div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-espresso-800 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-[#1C2A0F] tracking-tight mb-2">
             {isRegister ? 'Crear cuenta' : 'Bienvenido de vuelta'}
           </h1>
-          <p className="text-steel">
+          <p className="text-sm text-[#64748B]">
             {isRegister ? 'Regístrate para acumular puntos y ver tus pedidos' : 'Accede a tu cuenta para ver tus pedidos y puntos'}
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-card border border-cream-200 p-8">
+        <div className="bg-white rounded-[20px] border border-[#F1E9D8] shadow-sm p-6 sm:p-8">
           <form onSubmit={isRegister ? handleRegister : handleLogin} className="space-y-5">
             {isRegister && (
               <div>
@@ -93,22 +93,22 @@ export default function ClientLogin() {
                 <Link to="/recuperar-contrasena" className="text-xs text-olive-500 hover:text-olive-600 mt-2 inline-block">¿Olvidaste tu contraseña?</Link>
               )}
             </div>
-            <button type="submit" className="w-full btn-primary py-4 text-base flex items-center justify-center gap-2">
+            <button type="submit" className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-[#1C2A0F] text-white text-sm font-medium hover:bg-[#2A3D16] transition-colors">
               {isRegister ? 'Crear cuenta' : 'Iniciar sesión'}
-              <FaArrowRight size={14} />
+              <FaArrowRight size={12} />
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <button onClick={() => setIsRegister(!isRegister)} className="text-olive-500 hover:text-olive-600 text-sm font-medium transition-colors">
+            <button onClick={() => setIsRegister(!isRegister)} className="text-[#667A22] hover:text-[#4A5A18] text-sm font-medium transition-colors">
               {isRegister ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate'}
             </button>
           </div>
         </div>
 
-        <p className="text-center text-xs text-steel mt-6">
+        <p className="text-center text-xs text-[#94A3B8] mt-6">
           También puedes consultar tu pedido con tu{' '}
-          <Link to="/mis-pedidos" className="text-olive-500 hover:text-olive-600 font-medium">número de orden</Link>
+          <Link to="/mis-pedidos" className="text-[#667A22] hover:underline font-medium">número de orden</Link>
         </p>
       </div>
     </section>
