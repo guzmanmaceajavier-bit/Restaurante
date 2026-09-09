@@ -46,68 +46,40 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center px-8 py-3.5 font-semibold rounded-xl transition-all duration-300;
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-md transition-colors duration-150;
     background-color: #667A22 !important;
     color: white !important;
-    border: 2px solid #667A22 !important;
-    box-shadow: 0 4px 14px rgba(102,122,34,0.35) !important;
+    border: 1px solid #667A22 !important;
   }
-  .btn-primary:hover {
-    background-color: #556719 !important;
-    border-color: #556719 !important;
-    box-shadow: 0 8px 25px rgba(102,122,34,0.45) !important;
-    transform: translateY(-2px);
-  }
-  .btn-primary:active {
-    transform: scale(0.97) !important;
-    box-shadow: 0 2px 8px rgba(102,122,34,0.3) !important;
-  }
-
+  .btn-primary:hover { background-color: #556619 !important; border-color: #556619 !important; }
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-8 py-3.5 font-semibold rounded-xl transition-all duration-300;
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-md transition-colors duration-150;
     background-color: white !important;
-    border: 2px solid #B9C98A !important;
-    color: #667A22 !important;
-    box-shadow: 0 2px 8px rgba(102,122,34,0.1) !important;
+    border: 1px solid #E5E7EB !important;
+    color: #334155 !important;
   }
-  .btn-secondary:hover {
-    background-color: #f4f7ec !important;
-    border-color: #667A22 !important;
-    color: #556619 !important;
-    transform: translateY(-1px);
-  }
-  .btn-secondary:active {
-    transform: scale(0.97) !important;
-  }
-
+  .btn-secondary:hover { background-color: #F8FAFC !important; border-color: #CBD5E1 !important; }
   .btn-ghost {
-    @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-xl transition-all duration-300;
-    color: #667A22 !important;
+    @apply inline-flex items-center justify-center px-3 py-1.5 font-medium rounded-md transition-colors duration-150;
+    color: #475569 !important;
     background: transparent !important;
   }
-  .btn-ghost:hover {
-    background-color: #f4f7ec !important;
-  }
-
+  .btn-ghost:hover { background-color: #F1F5F9 !important; }
   .card-base {
     background-color: white;
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     border: 1px solid #E5E7EB;
-    box-shadow: 0 1px 3px rgba(16,24,40,0.06);
-    transition: all 0.2s ease;
-  }
-  .card-base:hover {
-    box-shadow: 0 4px 12px rgba(16,24,40,0.08);
   }
 
   .input-base {
     width: 100%;
-    padding: 0.75rem 1rem;
-    border-radius: 0.75rem;
-    border: 1px solid #B9C98A;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid #E5E7EB;
     background-color: white;
-    color: #30451D;
-    transition: all 0.25s ease;
+    color: #0F172A;
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease;
   }
   .dark .input-base {
     background-color: #252e1e;

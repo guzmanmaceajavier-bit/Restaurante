@@ -12,15 +12,15 @@ export function ActionMenu({ items }: { items: ActionItem[] }) {
   }, [])
   return (
     <div className="relative" ref={ref}>
-      <button onClick={() => setOpen(v=>!v)} className="w-8 h-8 rounded-lg hover:bg-[#F1F5F9] flex items-center justify-center text-[#64748B] transition-colors">
-        <FaEllipsisH size={12} />
+      <button onClick={() => setOpen(v=>!v)} className="w-7 h-7 rounded-md hover:bg-[#F1F5F9] flex items-center justify-center text-[#64748B] transition-colors">
+        <FaEllipsisH size={11} />
       </button>
       {open && (
-        <div className="absolute right-0 top-9 w-56 bg-white rounded-xl border border-[#E5E7EB] shadow-lift py-1 z-20 overflow-hidden">
+        <div className="absolute right-0 top-8 w-52 bg-white rounded-md border border-[#E5E7EB] shadow-md py-1 z-20 overflow-hidden">
           {items.map((it, i) => (
             <button key={i} onClick={() => { setOpen(false); it.onClick() }} disabled={it.disabled}
-              className={`w-full text-left px-3 py-2.5 text-sm flex items-center gap-2.5 hover:bg-[#F8FAFC] transition-colors ${it.danger ? 'text-[#DC2626] hover:bg-[#FEF2F2]' : 'text-[#334155]'} ${it.disabled ? 'opacity-40 pointer-events-none' : ''}`}>
-              {it.icon && <it.icon size={13} className={it.danger ? 'text-[#DC2626]' : 'text-[#64748B]'} />}{it.label}
+              className={`w-full text-left px-3 py-2 text-[13px] flex items-center gap-2 hover:bg-[#F8FAFC] transition-colors ${it.danger ? 'text-[#DC2626] hover:bg-[#FEF2F2]' : 'text-[#334155]'} ${it.disabled ? 'opacity-40 pointer-events-none' : ''}`}>
+              {it.icon && <it.icon size={12} className={it.danger ? 'text-[#DC2626]' : 'text-[#64748B]'} />}{it.label}
             </button>
           ))}
         </div>
