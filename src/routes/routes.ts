@@ -49,4 +49,5 @@ export const RoutesPath = {
   adminUsuarios: '/admin-usuarios',
   adminFidelizacion: '/admin-fidelizacion',
   adminEventos: '/admin-eventos',
+  adminCatalogo: '/admin-catalogo',
 }

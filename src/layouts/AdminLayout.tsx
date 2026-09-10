@@ -19,8 +19,7 @@ const sections: Section[] = [
     { label: 'Mesas', icon: FaThLarge, link: '/admin-mesas' },
   ]},
   { title: 'MENÚ', items: [
-    { label: 'Productos', icon: FaUtensils, link: '/admin-productos' },
-    { label: 'Categorías', icon: FaTags, link: '/admin-categorias' },
+    { label: 'Catálogo', icon: FaUtensils, link: '/admin-catalogo' },
     { label: 'Promociones', icon: FaTag, link: '/admin-promociones' },
   ]},
   { title: 'CLIENTES Y MARKETING', items: [
