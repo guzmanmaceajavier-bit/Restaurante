@@ -36,7 +36,6 @@ const sections: Section[] = [
   ]},
   { title: 'FINANZAS', items: [
     { label: 'Caja', icon: FaCashRegister, link: '/admin-caja' },
-    { label: 'Gastos', icon: FaMoneyBillWave, link: '/admin-gastos' },
     { label: 'Facturación', icon: FaFileInvoiceDollar, link: '/admin-facturacion' },
     { label: 'Finanzas', icon: FaDollarSign, link: '/admin-finanzas' },
   ]},
