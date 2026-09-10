@@ -15,11 +15,26 @@ const cfg: Record<string, { label: string; dot: string; border: string; next: st
 export default function AdminCocina() {
   const [ordenes, setOrdenes] = useState<Order[]>([])
   const [now, setNow] = useState(Date.now())
+  const [prevCount, setPrevCount] = useState(0)
   useEffect(()=> {
-    const load=()=> setOrdenes(storage.getOrdenes<Order>())
+    const beep=()=>{
+      try{
+        const ctx=new (window.AudioContext|| (window as any).webkitAudioContext)()
+        const o=ctx.createOscillator(), g=ctx.createGain()
+        o.type='sine'; o.frequency.value=880; o.connect(g); g.connect(ctx.destination)
+        g.gain.setValueAtTime(0.15, ctx.currentTime); o.start(); g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime+0.35); o.stop(ctx.currentTime+0.35)
+      } catch{}
+    }
+    const load=()=>{
+      const data=storage.getOrdenes<Order>()
+      const nuevos=data.filter((o:any)=> o.estado==='recibido').length
+      if(nuevos>prevCount && prevCount!==0) beep()
+      setPrevCount(nuevos)
+      setOrdenes(data)
+    }
     load(); const id=setInterval(load, 5000); const tick=setInterval(()=> setNow(Date.now()), 30000)
     return ()=> {clearInterval(id); clearInterval(tick)}
-  }, [])
+  }, [prevCount])
   const cocina = useMemo(()=> ordenes.filter(o=> ['recibido','preparando','listo'].includes(o.estado)), [ordenes])
   const byEstado = (e:string)=> cocina.filter(o=> o.estado===e)
   const avanzar=(id:string)=>{

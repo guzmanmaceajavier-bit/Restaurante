@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { toast } from 'sonner'
 import { FaPlus, FaThLarge, FaMapMarkerAlt } from 'react-icons/fa'
 import EmptyState from '../components/core/EmptyState'
@@ -8,7 +8,7 @@ import { PageHeader } from '../components/admin/PageHeader'
 import { DetailDrawer, DrawerSection, DrawerField } from '../components/admin/DetailDrawer'
 import { ActionMenu } from '../components/admin/ActionMenu'
 
-interface Mesa { id:string; numero:number; ubicacion:string; estado:string }
+interface Mesa { id:string; numero:number; ubicacion:string; estado:string; occupiedSince?: string }
 const initial: Mesa[] = [
   {id:'m1',numero:1,ubicacion:'Interior',estado:'disponible'},
   {id:'m2',numero:2,ubicacion:'Interior',estado:'disponible'},
@@ -30,6 +30,8 @@ const estadosOptions=['disponible','ocupada','reservada','mantenimiento'] as con
 
 export default function AdminMesas(){
   const [mesas,setMesas]=useState<Mesa[]>(()=>{ try{ const s=JSON.parse(localStorage.getItem('mesas')||'[]'); return s.length? s: initial } catch{ return initial}})
+  const [nowTick,setNowTick]=useState(Date.now())
+  useEffect(()=>{ const id=setInterval(()=> setNowTick(Date.now()), 30000); return ()=> clearInterval(id)}, [])
   const [filtro,setFiltro]=useState('')
   const [selected,setSelected]=useState<Mesa|null>(null)
   const [showForm,setShowForm]=useState(false)
@@ -51,11 +53,11 @@ export default function AdminMesas(){
     const num=parseInt(formNumero); if(isNaN(num)||num<=0){ toast.error('Número válido'); return}
     if(mesas.some(m=> m.numero===num && m.id!==editing?.id)){ toast.error('Número ya existe'); return}
     const ubic=customUbic.trim()||formUbicacion; if(!ubic){ toast.error('Ubicación requerida'); return}
-    if(editing){ save(mesas.map(m=> m.id===editing.id ? {...m, numero:num, ubicacion:ubic, estado:formEstado}:m)); toast.success('Mesa actualizada')}
-    else { save([...mesas, {id:'mesa_'+Date.now(), numero:num, ubicacion:ubic, estado:formEstado}]); toast.success('Mesa creada')}
+    if(editing){ save(mesas.map(m=> m.id===editing.id ? {...m, numero:num, ubicacion:ubic, estado:formEstado, occupiedSince: formEstado==='ocupada' ? (m.occupiedSince || new Date().toISOString()) : undefined}:m)); toast.success('Mesa actualizada')}
+    else { save([...mesas, {id:'mesa_'+Date.now(), numero:num, ubicacion:ubic, estado:formEstado, occupiedSince: formEstado==='ocupada' ? new Date().toISOString() : undefined}]); toast.success('Mesa creada')}
     setShowForm(false); reset()
   }
-  const cambiarEstado=(id:string, estado:string)=>{ save(mesas.map(m=> m.id===id ? {...m, estado}:m)); toast.success(`Mesa → ${estadoCfg[estado]?.label}`); setSelected(null)}
+  const cambiarEstado=(id:string, estado:string)=>{ save(mesas.map(m=> m.id===id ? {...m, estado, occupiedSince: estado==='ocupada' ? new Date().toISOString() : undefined}:m)); toast.success(`Mesa → ${estadoCfg[estado]?.label}`); setSelected(null)}
   return (
     <div>
       <PageHeader title="Mesas — Mapa del salón" description={`${stats.total} mesas · ${stats.libres} libres · ${stats.ocupadas} ocupadas · ${stats.reservadas} reservadas · Toca una mesa para gestionar`} actions={<><ExportButton data={filtradas} filename="mesas" columns={[{key:'numero',label:'Número'},{key:'ubicacion',label:'Ubicación'},{key:'estado',label:'Estado'}]} /><button onClick={openCreate} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0F172A] text-white text-sm font-medium hover:bg-[#1E293B]"><FaPlus size={11}/> Nueva mesa</button></>} />
@@ -81,10 +83,11 @@ export default function AdminMesas(){
                   return (
                     <button key={m.id} onClick={()=> setSelected(m)} className={`relative text-left rounded-xl border-2 p-4 hover:shadow-card-hover transition-all ${c.bg} ${c.border}`}>
                       <div className="absolute top-2 right-2" onClick={e=> e.stopPropagation()}><ActionMenu items={[{label:'Cambiar estado', onClick:()=> setSelected(m)}, {label:'Editar', onClick:()=> openEdit(m)}, {label:'Eliminar', danger:true, onClick:()=> setConfirmDelete(m.id)}]} /></div>
-                      <div className="flex items-center gap-1.5 mb-2"><span className={`w-2 h-2 rounded-full ${c.dot}`} /><span className={`text-[11px] font-semibold ${c.text}`}>{c.label}</span></div>
+                      <div className="flex items-center gap-1.5 mb-2"><span className={`w-2 h-2 rounded-full ${c.dot} ${m.estado==='ocupada' ? 'animate-pulse' : ''}`} /><span className={`text-[11px] font-semibold ${c.text}`}>{c.label}</span></div>
                       <div className="w-12 h-12 rounded-xl bg-white border border-[#E5E7EB] flex items-center justify-center mx-auto mb-2"><FaThLarge size={18} className="text-[#94A3B8]"/></div>
                       <p className="text-center text-lg font-semibold text-[#0F172A] tracking-tight">Mesa {m.numero}</p>
                       <p className="text-center text-xs text-[#64748B]">{m.ubicacion}</p>
+                      {m.estado==='ocupada' && m.occupiedSince && <p className="text-center text-[11px] font-medium text-[#991B1B] mt-1">⏱ {Math.max(0, Math.floor((nowTick - new Date(m.occupiedSince).getTime())/60000))} min ocupada</p>}
                     </button>
                   )
                 })}

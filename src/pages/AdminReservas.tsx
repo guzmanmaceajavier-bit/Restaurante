@@ -140,6 +140,26 @@ export default function AdminReservas(){
               </div>
             )}
           </div>
+          <div className="bg-white rounded-xl border border-[#E5E7EB] p-4">
+            <h4 className="text-sm font-semibold text-[#0F172A] mb-3">Timeline {agendaList.key} — 10:00–22:00</h4>
+            <div className="space-y-1 max-h-[320px] overflow-y-auto pr-1">
+              {Array.from({length:13}, (_,i)=> 10+i).map(h=>{
+                const hh=String(h).padStart(2,'0')
+                const atHour=agendaList.list.filter(r=> r.hora.startsWith(hh+':'))
+                return (
+                  <div key={h} className="flex gap-3 py-1.5 border-b border-[#F8FAFC] last:border-0">
+                    <span className="text-xs font-mono text-[#94A3B8] w-12 shrink-0 pt-1">{hh}:00</span>
+                    <div className="flex-1 flex flex-wrap gap-1.5">
+                      {atHour.length===0 ? <span className="text-[11px] text-[#CBD5E1]">—</span> : atHour.map(r=>{
+                        const st=estadoStyle[r.estado||'Pendiente']||estadoStyle.Pendiente
+                        return <span key={r.id} className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border ${st.bg} ${st.text} ${st.border}`}>{r.hora} · {r.nombre} ({r.personas})</span>
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
           {agendaList.upcoming.length>0 && (
             <div className="bg-white rounded-xl border border-[#E5E7EB] p-4">
               <h4 className="text-sm font-semibold text-[#0F172A] mb-3">Próximas reservas</h4>
