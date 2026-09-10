@@ -66,6 +66,7 @@ export default function AdminOrdenes() {
   const pagina=ordenesFiltradas.slice((page-1)*ITEMS_PER_PAGE, page*ITEMS_PER_PAGE)
   const hasActiveFilters = !!(filtroEstado||filtroMetodo||filtroTipo||filtroFecha||busqueda)
   const cambiarEstado=(id:string, s:string)=>{
+    const prev=ordenes.find(o=> o.id===id)
     const nowIso=new Date().toISOString()
     const u=ordenes.map(o=> {
       if(o.id!==id) return o
@@ -74,9 +75,30 @@ export default function AdminOrdenes() {
       return {...o, estado:s, historial: hist} as any
     })
     setOrdenes(u as any); storage.setOrdenes(u as any)
+    // Stock: si cancelado, devolver stock; si se reactiva desde cancelado, volver a descontar
+    try {
+      if(prev && s==='cancelado' && prev.estado!=='cancelado'){
+        const productos=JSON.parse(localStorage.getItem('productos')||'[]')
+        let changed=false
+        ;(prev.items as any[])?.forEach((it:any)=>{
+          const idx=productos.findIndex((p:any)=> p.nombre===it.nombre || p.id===it.id)
+          if(idx!==-1){ productos[idx].stock = (productos[idx].stock||0) + it.quantity; changed=true }
+        })
+        if(changed) localStorage.setItem('productos', JSON.stringify(productos))
+      }
+      if(prev && prev.estado==='cancelado' && s!=='cancelado'){
+        const productos=JSON.parse(localStorage.getItem('productos')||'[]')
+        let changed=false
+        ;(prev.items as any[])?.forEach((it:any)=>{
+          const idx=productos.findIndex((p:any)=> p.nombre===it.nombre || p.id===it.id)
+          if(idx!==-1){ productos[idx].stock = Math.max(0, (productos[idx].stock||0) - it.quantity); changed=true }
+        })
+        if(changed) localStorage.setItem('productos', JSON.stringify(productos))
+      }
+    } catch {}
     // audit log
     try{ const log=JSON.parse(localStorage.getItem('activity_log')||'[]'); log.unshift({id:'act_'+Date.now(), accion:'Pedidos', detalle:`Pedido #${id.slice(0,8)} → ${estadoBadge[s]?.label||s}`, fecha: nowIso, usuario:'Admin'}); localStorage.setItem('activity_log', JSON.stringify(log.slice(0,120)))} catch{}
-    if(selected?.id===id) setSelected(prev=> prev ? ({...prev, estado:s, historial: [...buildHistory(prev), {estado:s, fecha: nowIso}]} as any) : null)
+    if(selected?.id===id) setSelected(prevSel=> prevSel ? ({...prevSel, estado:s, historial: [...buildHistory(prevSel), {estado:s, fecha: nowIso}]} as any) : null)
     toast.success(`Estado → ${estadoBadge[s]?.label||s}`)
   }
 
