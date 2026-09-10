@@ -1,8 +1,9 @@
-import { CONFIG, type Promocion } from './config'
+import { type Promocion } from './config'
+import { dataService } from './dataService'
 
 export function validarCodigo(codigo: string): Promocion | null {
   if (!codigo.trim()) return null
-  const promo = CONFIG.promociones.find(
+  const promo = dataService.getPromociones().find(
     (p) => p.codigo && p.codigo.toLowerCase() === codigo.trim().toLowerCase() && p.vigente
   )
   return promo || null
