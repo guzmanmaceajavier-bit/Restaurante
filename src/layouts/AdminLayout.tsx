@@ -37,12 +37,11 @@ const sections: Section[] = [
   { title: 'FINANZAS', items: [
     { label: 'Caja', icon: FaCashRegister, link: '/admin-caja' },
     { label: 'Facturación', icon: FaFileInvoiceDollar, link: '/admin-facturacion' },
-    { label: 'Finanzas', icon: FaDollarSign, link: '/admin-finanzas' },
+    { label: 'Analítica', icon: FaChartBar, link: '/admin-finanzas' },
   ]},
   { title: 'CONTENIDO', items: [
     { label: 'Eventos', icon: FaGlassCheers, link: '/admin-eventos' },
   ]},
-  { title: 'REPORTES', items: [{ label: 'Reportes', icon: FaChartBar, link: '/admin-reportes' }]},
   { title: 'SISTEMA', items: [
     { label: 'Usuarios y Roles', icon: FaShieldAlt, link: '/admin-usuarios' },
     { label: 'Actividad', icon: FaHistory, link: '/admin-actividad' },
