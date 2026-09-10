@@ -27,7 +27,6 @@ const sections: Section[] = [
     { label: 'Fidelización', icon: FaTrophy, link: '/admin-fidelizacion' },
     { label: 'Reseñas', icon: FaStar, link: '/admin-resenas' },
     { label: 'WhatsApp', icon: FaComments, link: '/admin-whatsapp' },
-    { label: 'Segmentación', icon: FaUserFriends, link: '/admin-segmentacion' },
   ]},
   { title: 'INVENTARIO', items: [
     { label: 'Inventario', icon: FaClipboardList, link: '/admin-inventario' },
