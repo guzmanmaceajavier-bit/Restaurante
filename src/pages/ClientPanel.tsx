@@ -27,7 +27,7 @@ const estadoBadge: Record<string, { bg: string; text: string }> = {
 type Tab = 'inicio' | 'perfil' | 'menu' | 'pedidos' | 'reservas' | 'favoritos' | 'puntos' | 'recompensas' | 'config'
 
 export default function ClientPanel() {
-  const { clienteActual, logout } = useAuthStore()
+  const { clienteActual, logout, canjearPuntos } = useAuthStore()
   const navigate = useNavigate()
   const addToCart = useCartStore((s) => s.addToCart)
   const [tab, setTab] = useState<Tab>('inicio')
@@ -352,21 +352,25 @@ export default function ClientPanel() {
               <p className="text-xs text-[#92400E]/70 mt-2">{100 - ((clienteActual.puntos || 0) % 100)} puntos para el siguiente nivel</p>
             </div>
             <div className="bg-white rounded-2xl border border-[#F1E9D8] p-5">
-              <h3 className="text-sm font-semibold text-[#1C2A0F] mb-3 flex items-center gap-2"><FaFire size={12} className="text-[#F59E0B]" /> Niveles</h3>
-              <div className="grid grid-cols-4 gap-2">
-                {[{ name: 'Bronce', min: 0, color: 'bg-[#92400E]' }, { name: 'Plata', min: 5, color: 'bg-[#94A3B8]' }, { name: 'Oro', min: 10, color: 'bg-[#F59E0B]' }, { name: 'Diamante', min: 20, color: 'bg-[#0EA5E9]' }].map(l => (
-                  <div key={l.name} className={clsx('rounded-xl border p-3 text-center', ordenes.length >= l.min ? 'bg-[#FFFBF5] border-[#FDE68A]' : 'bg-white border-[#F1E9D8] opacity-60')}>
+              <h3 className="text-sm font-semibold text-[#1C2A0F] mb-3 flex items-center gap-2"><FaFire size={12} className="text-[#F59E0B]" /> Niveles por puntos</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {[{ name: 'Bronce', min: 0, color: 'bg-[#92400E]' }, { name: 'Plata', min: 200, color: 'bg-[#94A3B8]' }, { name: 'Oro', min: 500, color: 'bg-[#F59E0B]' }].map(l => {
+                  const pts=clienteActual.puntos||0
+                  const achieved=pts>=l.min
+                  return (
+                  <div key={l.name} className={clsx('rounded-xl border p-3 text-center', achieved ? 'bg-[#FFFBF5] border-[#FDE68A]' : 'bg-white border-[#F1E9D8] opacity-60')}>
                     <div className={`w-2 h-2 rounded-full ${l.color} mx-auto mb-1.5`} />
                     <p className="text-xs font-medium text-[#1C2A0F]">{l.name}</p>
-                    <p className="text-[11px] text-[#94A3B8]">{l.min}+ pedidos</p>
-                    {ordenes.length >= l.min && <FaCheckCircle size={12} className="text-[#10B981] mx-auto mt-1" />}
+                    <p className="text-[11px] text-[#94A3B8]">{l.min} pts</p>
+                    {achieved && <FaCheckCircle size={12} className="text-[#10B981] mx-auto mt-1" />}
                   </div>
-                ))}
+                )})}
               </div>
+              <p className="text-[11px] text-[#94A3B8] mt-2 text-center">Oro 500 pts · Plata 200 pts · Bronce 0 pts</p>
             </div>
             <div className="bg-white rounded-2xl border border-[#F1E9D8] p-5">
               <h3 className="text-sm font-semibold text-[#1C2A0F] mb-2">Cómo ganar</h3>
-              <p className="text-xs text-[#64748B] leading-relaxed">1 punto por cada $10.000 · 100 puntos = $10.000 de descuento · Sube de nivel con pedidos.</p>
+              {(() => { try{ const cfg=JSON.parse(localStorage.getItem('fidelizacion_cfg')||'null'); const ppp=cfg?.pesosPorPunto||10000; const pc=cfg?.puntosCanje||100; return <p className="text-xs text-[#64748B] leading-relaxed">1 punto por cada ${ppp.toLocaleString('es-CO')} · {pc} puntos = $10.000 de descuento · Configurable en Admin → Fidelización.</p> } catch{ return <p className="text-xs text-[#64748B] leading-relaxed">1 punto por cada $10.000 · 100 puntos = $10.000 de descuento · Sube de nivel con puntos.</p> }})()}
             </div>
           </div>
         )}
@@ -377,16 +381,23 @@ export default function ClientPanel() {
               <span className="text-sm text-[#64748B]">Tienes</span>
               <span className="text-lg font-display font-bold text-[#667A22]">{clienteActual.puntos || 0} puntos</span>
             </div>
-            {[{ name: 'Descuento $10.000', cost: 100, icon: '🏷️', desc: '$10.000 de descuento' }, { name: 'Bebida gratis', cost: 50, icon: '🥤', desc: 'Bebida gratuita' }, { name: 'Postre gratis', cost: 75, icon: '🍰', desc: 'Postre gratis' }, { name: 'Envío gratis', cost: 30, icon: '🚴', desc: 'Envío gratis' }].map(r => (
-              <div key={r.name} className="bg-white rounded-2xl border border-[#F1E9D8] p-4 flex items-center gap-4">
-                <span className="w-10 h-10 rounded-xl bg-[#FFFBF5] border border-[#F1E9D8] flex items-center justify-center text-lg">{r.icon}</span>
+            {(() => {
+              const stored = (()=>{ try{ const s=JSON.parse(localStorage.getItem('fidelizacion_recompensas')||'[]'); return s.length? s : null } catch{ return null }})()
+              const recompensas = stored || [{ name: 'Descuento $10.000', cost: 100, icon: '🏷️', desc: '$10.000 de descuento' }, { name: 'Bebida gratis', cost: 50, icon: '🥤', desc: 'Bebida gratuita' }, { name: 'Postre gratis', cost: 75, icon: '🍰', desc: 'Postre gratis' }, { name: 'Envío gratis', cost: 30, icon: '🚴', desc: 'Envío gratis' }]
+              return recompensas.map((r:any) => (
+              <div key={r.name || r.nombre} className="bg-white rounded-2xl border border-[#F1E9D8] p-4 flex items-center gap-4">
+                <span className="w-10 h-10 rounded-xl bg-[#FFFBF5] border border-[#F1E9D8] flex items-center justify-center text-lg">{r.icon || '🎁'}</span>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-semibold text-[#1C2A0F]">{r.name}</h4>
-                  <p className="text-xs text-[#64748B] truncate">{r.desc} · <span className="font-medium text-[#667A22]">{r.cost} pts</span></p>
+                  <h4 className="text-sm font-semibold text-[#1C2A0F]">{r.name || r.nombre}</h4>
+                  <p className="text-xs text-[#64748B] truncate">{r.desc || r.descripcion} · <span className="font-medium text-[#667A22]">{r.cost || r.puntos} pts</span></p>
                 </div>
-                <button onClick={() => { if ((clienteActual.puntos || 0) >= r.cost) toast.success(`¡${r.name} canjeado!`); else toast.error('Puntos insuficientes') }} disabled={(clienteActual.puntos || 0) < r.cost} className="shrink-0 px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium hover:bg-[#2A3D16] disabled:bg-[#F1F5F9] disabled:text-[#94A3B8] disabled:border disabled:border-[#E5E7EB] transition-colors">Canjear</button>
+                <button onClick={() => {
+                  const costo = r.cost || r.puntos
+                  const res = canjearPuntos(costo)
+                  if(res.ok){ toast.success(`¡${r.name||r.nombre} canjeado! -${costo} pts`)} else toast.error(res.error||'Puntos insuficientes')
+                }} disabled={(clienteActual.puntos || 0) < (r.cost || r.puntos)} className="shrink-0 px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium hover:bg-[#2A3D16] disabled:bg-[#F1F5F9] disabled:text-[#94A3B8] disabled:border disabled:border-[#E5E7EB] transition-colors">Canjear</button>
               </div>
-            ))}
+            ))})()}
           </div>
         )}
 
