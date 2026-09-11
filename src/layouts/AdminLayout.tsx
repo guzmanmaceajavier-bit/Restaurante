@@ -136,8 +136,8 @@ export default function AdminLayout() {
                       return (
                         <Link key={item.link} to={item.link}
                           title={collapsed ? item.label : undefined}
-                          className={`flex items-center gap-2.5 rounded-md text-[13px] transition-colors ${collapsed ? 'justify-center px-2 py-2' : 'px-2.5 py-2'} ${active ? 'bg-[#F4F7EC] text-[#30451D] border border-[#E5EDCF] font-medium' : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A] border border-transparent'}`}>
-                          <item.icon size={13} className={active ? 'text-[#667A22]' : 'text-[#94A3B8]'} />
+                          className={`flex items-center gap-2.5 text-[13px] transition-colors ${collapsed ? 'justify-center px-2 py-2 rounded-md' : 'px-2.5 py-2 rounded-md'} ${active ? 'bg-white text-[#0F172A] border-l-2 border-l-[#667A22] border-y border-r border-[#E5E7EB] -ml-px pl-[9px] font-medium shadow-sm' : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A] border border-transparent'}`}>
+                          <item.icon size={13} className={active ? 'text-[#0F172A]' : 'text-[#94A3B8]'} />
                           {!collapsed && <span className="flex-1 truncate leading-5">{item.label}</span>}
                           {!collapsed && badge>0 && <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-[#F59E0B] text-white text-[10px] font-bold flex items-center justify-center">{badge>99?'99+':badge}</span>}
                           {collapsed && badge>0 && <span className="absolute ml-5 -mt-5 w-2 h-2 bg-[#F59E0B] rounded-full border border-white" />}
