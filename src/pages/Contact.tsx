@@ -14,9 +14,9 @@ const defaultReviews = [
 ]
 
 const contactInfo = [
-  { icon: FaMapMarkerAlt, label: 'Dirección', value: CONFIG.contacto.direccion, href: CONFIG.contacto.mapaUrl },
-  { icon: FaPhone, label: 'Teléfono', value: CONFIG.contacto.telefono, href: `tel:${CONFIG.contacto.telefono}` },
-  { icon: FaEnvelope, label: 'Email', value: CONFIG.contacto.email, href: `mailto:${CONFIG.contacto.email}` },
+  { icon: FaMapMarkerAlt, label: 'Dirección', value: config.direccion, href: config.mapaUrl },
+  { icon: FaPhone, label: 'Teléfono', value: config.telefono, href: `tel:${config.telefono}` },
+  { icon: FaEnvelope, label: 'Email', value: config.email, href: `mailto:${config.email}` },
 ]
 
 function StarRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
@@ -138,7 +138,7 @@ export default function Contact() {
                   <h2 className="text-lg font-display font-bold text-espresso-800">Encuéntranos</h2>
                 </div>
                 <div className="h-[280px]">
-                  <iframe src={CONFIG.contacto.mapaUrl} width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy" title="Ubicación" />
+                  <iframe src={config.mapaUrl} width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy" title="Ubicación" />
                 </div>
               </div>
 
@@ -217,9 +217,9 @@ export default function Contact() {
                 <h2 className="text-lg font-display font-bold text-espresso-800 mb-4">Síguenos</h2>
                 <div className="flex flex-col gap-2.5">
                   {[
-                    { icon: FaInstagram, label: 'Instagram', url: CONFIG.redes[0].url, color: 'hover:text-pink-500 hover:bg-pink-50' },
-                    { icon: FaFacebook, label: 'Facebook', url: CONFIG.redes[1].url, color: 'hover:text-blue-500 hover:bg-blue-50' },
-                    { icon: FaWhatsapp, label: 'WhatsApp', url: CONFIG.redes[2].url, color: 'hover:text-emerald-500 hover:bg-emerald-50' },
+                    { icon: FaInstagram, label: 'Instagram', url: config.redes.instagram || CONFIG.redes[0].url, color: 'hover:text-pink-500 hover:bg-pink-50' },
+                    { icon: FaFacebook, label: 'Facebook', url: config.redes.facebook || CONFIG.redes[1].url, color: 'hover:text-blue-500 hover:bg-blue-50' },
+                    { icon: FaWhatsapp, label: 'WhatsApp', url: `https://wa.me/${config.whatsapp}`, color: 'hover:text-emerald-500 hover:bg-emerald-50' },
                   ].map(s => (
                     <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer"
                       className={`flex items-center gap-3 bg-cream-50 ${s.color} text-steel px-4 py-3 rounded-xl font-medium transition-all duration-200 border border-cream-200 hover:border-current/20 hover:shadow-sm`}>
@@ -234,7 +234,7 @@ export default function Contact() {
               <div className={`bg-white rounded-2xl shadow-card border border-cream-200 p-6 ${isVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
                 <h2 className="text-lg font-display font-bold text-espresso-800 mb-4">Pregúntanos lo que quieras</h2>
                 <p className="text-sm text-steel mb-4">Resolvemos dudas sobre menú, reservas, eventos especiales o pedidos grandes.</p>
-                <a href={`https://wa.me/${CONFIG.contacto.whatsapp}?text=${encodeURIComponent('Hola! Tengo una consulta sobre...')}`} target="_blank" rel="noopener noreferrer"
+                <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent('Hola! Tengo una consulta sobre...')}`} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-2 bg-emerald-50 text-emerald-600 px-4 py-3 rounded-xl font-medium hover:bg-emerald-100 transition-all border border-emerald-200">
                   <FaWhatsapp size={16} /> Escribir por WhatsApp
                 </a>
