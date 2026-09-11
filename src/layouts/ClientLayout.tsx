@@ -1,8 +1,17 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import { getRestaurantConfig } from '../lib/config'
-import { FaArrowLeft, FaShoppingBag, FaSignOutAlt, FaUser } from 'react-icons/fa'
+import { FaShoppingBag, FaSignOutAlt, FaHome, FaUser, FaUtensils, FaCalendarAlt, FaHeart, FaTrophy } from 'react-icons/fa'
 import { useCartStore } from '../store/useCartStore'
+
+const navItems = [
+  { label: 'Inicio', icon: FaHome, path: '/mi-cuenta', tab: 'inicio' },
+  { label: 'Pedidos', icon: FaShoppingBag, path: '/mi-cuenta', tab: 'pedidos' },
+  { label: 'Reservas', icon: FaCalendarAlt, path: '/mi-cuenta', tab: 'reservas' },
+  { label: 'Menú', icon: FaUtensils, path: '/menu', tab: null },
+  { label: 'Favoritos', icon: FaHeart, path: '/mi-cuenta', tab: 'favoritos' },
+  { label: 'Puntos', icon: FaTrophy, path: '/mi-cuenta', tab: 'puntos' },
+]
 
 export default function ClientLayout() {
   const { clienteActual, logout } = useAuthStore()
@@ -17,66 +26,92 @@ export default function ClientLayout() {
     navigate('/')
   }
 
+  // Para /login y /registro, header simple sin sidebar
+  if (!isPortal) {
+    return (
+      <div className="min-h-screen bg-[#FFFBF5] flex flex-col">
+        <header className="h-[56px] bg-white border-b border-[#F1E9D8] flex items-center px-4 sm:px-6">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#1C2A0F] flex items-center justify-center text-white font-bold text-xs">{config.nombre.charAt(0)}</div>
+            <span className="hidden sm:block text-sm font-display font-bold text-[#1C2A0F]">{config.nombre}</span>
+          </Link>
+          <div className="ml-auto flex items-center gap-2">
+            <Link to="/menu" className="relative w-8 h-8 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-white">
+              <FaShoppingBag size={13} className="text-[#475569]" />
+              {count>0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#F59E0B] text-white text-[10px] font-bold rounded-full flex items-center justify-center">{count}</span>}
+            </Link>
+          </div>
+        </header>
+        <main className="flex-1"><Outlet /></main>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-[#FFFBF5] flex flex-col">
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#F1E9D8]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-[64px] flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link to="/" className="w-8 h-8 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F8FAFC] transition-colors">
-              <FaArrowLeft size={12} className="text-[#475569]" />
-            </Link>
-            <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#667A22] to-[#4A5A18] flex items-center justify-center text-white font-display font-bold text-sm shadow-sm">
-                {config.nombre.charAt(0)}
-              </div>
-              <div className="hidden sm:block leading-tight">
-                <p className="text-sm font-display font-bold text-[#1C2A0F] tracking-tight">{config.nombre}</p>
-                <p className="text-[11px] tracking-widest uppercase text-[#8A9A5B] font-medium">{config.slogan}</p>
-              </div>
-            </Link>
+    <div className="min-h-screen bg-[#FFFBF5] flex">
+      {/* Sidebar desktop */}
+      <aside className="hidden lg:flex flex-col w-[240px] bg-white border-r border-[#F1E9D8] fixed h-full">
+        <div className="h-[64px] px-4 border-b border-[#F1E9D8] flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-[#1C2A0F] flex items-center justify-center text-white font-bold text-sm">{config.nombre.charAt(0)}</div>
+          <div>
+            <p className="text-sm font-display font-bold text-[#1C2A0F] leading-4">{config.nombre}</p>
+            <p className="text-[11px] text-[#F59E0B] font-semibold tracking-widest uppercase">Mi cuenta</p>
           </div>
-
-          <div className="flex items-center gap-2">
-            <Link to="/menu" className="relative w-9 h-9 rounded-full bg-[#F8FAFC] border border-[#E5E7EB] flex items-center justify-center hover:bg-white hover:border-[#CBD5E1] transition-colors">
-              <FaShoppingBag size={14} className="text-[#475569]" />
-              {count > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#667A22] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
-                  {count}
-                </span>
-              )}
-            </Link>
-            {clienteActual ? (
-              <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-2 pl-2 pr-3 py-1 rounded-full bg-[#F8FAFC] border border-[#E5E7EB]">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#F5B51B] to-[#E09D0A] flex items-center justify-center text-white text-xs font-bold">
-                    {clienteActual.nombre.charAt(0)}
-                  </div>
-                  <span className="text-sm font-medium text-[#1C2A0F] max-w-[120px] truncate">{clienteActual.nombre.split(' ')[0]}</span>
-                </div>
-                <button onClick={handleLogout} className="w-9 h-9 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#FEF2F2] hover:border-[#FECACA] hover:text-[#DC2626] text-[#64748B] transition-colors" title="Cerrar sesión">
-                  <FaSignOutAlt size={13} />
-                </button>
-              </div>
-            ) : (
-              <Link to="/login" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-sm font-medium hover:bg-[#2A3D16] transition-colors">
-                <FaUser size={11} /> Iniciar sesión
+        </div>
+        <div className="p-3 flex-1 overflow-y-auto">
+          <p className="px-2 py-2 text-[11px] font-semibold tracking-widest uppercase text-[#94A3B8]">Navegación</p>
+          <nav className="space-y-1">
+            {navItems.map(item=> (
+              <Link key={item.label} to={item.path} className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#475569] hover:bg-[#FFFBF5] hover:text-[#1C2A0F] transition-colors">
+                <item.icon size={13} className="text-[#94A3B8]" />
+                {item.label}
               </Link>
-            )}
+            ))}
+          </nav>
+          {clienteActual && (
+            <div className="mt-6 p-3 rounded-xl bg-gradient-to-br from-[#1C2A0F] to-[#2A3D16] text-white">
+              <p className="text-xs text-[#B9C98A]">Puntos</p>
+              <p className="text-xl font-bold">{clienteActual.puntos||0}</p>
+              <p className="text-[11px] text-white/70">{clienteActual.nivel||'bronce'} · {clienteActual.puntos||0} pts</p>
+            </div>
+          )}
+        </div>
+        <div className="p-3 border-t border-[#F1E9D8]">
+          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#475569] hover:bg-[#F8FAFC]"><FaHome size={12}/> Volver al sitio</Link>
+          {clienteActual && <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#DC2626] hover:bg-[#FEF2F2] mt-1"><FaSignOutAlt size={12}/> Salir</button>}
+        </div>
+      </aside>
+
+      {/* Main + mobile bottom nav */}
+      <div className="flex-1 lg:ml-[240px] flex flex-col min-h-screen">
+        <header className="h-[56px] bg-white border-b border-[#F1E9D8] flex items-center px-4 lg:px-6 gap-3 sticky top-0 z-20">
+          <Link to="/" className="lg:hidden flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#1C2A0F] flex items-center justify-center text-white font-bold text-xs">{config.nombre.charAt(0)}</div>
+            <span className="text-sm font-bold text-[#1C2A0F]">Mi cuenta</span>
+          </Link>
+          <div className="hidden lg:block text-sm font-medium text-[#1C2A0F]">Mi cuenta · {clienteActual?.nombre || 'Invitado'}</div>
+          <div className="ml-auto flex items-center gap-2">
+            <Link to="/menu" className="relative w-8 h-8 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-white">
+              <FaShoppingBag size={13} className="text-[#475569]" />
+              {count>0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#F59E0B] text-white text-[10px] font-bold rounded-full flex items-center justify-center">{count}</span>}
+            </Link>
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FDF6E3] border border-[#FDE68A] text-xs font-medium text-[#92400E]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" /> {clienteActual?.puntos||0} pts
+            </span>
           </div>
-        </div>
-        {isPortal && <div className="h-px bg-gradient-to-r from-transparent via-[#F5B51B]/30 to-transparent" />}
-      </header>
+        </header>
+        <main className="flex-1 p-4 lg:p-6 pb-20 lg:pb-6"><Outlet /></main>
 
-      <main className="flex-1">
-        <Outlet />
-      </main>
-
-      <footer className="border-t border-[#F1E9D8] bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#94A3B8]">
-          <span>© {new Date().getFullYear()} {config.nombre} · {config.direccion}</span>
-          <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" /> Atención {config.horarioApertura} – {config.horarioCierre}</span>
-        </div>
-      </footer>
+        {/* Bottom nav mobile */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#F1E9D8] flex justify-around py-2 px-2 z-20">
+          {navItems.slice(0,5).map(item=> (
+            <Link key={item.label} to={item.path} className="flex flex-col items-center gap-1 px-3 py-1 rounded-lg hover:bg-[#FFFBF5] text-[#64748B]">
+              <item.icon size={14} />
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+      </div>
     </div>
   )
 }
