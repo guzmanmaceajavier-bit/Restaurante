@@ -14,15 +14,15 @@ export default function App() {
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <ScrollToTop />
           <MainRoutes />
-          <Toaster
-            toastOptions={{
-              style: { padding: '15px' },
-              className: 'my-toast',
-            }}
-            position="top-center"
-            richColors
-          />
         </BrowserRouter>
+        <Toaster
+          toastOptions={{
+            style: { padding: '15px' },
+            className: 'my-toast',
+          }}
+          position="top-center"
+          richColors
+        />
     </ErrorBoundary>
   )
 }
