@@ -6,7 +6,7 @@ import { storage } from '../lib/storage'
 import { getRestaurantConfig } from '../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
-import { FaUser, FaShoppingBag, FaCalendarAlt, FaStar, FaSignOutAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaUtensils, FaGift, FaCog, FaHome, FaTrophy, FaCheckCircle, FaEdit, FaChevronRight, FaBell, FaFire } from 'react-icons/fa'
+import { FaUser, FaShoppingBag, FaCalendarAlt, FaStar, FaSignOutAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaUtensils, FaGift, FaCog, FaHome, FaTrophy, FaCheckCircle, FaEdit, FaChevronRight, FaBell, FaFire, FaTimes, FaClock } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 import EmptyState from '../components/core/EmptyState'
 import ConfirmModal from '../components/core/ConfirmModal'
@@ -23,6 +23,7 @@ const estadoBadge: Record<string, { bg: string; text: string }> = {
   entregado: { bg: 'bg-[#F8FAFC] border-[#E5E7EB]', text: 'text-[#475569]' },
   cancelado: { bg: 'bg-[#FEF2F2] border-[#FECACA]', text: 'text-[#991B1B]' },
 }
+const ORDER_STEPS = ['recibido','preparando','listo','entregado']
 
 type Tab = 'inicio' | 'perfil' | 'menu' | 'pedidos' | 'reservas' | 'favoritos' | 'puntos' | 'recompensas' | 'config'
 
@@ -32,6 +33,10 @@ export default function ClientPanel() {
   const addToCart = useCartStore((s) => s.addToCart)
   const [tab, setTab] = useState<Tab>('inicio')
   const [confirmCancel, setConfirmCancel] = useState<string | null>(null)
+  const [editingReserva, setEditingReserva] = useState<any>(null)
+  const [editFecha, setEditFecha] = useState('')
+  const [editHora, setEditHora] = useState('')
+  const [editPersonas, setEditPersonas] = useState(2)
   const { ref, isVisible } = useScrollAnimate(0.1)
   const { favorites, toggleFavorite } = useFavorites(clienteActual?.telefono)
 
@@ -97,6 +102,26 @@ export default function ClientPanel() {
     storage.setReservas(updated)
     setConfirmCancel(null)
     toast.success('Reserva cancelada')
+  }
+  const handleEditReserva = (r: any) => {
+    setEditingReserva(r)
+    setEditFecha(r.fecha)
+    setEditHora(r.hora)
+    setEditPersonas(r.personas)
+  }
+  const handleSaveEditReserva = () => {
+    if (!editingReserva) return
+    const reservas = storage.getReservas()
+    const updated = reservas.map((res: any) => res.id === editingReserva.id ? { ...res, fecha: editFecha, hora: editHora, personas: editPersonas, estado: 'Pendiente' } : res)
+    storage.setReservas(updated)
+    setEditingReserva(null)
+    toast.success('Reserva modificada — pendiente de confirmación')
+  }
+  const handleCancelPedido = (order: Order) => {
+    const ordenes = storage.getOrdenes<Order>()
+    const updated = ordenes.map((o) => o.id === order.id ? { ...o, estado: 'cancelado' } : o) as Order[]
+    storage.setOrdenes(updated)
+    toast.success('Pedido cancelado')
   }
 
   const tabs: { id: Tab; icon: any; label: string; count?: number }[] = [
@@ -319,7 +344,10 @@ export default function ClientPanel() {
                     </div>
                     <span className={clsx('px-2.5 py-1 rounded-full text-xs font-medium border', r.estado === 'Pendiente' ? 'bg-[#FFFBEB] border-[#FDE68A] text-[#92400E]' : r.estado === 'Cancelada' ? 'bg-[#FEF2F2] border-[#FECACA] text-[#991B1B]' : 'bg-[#ECFDF5] border-[#A7F3D0] text-[#065F46]')}>{r.estado}</span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    {r.estado !== 'Cancelada' && r.estado !== 'confirmada' && (
+                      <button onClick={() => handleEditReserva(r)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#E5E7EB] text-xs font-medium text-[#475569] hover:bg-[#F8FAFC]"><FaEdit size={11}/> Modificar</button>
+                    )}
                     {r.estado !== 'Cancelada' && (
                       <button onClick={() => setConfirmCancel(r.id)} className="px-3 py-1.5 rounded-full bg-white border border-[#FECACA] text-xs font-medium text-[#DC2626] hover:bg-[#FEF2F2]">Cancelar</button>
                     )}
@@ -328,6 +356,23 @@ export default function ClientPanel() {
                 </div>
               ))
             )}
+          </div>
+        )}
+
+        {editingReserva && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={()=> setEditingReserva(null)}>
+            <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={e=> e.stopPropagation()}>
+              <h3 className="font-semibold text-[#1C2A0F] mb-4">Modificar reserva</h3>
+              <div className="space-y-3">
+                <div><label className="block text-xs font-medium text-[#475569] mb-1">Fecha</label><input type="date" value={editFecha} onChange={e=> setEditFecha(e.target.value)} className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /></div>
+                <div><label className="block text-xs font-medium text-[#475569] mb-1">Hora</label><input type="time" value={editHora} onChange={e=> setEditHora(e.target.value)} className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /></div>
+                <div><label className="block text-xs font-medium text-[#475569] mb-1">Personas</label><input type="number" min={1} max={20} value={editPersonas} onChange={e=> setEditPersonas(Number(e.target.value))} className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /></div>
+              </div>
+              <div className="flex gap-2 mt-6">
+                <button onClick={()=> setEditingReserva(null)} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium">Cancelar</button>
+                <button onClick={handleSaveEditReserva} className="flex-1 py-2.5 rounded-full bg-[#1C2A0F] text-white text-sm font-medium">Guardar cambios</button>
+              </div>
+            </div>
           </div>
         )}
 
