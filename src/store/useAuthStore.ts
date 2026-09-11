@@ -24,6 +24,7 @@ interface AuthStore {
   addReservaToHistory: (reservaId: string) => void
   addPuntos: (monto: number) => void
   canjearPuntos: (costo: number) => { ok:boolean; error?:string }
+  updateProfile: (data: Partial<Pick<ClienteAuth,'nombre'|'email'|'telefono'|'password'>>) => { ok:boolean; error?:string }
 }
 
 const getFidelizacionCfg = () => {
@@ -109,6 +110,15 @@ export const useAuthStore = create<AuthStore>()(
         if(actual.puntos < costo) return {ok:false, error:'Puntos insuficientes'}
         const nuevos=actual.puntos - costo
         const updated={...actual, puntos: nuevos, nivel: calcularNivel(nuevos)}
+        set({ clienteActual: updated, clientes: get().clientes.map(c=> c.id===actual.id ? updated : c)})
+        return {ok:true}
+      },
+      updateProfile: (data) => {
+        const actual=get().clienteActual
+        if(!actual) return {ok:false, error:'No autenticado'}
+        if(data.email && data.email!==actual.email && get().clientes.some(c=> c.email===data.email)) return {ok:false, error:'Ese email ya está en uso'}
+        if(data.telefono && data.telefono!==actual.telefono && get().clientes.some(c=> c.telefono===data.telefono)) return {ok:false, error:'Ese teléfono ya está en uso'}
+        const updated={...actual, ...data}
         set({ clienteActual: updated, clientes: get().clientes.map(c=> c.id===actual.id ? updated : c)})
         return {ok:true}
       },

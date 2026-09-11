@@ -26,7 +26,7 @@ const estadoBadge: Record<string, { bg: string; text: string }> = {
 type Tab = 'inicio' | 'perfil' | 'menu' | 'pedidos' | 'reservas' | 'favoritos' | 'puntos' | 'recompensas' | 'config'
 
 export default function ClientPanel() {
-  const { clienteActual, logout, canjearPuntos } = useAuthStore()
+  const { clienteActual, logout, canjearPuntos, updateProfile } = useAuthStore()
   const navigate = useNavigate()
   const addToCart = useCartStore((s) => s.addToCart)
   const [tab, setTab] = useState<Tab>('inicio')
@@ -35,6 +35,11 @@ export default function ClientPanel() {
   const [editFecha, setEditFecha] = useState('')
   const [editHora, setEditHora] = useState('')
   const [editPersonas, setEditPersonas] = useState(2)
+  const [editingProfile, setEditingProfile] = useState(false)
+  const [editNombre, setEditNombre] = useState('')
+  const [editEmail, setEditEmail] = useState('')
+  const [editTelefono, setEditTelefono] = useState('')
+  const [editPassword, setEditPassword] = useState('')
   const { favorites, toggleFavorite } = useFavorites(clienteActual?.telefono)
 
   const favoriteProducts = useMemo(() => {
@@ -201,7 +206,7 @@ export default function ClientPanel() {
               <p className="text-xs text-[#64748B] truncate">{clienteActual.email} · {clienteActual.telefono}</p>
               <span className="inline-flex mt-2 px-2.5 py-1 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-xs font-medium text-[#92400E]"><FaStar size={10} className="mr-1 text-[#F59E0B]"/>{clienteActual.nivel||'bronce'} · {clienteActual.puntos||0} pts</span>
             </div>
-            <button onClick={()=> setTab('config')} className="h-8 px-3 rounded-full bg-[#F8FAFC] border border-[#E5E7EB] text-xs font-medium text-[#475569]"><FaEdit size={10} className="inline mr-1"/> Editar</button>
+            <button onClick={()=>{ setEditNombre(clienteActual.nombre); setEditEmail(clienteActual.email); setEditTelefono(clienteActual.telefono); setEditPassword(clienteActual.password||''); setEditingProfile(true)}} className="h-8 px-3 rounded-full bg-[#F8FAFC] border border-[#E5E7EB] text-xs font-medium text-[#475569]"><FaEdit size={10} className="inline mr-1"/> Editar</button>
           </div>
           <div className="grid sm:grid-cols-2 gap-3">
             <Link to="/menu" className="py-3 rounded-full bg-[#1C2A0F] text-white text-sm font-medium text-center">Hacer pedido <FaArrowRight size={11} className="inline ml-1"/></Link>
@@ -279,6 +284,28 @@ export default function ClientPanel() {
             <div className="flex gap-2 mt-6">
               <button onClick={()=> setEditingReserva(null)} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium">Cancelar</button>
               <button onClick={handleSaveEditReserva} className="flex-1 py-2.5 rounded-full bg-[#1C2A0F] text-white text-sm font-medium">Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {editingProfile && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={()=> setEditingProfile(false)}>
+          <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={e=> e.stopPropagation()}>
+            <h3 className="font-semibold text-[#1C2A0F] mb-1">Editar datos personales</h3>
+            <p className="text-xs text-[#64748B] mb-4">Actualiza tu nombre, email, teléfono o contraseña</p>
+            <div className="space-y-3">
+              <div><label className="block text-xs font-medium text-[#475569] mb-1">Nombre</label><input value={editNombre} onChange={e=> setEditNombre(e.target.value)} className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" placeholder="Tu nombre" /></div>
+              <div><label className="block text-xs font-medium text-[#475569] mb-1">Email</label><input type="email" value={editEmail} onChange={e=> setEditEmail(e.target.value)} className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" placeholder="correo@ejemplo.com" /></div>
+              <div><label className="block text-xs font-medium text-[#475569] mb-1">Teléfono</label><input value={editTelefono} onChange={e=> setEditTelefono(e.target.value)} className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" placeholder="300 123 4567" /></div>
+              <div><label className="block text-xs font-medium text-[#475569] mb-1">Contraseña</label><input type="password" value={editPassword} onChange={e=> setEditPassword(e.target.value)} className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" placeholder="Nueva contraseña" /></div>
+            </div>
+            <div className="flex gap-2 mt-6">
+              <button onClick={()=> setEditingProfile(false)} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium">Cancelar</button>
+              <button onClick={()=>{
+                const res = updateProfile({ nombre: editNombre.trim(), email: editEmail.trim(), telefono: editTelefono.trim(), password: editPassword })
+                if(!res.ok) toast.error(res.error)
+                else { toast.success('Datos actualizados'); setEditingProfile(false) }
+              }} className="flex-1 py-2.5 rounded-full bg-[#1C2A0F] text-white text-sm font-medium">Guardar</button>
             </div>
           </div>
         </div>
