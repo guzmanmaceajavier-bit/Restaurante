@@ -32,6 +32,7 @@ export default function AdminClientes() {
   const [busqueda, setBusqueda] = useState('')
   const [page, setPage] = useState(1)
   const [filtroStatus, setFiltroStatus] = useState<'todos' | 'activos' | 'inactivos'>('todos')
+  const [vista, setVista] = useState<'lista'|'segmentacion'>('lista')
   const [selected, setSelected] = useState<ClientData | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<ClientData | null>(null)
@@ -302,6 +303,33 @@ export default function AdminClientes() {
         </div>
       </div>
 
+      <div className="flex gap-1.5 mb-4">
+        <button onClick={()=> setVista('lista')} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${vista==='lista' ? 'bg-[#0F172A] text-white border-[#0F172A]' : 'bg-white text-[#475569] border-[#E5E7EB] hover:bg-[#F8FAFC]'}`}>Lista · {stats.total}</button>
+        <button onClick={()=> setVista('segmentacion')} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${vista==='segmentacion' ? 'bg-[#0F172A] text-white border-[#0F172A]' : 'bg-white text-[#475569] border-[#E5E7EB] hover:bg-[#F8FAFC]'}`}>Segmentación</button>
+      </div>
+
+      {vista==='segmentacion' ? (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            {[
+              { label:'VIP', count: clientes.filter(c=> (c.totalOrders||0)>=10).length, color:'bg-[#FFFBEB] border-[#FDE68A] text-[#92400E]' },
+              { label:'Frecuente', count: clientes.filter(c=> {const n=(c.totalOrders||0); return n>=5 && n<=9}).length, color:'bg-[#ECFDF5] border-[#A7F3D0] text-[#065F46]' },
+              { label:'Ocasional', count: clientes.filter(c=> {const n=(c.totalOrders||0); return n>=2 && n<=4}).length, color:'bg-[#EFF6FF] border-[#BFDBFE] text-[#1D4ED8]' },
+              { label:'Nuevo', count: clientes.filter(c=> (c.totalOrders||0)===1).length, color:'bg-[#F5F3FF] border-[#DDD6FE] text-[#7C3AED]' },
+              { label:'Inactivo', count: clientes.filter(c=> (c.totalOrders||0)===0).length, color:'bg-[#F8FAFC] border-[#E5E7EB] text-[#64748B]' },
+            ].map(s=> (
+              <div key={s.label} className={`bg-white rounded-xl border p-4 text-center ${s.color.split(' ')[1]} ${s.color.split(' ')[2]}`}>
+                <p className="text-xl font-bold text-[#0F172A]">{s.count}</p>
+                <p className="text-xs font-medium text-[#0F172A]">{s.label}</p>
+              </div>
+            ))}
+          </div>
+          <div className="bg-white rounded-xl border border-[#E5E7EB] p-4">
+            <p className="text-sm font-medium text-[#0F172A]">Segmentación RFM básica</p>
+            <p className="text-xs text-[#64748B] mt-1">VIP 10+, Frecuente 5-9, Ocasional 2-4, Nuevo 1, Inactivo 0 pedidos. Exporta Lista para campañas WhatsApp.</p>
+          </div>
+        </div>
+      ) : (
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
         {[
           { label: 'Total', value: stats.total, color: 'bg-blue-500' },
@@ -462,6 +490,7 @@ export default function AdminClientes() {
             onPageChange={setPage}
           />
         </>
+      )}
       )}
 
       {selected && (
