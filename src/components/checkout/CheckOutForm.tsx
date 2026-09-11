@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { FaUtensils, FaMotorcycle, FaShoppingBag, FaCheck, FaRegClock } from 'react-icons/fa'
-import { CONFIG } from '../../lib/config'
+import { CONFIG, getRestaurantConfig } from '../../lib/config'
 import { toast } from 'sonner'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
@@ -28,11 +28,14 @@ interface IProps {
 
 const steps = ['Tipo', 'Datos', 'Pago', 'Confirmar']
 
-const typeOptions = [
-  { value: 'eatHere', label: 'Comer aquí', icon: FaUtensils, desc: `~${CONFIG.entrega.tiempoMesa} min`, time: CONFIG.entrega.tiempoMesa },
-  { value: 'delivery', label: 'A domicilio', icon: FaMotorcycle, desc: `~${CONFIG.entrega.tiempoDomicilio} min`, time: CONFIG.entrega.tiempoDomicilio },
-  { value: 'pickup', label: 'Recoger', icon: FaShoppingBag, desc: `~${CONFIG.entrega.tiempoRecoger} min`, time: CONFIG.entrega.tiempoRecoger },
-]
+const getTypeOptions = () => {
+  const rc = getRestaurantConfig()
+  return [
+    { value: 'eatHere', label: 'Comer aquí', icon: FaUtensils, desc: `~${rc.tiempoMesa} min`, time: rc.tiempoMesa },
+    { value: 'delivery', label: 'A domicilio', icon: FaMotorcycle, desc: `~${rc.tiempoDomicilio} min`, time: rc.tiempoDomicilio },
+    { value: 'pickup', label: 'Recoger', icon: FaShoppingBag, desc: `~${rc.tiempoRecoger} min`, time: rc.tiempoRecoger },
+  ]
+}
 
 const validationSchemas = [
   Yup.object({ typeOrder: Yup.string().required('Selecciona un tipo de pedido') }),
@@ -128,7 +131,7 @@ export function CheckOutForm({ onSubmit }: IProps) {
             <div className="space-y-6">
               <p className="font-semibold text-espresso-800">¿Cómo quieres tu pedido?</p>
               <div className="grid sm:grid-cols-3 gap-4">
-                {typeOptions.map((opt) => (
+                {getTypeOptions().map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
