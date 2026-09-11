@@ -29,7 +29,7 @@ export default function AdminDashboard() {
   const today = new Date().toISOString().split('T')[0]
   const hour = new Date().getHours()
   const servicio = hour < 12 ? 'Desayuno' : hour < 17 ? 'Almuerzo' : 'Cena'
-  const servicioIcon = hour < 12 ? FaGlassCheers : hour < 17 ? FaUtensils : FaConciergeBell
+  const ServicioIcon = hour < 12 ? FaGlassCheers : hour < 17 ? FaUtensils : FaConciergeBell
 
   const s = useMemo(() => {
     const ayer = new Date(Date.now()-86400000).toISOString().split('T')[0]
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
         <div className="h-1 bg-gradient-to-r from-[#667A22] via-[#F5B51B] to-[#667A22]" />
         <div className="px-4 sm:px-5 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#0F172A] flex items-center justify-center text-white"><servicioIcon size={16} /></div>
+            <div className="w-10 h-10 rounded-lg bg-[#0F172A] flex items-center justify-center text-white"><ServicioIcon size={16} /></div>
             <div>
               <p className="text-[11px] font-medium tracking-widest uppercase text-[#94A3B8]">Servicio de hoy — {servicio}</p>
               <p className="text-[15px] font-semibold text-[#0F172A]">{new Date().toLocaleDateString('es-CO', { weekday:'long', day:'2-digit', month:'long' })} · {config.nombre}</p>
