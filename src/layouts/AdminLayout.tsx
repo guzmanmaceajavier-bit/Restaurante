@@ -22,12 +22,6 @@ const sections: Section[] = [
     { label: 'Catálogo', icon: FaUtensils, link: '/admin-catalogo' },
     { label: 'Promociones', icon: FaTag, link: '/admin-promociones' },
   ]},
-  { title: 'CLIENTES Y MARKETING', items: [
-    { label: 'Clientes', icon: FaUsers, link: '/admin-clientes' },
-    { label: 'Fidelización', icon: FaTrophy, link: '/admin-fidelizacion' },
-    { label: 'Reseñas', icon: FaStar, link: '/admin-resenas' },
-    { label: 'WhatsApp', icon: FaComments, link: '/admin-whatsapp' },
-  ]},
   { title: 'INVENTARIO', items: [
     { label: 'Inventario', icon: FaClipboardList, link: '/admin-inventario' },
     { label: 'Compras', icon: FaShoppingCart, link: '/admin-compras' },
@@ -37,15 +31,18 @@ const sections: Section[] = [
     { label: 'Facturación', icon: FaFileInvoiceDollar, link: '/admin-facturacion' },
     { label: 'Analítica', icon: FaChartBar, link: '/admin-finanzas' },
   ]},
+  { title: 'CLIENTES Y MARKETING', items: [
+    { label: 'Clientes', icon: FaUsers, link: '/admin-clientes' },
+    { label: 'Fidelización', icon: FaTrophy, link: '/admin-fidelizacion' },
+    { label: 'Reseñas', icon: FaStar, link: '/admin-resenas' },
+    { label: 'WhatsApp', icon: FaComments, link: '/admin-whatsapp' },
+  ]},
   { title: 'CONTENIDO', items: [
     { label: 'Eventos', icon: FaGlassCheers, link: '/admin-eventos' },
   ]},
   { title: 'SISTEMA', items: [
-    { label: 'Usuarios y Roles', icon: FaShieldAlt, link: '/admin-usuarios' },
     { label: 'Actividad', icon: FaHistory, link: '/admin-actividad' },
-    { label: 'Horarios', icon: FaClock, link: '/admin-horarios' },
     { label: 'Configuración', icon: FaCog, link: '/admin-config' },
-    { label: 'Backup', icon: FaDatabase, link: '/admin-backup' },
   ]},
 ]
 

@@ -172,10 +172,10 @@ export default function AdminCatalogo() {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 bg-[#0F172A]/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={()=>{setShowForm(false); setEditing(null)}}>
-          <div className="bg-white rounded-md w-full max-w-2xl shadow-xl my-8" onClick={e=> e.stopPropagation()}>
-            <div className="p-4 border-b border-[#E5E7EB] flex items-center justify-between"><h3 className="text-sm font-semibold text-[#0F172A]">{editing?'Editar':'Nuevo'} producto</h3><button onClick={()=>{setShowForm(false); setEditing(null)}} className="w-7 h-7 rounded-md hover:bg-[#F1F5F9] flex items-center justify-center">✕</button></div>
-            <div className="p-4"><ProductForm initialData={editing||undefined} categorias={categorias} onSubmit={saveProducto} onCancel={()=>{setShowForm(false); setEditing(null)}} /></div>
+        <div className="fixed inset-0 bg-[#0F172A]/40 backdrop-blur-sm flex items-center justify-center z-50 p-3" onClick={()=>{setShowForm(false); setEditing(null)}}>
+          <div className="bg-white rounded-xl w-full max-w-xl max-h-[85vh] flex flex-col shadow-xl" onClick={e=> e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-[#E5E7EB] flex items-center justify-between shrink-0"><h3 className="text-sm font-semibold text-[#0F172A]">{editing?'Editar':'Nuevo'} producto</h3><button onClick={()=>{setShowForm(false); setEditing(null)}} className="w-7 h-7 rounded-md hover:bg-[#F1F5F9] flex items-center justify-center text-[#64748B]">✕</button></div>
+            <div className="p-4 overflow-y-auto"><ProductForm initialData={editing||undefined} categorias={categorias} onSubmit={saveProducto} onCancel={()=>{setShowForm(false); setEditing(null)}} /></div>
           </div>
         </div>
       )}

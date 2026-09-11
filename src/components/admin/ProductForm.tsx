@@ -47,8 +47,8 @@ export function ProductForm({ initialData, categorias, onSubmit, onCancel }: IPr
       }}
     >
       {({ isSubmitting }) => (
-        <Form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Form className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-semibold text-espresso-800 mb-1">Nombre *</label>
               <Field name="nombre" className="input-base" />
@@ -68,11 +68,11 @@ export function ProductForm({ initialData, categorias, onSubmit, onCancel }: IPr
             <Field as="textarea" name="descripcion" rows={2} className="input-base resize-none" />
             <ErrorMessage name="descripcion" component="p" className="text-red-500 text-xs mt-1" />
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div><label className="block text-sm font-semibold text-espresso-800 mb-1">Precio *</label><Field type="number" name="precio" className="input-base" /><ErrorMessage name="precio" component="p" className="text-red-500 text-xs mt-1" /></div>
-            <div><label className="block text-sm font-semibold text-espresso-800 mb-1">Stock *</label><Field type="number" name="stock" className="input-base" /></div>
-            <div><label className="block text-sm font-semibold text-espresso-800 mb-1">Descuento %</label><Field type="number" name="descuento" className="input-base" /></div>
-            <div><label className="block text-sm font-semibold text-espresso-800 mb-1">Picante</label><Field as="select" name="picante" className="input-base"><option value={0}>Sin picante</option><option value={1}>Suave</option><option value={2}>Medio</option><option value={3}>Fuerte</option></Field></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div><label className="block text-xs font-medium text-[#0F172A] mb-1">Precio *</label><Field type="number" name="precio" className="input-base text-sm py-2" /><ErrorMessage name="precio" component="p" className="text-red-500 text-xs mt-1" /></div>
+            <div><label className="block text-xs font-medium text-[#0F172A] mb-1">Stock *</label><Field type="number" name="stock" className="input-base text-sm py-2" /></div>
+            <div><label className="block text-xs font-medium text-[#0F172A] mb-1">Descuento %</label><Field type="number" name="descuento" className="input-base text-sm py-2" /></div>
+            <div><label className="block text-xs font-medium text-[#0F172A] mb-1">Picante</label><Field as="select" name="picante" className="input-base text-sm py-2"><option value={0}>Sin picante</option><option value={1}>Suave</option><option value={2}>Medio</option><option value={3}>Fuerte</option></Field></div>
           </div>
           <div>
             <label className="block text-sm font-semibold text-espresso-800 mb-1">URL de imagen *</label>

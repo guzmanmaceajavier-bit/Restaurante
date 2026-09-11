@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { getRestaurantConfig, saveRestaurantConfig, type RestaurantConfig } from '../lib/config'
-import { FaSave, FaStore, FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaGlobe, FaTruck, FaCalendarAlt, FaImage, FaUpload, FaTimes, FaPalette, FaUser, FaCreditCard, FaFileAlt } from 'react-icons/fa'
+import { FaSave, FaStore, FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaGlobe, FaTruck, FaCalendarAlt, FaImage, FaUpload, FaTimes, FaPalette, FaUser, FaCreditCard, FaFileAlt, FaClock, FaDatabase, FaShieldAlt } from 'react-icons/fa'
+import AdminHorarios from './AdminHorarios'
+import AdminBackup from './AdminBackup'
+import AdminUsuarios from './AdminUsuarios'
 
 const defaultConfig: RestaurantConfig = getRestaurantConfig()
 
@@ -47,6 +50,9 @@ export default function AdminConfig() {
     { id: 'pagos', label: 'Pagos', desc: 'Impuestos, métodos, servicio', icon: FaCreditCard },
     { id: 'redes', label: 'Redes', desc: 'Instagram, Facebook, TikTok', icon: FaGlobe },
     { id: 'tema', label: 'Apariencia', desc: 'Color primario', icon: FaPalette },
+    { id: 'horarios', label: 'Horarios', desc: 'Apertura, cierre, días', icon: FaClock },
+    { id: 'usuarios', label: 'Usuarios', desc: 'Roles y permisos', icon: FaShieldAlt },
+    { id: 'backup', label: 'Backup', desc: 'Respaldo y restauración', icon: FaDatabase },
     { id: 'textos-legales', label: 'Legales', desc: 'Privacidad y términos', icon: FaFileAlt },
   ]
 
@@ -325,6 +331,30 @@ export default function AdminConfig() {
                 <div className="px-4 py-2 rounded-xl text-white text-sm font-semibold" style={{ backgroundColor: config.colorPrimario }}>Botón de ejemplo</div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* HORARIOS */}
+        {activeTab === 'horarios' && (
+          <div className="space-y-4">
+            <div className="pb-3 border-b border-[#F1F5F9]"><h3 className="text-sm font-semibold text-[#0F172A]">Horarios</h3><p className="text-xs text-[#64748B] mt-1">Ajusta apertura y cierre por día. Se guarda en horarios_config y sincroniza con Configuración.</p></div>
+            <AdminHorarios />
+          </div>
+        )}
+
+        {/* USUARIOS */}
+        {activeTab === 'usuarios' && (
+          <div className="space-y-4">
+            <div className="pb-3 border-b border-[#F1F5F9]"><h3 className="text-sm font-semibold text-[#0F172A]">Usuarios y Roles</h3><p className="text-xs text-[#64748B] mt-1">Gestión de roles y permisos. Se guarda en usuarios_roles.</p></div>
+            <AdminUsuarios />
+          </div>
+        )}
+
+        {/* BACKUP */}
+        {activeTab === 'backup' && (
+          <div className="space-y-4">
+            <div className="pb-3 border-b border-[#F1F5F9]"><h3 className="text-sm font-semibold text-[#0F172A]">Backup</h3><p className="text-xs text-[#64748B] mt-1">Respaldo y restauración. Se guarda en backup_history.</p></div>
+            <AdminBackup />
           </div>
         )}
 
