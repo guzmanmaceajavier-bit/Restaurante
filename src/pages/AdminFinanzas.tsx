@@ -15,7 +15,9 @@ const dateRangeLabels: Record<DateRange, string> = {
 
 export default function AdminFinanzas() {
   const [ordenes, setOrdenes] = useState<Order[]>([])
+  const [gastos, setGastos] = useState<any[]>(()=>{ try{ return JSON.parse(localStorage.getItem('gastos')||'[]')} catch{ return []}})
   const [dateRange, setDateRange] = useState<DateRange>('todos')
+  useEffect(()=>{ const id=setInterval(()=>{ try{ setGastos(JSON.parse(localStorage.getItem('gastos')||'[]'))} catch{} }, 3000); return ()=> clearInterval(id)}, [])
 
   useEffect(() => {
     setOrdenes(storage.getOrdenes<Order>())
@@ -41,20 +43,32 @@ export default function AdminFinanzas() {
     })
   }, [ordenes, dateRange])
 
+  const gastosFiltrados = useMemo(()=>{
+    const now=new Date(); const today=now.toISOString().split('T')[0]
+    return gastos.filter((g:any)=>{
+      if(dateRange==='hoy') return g.fecha===today
+      if(dateRange==='semana'){ const w=new Date(now.getTime()-7*86400000); return g.fecha && new Date(g.fecha) >= w }
+      if(dateRange==='mes'){ const m=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`; return g.fecha?.startsWith(m) }
+      return true
+    })
+  }, [gastos, dateRange])
   const stats = useMemo(() => {
     const activas = filteredOrders.filter((o) => o.estado !== 'cancelado')
     const hoy = new Date().toISOString().split('T')[0]
     const ordersHoy = activas.filter((o) => o.createdAt?.startsWith(hoy))
     const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
     const ordersMes = activas.filter((o) => o.createdAt?.startsWith(currentMonth))
-
+    const totalGastos = gastosFiltrados.reduce((s:any,g:any)=> s+(g.monto||0),0)
+    const totalIngresos = activas.reduce((sum, o) => sum + (o.total || 0), 0)
     return {
-      totalIngresos: activas.reduce((sum, o) => sum + (o.total || 0), 0),
+      totalIngresos,
+      totalGastos,
+      neto: totalIngresos - totalGastos,
       pedidosHoy: ordersHoy.length,
-      ticketPromedio: activas.length > 0 ? Math.round(activas.reduce((sum, o) => sum + (o.total || 0), 0) / activas.length) : 0,
+      ticketPromedio: activas.length > 0 ? Math.round(totalIngresos / activas.length) : 0,
       ingresosMes: ordersMes.reduce((sum, o) => sum + (o.total || 0), 0),
     }
-  }, [filteredOrders])
+  }, [filteredOrders, gastosFiltrados])
 
   const ventasPorDia = useMemo(() => {
     const dias: Record<string, { total: number; label: string }> = {}
@@ -135,20 +149,21 @@ export default function AdminFinanzas() {
   }
 
   const statCards = [
-    { label: 'Total ingresos', value: `$${stats.totalIngresos.toLocaleString('es-CO')}`, icon: FaDollarSign, color: 'bg-olive-500' },
-    { label: 'Pedidos hoy', value: stats.pedidosHoy, icon: FaShoppingBag, color: 'bg-blue-500' },
-    { label: 'Ticket promedio', value: `$${stats.ticketPromedio.toLocaleString('es-CO')}`, icon: FaChartBar, color: 'bg-gold-500' },
-    { label: 'Ingresos del mes', value: `$${stats.ingresosMes.toLocaleString('es-CO')}`, icon: FaCalendarAlt, color: 'bg-sage-500' },
+    { label: 'Ingresos', value: `$${stats.totalIngresos.toLocaleString('es-CO')}`, icon: FaDollarSign, color: 'bg-[#0F172A]' },
+    { label: 'Gastos', value: `$${stats.totalGastos.toLocaleString('es-CO')}`, icon: FaWallet, color: 'bg-[#DC2626]' },
+    { label: 'Neto', value: `$${stats.neto.toLocaleString('es-CO')}`, icon: FaChartBar, color: stats.neto>=0 ? 'bg-[#10B981]' : 'bg-[#EF4444]' },
+    { label: 'Ticket promedio', value: `$${stats.ticketPromedio.toLocaleString('es-CO')}`, icon: FaShoppingBag, color: 'bg-[#F59E0B]' },
   ]
 
   return (
-    <div className="min-h-screen bg-cream-50">
-      <SEO title="Admin - Finanzas" description="Resumen financiero del restaurante" />
+    <div>
+      <SEO title="Analítica" description="Analítica financiera — ingresos, gastos y neto" />
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-espresso-800">Finanzas</h1>
-          <p className="text-steel text-sm mt-1">Resumen financiero del restaurante</p>
+          <p className="text-[11px] font-medium tracking-widest uppercase text-[#94A3B8]">FINANZAS / ANALÍTICA</p>
+          <h1 className="text-[18px] font-semibold tracking-tight text-[#0F172A] mt-1">Analítica</h1>
+          <p className="text-[13px] text-[#64748B] mt-1">Ingresos vs gastos · Neto real · Filtros por periodo</p>
         </div>
         <div className="flex items-center gap-2">
           {(Object.keys(dateRangeLabels) as DateRange[]).map((key) => (
