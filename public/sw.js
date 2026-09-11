@@ -1,21 +1,28 @@
-const CACHE_NAME = 'sabor-v4'
-
+const CACHE_NAME = 'sabor-v5'
 self.addEventListener('install', () => self.skipWaiting())
-
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
   )
   self.clients.claim()
 })
-
 self.addEventListener('fetch', (event) => {
   const { request } = event
   if (request.method !== 'GET') return
   const url = new URL(request.url)
   if (url.origin !== location.origin) return
+  // Nunca cachear Vite dev / HMR / src / node_modules
+  if (
+    url.pathname.startsWith('/@vite') ||
+    url.pathname.startsWith('/@react') ||
+    url.pathname.startsWith('/src/') ||
+    url.pathname.includes('/node_modules') ||
+    url.search.includes('t=') ||
+    url.pathname.endsWith('.tsx') ||
+    url.pathname.endsWith('.ts') ||
+    url.pathname.endsWith('.jsx')
+  ) return
   if (url.pathname === '/manifest.json' || url.pathname === '/sw.js') return
-
   event.respondWith(
     caches.match(request).then((cached) => {
       const network = fetch(request).then((response) => {
@@ -24,7 +31,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((c) => c.put(request, clone))
         }
         return response
-      }).catch(() => cached)
+      }).catch(() => cached || Response.error())
       return cached || network
     })
   )
