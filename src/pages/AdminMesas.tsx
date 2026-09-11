@@ -81,14 +81,14 @@ export default function AdminMesas(){
                 {list.map(m=>{
                   const c=estadoCfg[m.estado]||estadoCfg.disponible
                   return (
-                    <button key={m.id} onClick={()=> setSelected(m)} className={`relative text-left rounded-xl border-2 p-4 hover:shadow-card-hover transition-all ${c.bg} ${c.border}`}>
+                    <div key={m.id} role="button" tabIndex={0} onClick={()=> setSelected(m)} onKeyDown={e=> e.key==='Enter' && setSelected(m)} className={`relative text-left rounded-xl border-2 p-4 hover:shadow-card-hover transition-all cursor-pointer ${c.bg} ${c.border}`}>
                       <div className="absolute top-2 right-2" onClick={e=> e.stopPropagation()}><ActionMenu items={[{label:'Cambiar estado', onClick:()=> setSelected(m)}, {label:'Editar', onClick:()=> openEdit(m)}, {label:'Eliminar', danger:true, onClick:()=> setConfirmDelete(m.id)}]} /></div>
                       <div className="flex items-center gap-1.5 mb-2"><span className={`w-2 h-2 rounded-full ${c.dot} ${m.estado==='ocupada' ? 'animate-pulse' : ''}`} /><span className={`text-[11px] font-semibold ${c.text}`}>{c.label}</span></div>
                       <div className="w-12 h-12 rounded-xl bg-white border border-[#E5E7EB] flex items-center justify-center mx-auto mb-2"><FaThLarge size={18} className="text-[#94A3B8]"/></div>
                       <p className="text-center text-lg font-semibold text-[#0F172A] tracking-tight">Mesa {m.numero}</p>
                       <p className="text-center text-xs text-[#64748B]">{m.ubicacion}</p>
                       {m.estado==='ocupada' && m.occupiedSince && <p className="text-center text-[11px] font-medium text-[#991B1B] mt-1">⏱ {Math.max(0, Math.floor((nowTick - new Date(m.occupiedSince).getTime())/60000))} min ocupada</p>}
-                    </button>
+                    </div>
                   )
                 })}
               </div>
