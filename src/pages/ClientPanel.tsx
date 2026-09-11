@@ -32,6 +32,10 @@ export default function ClientPanel() {
   const addToCart = useCartStore((s) => s.addToCart)
   const [tab, setTab] = useState<Tab>('inicio')
   const [confirmCancel, setConfirmCancel] = useState<string | null>(null)
+  const [editingReserva, setEditingReserva] = useState<any>(null)
+  const [editFecha, setEditFecha] = useState('')
+  const [editHora, setEditHora] = useState('')
+  const [editPersonas, setEditPersonas] = useState(2)
   const { ref, isVisible } = useScrollAnimate(0.1)
   const { favorites, toggleFavorite } = useFavorites(clienteActual?.telefono)
 
@@ -74,7 +78,6 @@ export default function ClientPanel() {
     const id = setInterval(load, 2000)
     const onStorage = () => load()
     window.addEventListener('storage', onStorage)
-    // Forzar recarga al volver a la pestaña
     const onFocus = () => load()
     window.addEventListener('focus', onFocus)
     return () => { clearInterval(id); window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus) }
@@ -90,11 +93,6 @@ export default function ClientPanel() {
     toast.success('Productos agregados al carrito', { description: 'Revisa tu pedido' })
     navigate('/menu')
   }
-
-  const [editingReserva, setEditingReserva] = useState<any>(null)
-  const [editFecha, setEditFecha] = useState('')
-  const [editHora, setEditHora] = useState('')
-  const [editPersonas, setEditPersonas] = useState(2)
 
   const handleCancelReserva = (r: any) => {
     const reservas = storage.getReservas()
@@ -311,26 +309,6 @@ export default function ClientPanel() {
                         </div>
                       ))}
                     </div>
-                    <div className="flex items-center gap-1.5 mb-3">
-                      {ORDER_STEPS.map((step, idx)=>{
-                        const currentIdx = ORDER_STEPS.indexOf(o.estado)
-                        const isDone = idx <= currentIdx && o.estado!=='cancelado'
-                        const isCurrent = idx===currentIdx
-                        return <div key={step} className="flex items-center gap-1.5 flex-1">
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${isDone ? 'bg-[#1C2A0F] text-white border-[#1C2A0F]' : 'bg-white text-[#94A3B8] border-[#E5E7EB]'}`}>{isDone ? '✓' : idx+1}</div>
-                          {idx<3 && <div className={`flex-1 h-0.5 ${idx < currentIdx ? 'bg-[#1C2A0F]' : 'bg-[#E5E7EB]'}`} />}
-                        </div>
-                      })}
-                    </div>
-                    <div className="flex justify-between text-[10px] font-medium tracking-wide uppercase text-[#94A3B8] mb-3">
-                      <span>Recibido</span><span>Preparando</span><span>Listo</span><span>Entregado</span>
-                    </div>
-                    {(o as any).typeOrder==='delivery' && o.estado!=='cancelado' && o.estado!=='entregado' && (
-                      <div className="mb-3 p-2.5 rounded-xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center gap-2 text-xs text-[#92400E]">
-                        <FaClock size={11}/> <span>En camino — {o.estado==='preparando' ? 'Preparando tu pedido' : o.estado==='listo' ? 'Listo para salir' : 'Recibido, pronto en preparación'}</span>
-                        <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Dónde está mi pedido #${o.id}?`)}`} target="_blank" className="ml-auto text-[11px] font-medium underline">Rastrear</a>
-                      </div>
-                    )}
                     <div className="flex flex-wrap gap-2">
                       <Link to={`/orden-confirmacion/${o.id}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#E5E7EB] text-xs font-medium text-[#475569] hover:bg-[#F8FAFC]">
                         <FaEye size={11} /> Ver
@@ -338,9 +316,6 @@ export default function ClientPanel() {
                       <button onClick={() => handleRepeatOrder(o)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F4F7EC] border border-[#E5EDCF] text-xs font-medium text-[#30451D] hover:bg-[#EAF0D8]">
                         <FaRedo size={11} /> Repetir
                       </button>
-                      {o.estado==='recibido' && (
-                        <button onClick={()=> handleCancelPedido(o)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#FECACA] text-xs font-medium text-[#DC2626] hover:bg-[#FEF2F2]"><FaTimes size={11}/> Cancelar</button>
-                      )}
                       <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Seguimiento pedido #${o.id}`)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-xs font-medium text-[#065F46] hover:bg-[#D1FAE5]">
                         <FaWhatsapp size={11} /> WhatsApp
                       </a>
@@ -364,7 +339,7 @@ export default function ClientPanel() {
                       <p className="font-mono text-[11px] tracking-wide uppercase text-[#94A3B8]">{r.id.slice(0,12)}</p>
                       <p className="text-sm font-semibold text-[#1C2A0F]">{r.fecha} — {r.hora}</p>
                       <p className="text-xs text-[#64748B]">{r.personas} personas · {r.zona || '—'}</p>
-                      {r.estado === 'Pendiente' && <p className="text-[11px] text-[#92400E] mt-1">⏳ Pendiente de confirmación por el restaurante</p>}
+                      {r.estado === 'Pendiente' && <p className="text-[11px] text-[#92400E] mt-1">⏳ Pendiente de confirmación</p>}
                       {r.estado === 'confirmada' && <p className="text-[11px] text-[#065F46] mt-1">✓ Confirmada — te esperamos</p>}
                     </div>
                     <span className={clsx('px-2.5 py-1 rounded-full text-xs font-medium border', r.estado === 'Pendiente' ? 'bg-[#FFFBEB] border-[#FDE68A] text-[#92400E]' : r.estado === 'Cancelada' ? 'bg-[#FEF2F2] border-[#FECACA] text-[#991B1B]' : 'bg-[#ECFDF5] border-[#A7F3D0] text-[#065F46]')}>{r.estado}</span>
@@ -533,8 +508,7 @@ function MenuTab() {
   const [prepTime, setPrepTime] = useState<string | null>(null)
   const [spiceLevel, setSpiceLevel] = useState(0)
   const { favorites, toggleFavorite } = useFavorites()
-  const [allProducts, setAllProducts] = useState(()=> dataService.getProductos())
-  useEffect(()=>{ const id=setInterval(()=> setAllProducts(dataService.getProductos()), 3000); const onStorage=()=> setAllProducts(dataService.getProductos()); window.addEventListener('storage', onStorage); return ()=>{ clearInterval(id); window.removeEventListener('storage', onStorage)}}, [])
+  const allProducts = dataService.getProductos()
   const { isVisible } = useScrollAnimate(0.1)
 
   const categorias = useMemo(() => {
