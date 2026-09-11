@@ -64,14 +64,20 @@ export default function ClientPanel() {
   useEffect(() => {
     if (!clienteActual) return
     const load = () => {
-      setOrdenes(storage.getOrdenes<Order>().filter((o) => clienteActual.historialPedidos.includes(o.id)).reverse())
-      setReservas(storage.getReservas().filter((r: any) => clienteActual.historialReservas.includes(r.id)).reverse())
+      const allOrdenes = storage.getOrdenes<Order>()
+      const allReservas = storage.getReservas() as any[]
+      const matchPhone = (a:string,b:string)=> a && b && a.replace(/\D/g,'')===b.replace(/\D/g,'')
+      setOrdenes(allOrdenes.filter((o) => clienteActual.historialPedidos.includes(o.id) || matchPhone(o.phone, clienteActual.telefono) || o.email===clienteActual.email).reverse())
+      setReservas(allReservas.filter((r: any) => clienteActual.historialReservas.includes(r.id) || matchPhone(r.telefono, clienteActual.telefono) || r.email===clienteActual.email || r.nombre===clienteActual.nombre).reverse())
     }
     load()
-    const id = setInterval(load, 3000)
+    const id = setInterval(load, 2000)
     const onStorage = () => load()
     window.addEventListener('storage', onStorage)
-    return () => { clearInterval(id); window.removeEventListener('storage', onStorage) }
+    // Forzar recarga al volver a la pestaña
+    const onFocus = () => load()
+    window.addEventListener('focus', onFocus)
+    return () => { clearInterval(id); window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus) }
   }, [clienteActual])
 
   const handleLogout = () => { logout(); toast.success('Sesión cerrada'); navigate('/') }
