@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { IProductCart } from '../../types/product'
 import { numberFormatter } from '../../utils/numberFormatter'
-import { CONFIG } from '../../lib/config'
+import { getRestaurantConfig } from '../../lib/config'
 
 interface IProps {
   cart: IProductCart[]
@@ -15,8 +15,9 @@ export function TotalOrder({ cart, showDelivery, orderType }: IProps) {
     [cart]
   )
 
-  const deliveryFee = orderType === 'delivery' && subtotal < CONFIG.delivery.minimoGratis
-    ? CONFIG.delivery.tarifa
+  const rc = getRestaurantConfig()
+  const deliveryFee = orderType === 'delivery' && subtotal < rc.envioGratisMinimo
+    ? rc.costoDomicilio
     : 0
 
   const total = subtotal + deliveryFee
@@ -43,9 +44,9 @@ export function TotalOrder({ cart, showDelivery, orderType }: IProps) {
         <span className='text-espresso-800'>Total</span>
         <span className='text-olive-500'>${numberFormatter(total)}</span>
       </div>
-      {showDelivery && orderType === 'delivery' && subtotal < CONFIG.delivery.minimoGratis && (
+      {showDelivery && orderType === 'delivery' && subtotal < rc.envioGratisMinimo && (
         <p className='text-xs text-steel text-right'>
-          Falta ${numberFormatter(CONFIG.delivery.minimoGratis - subtotal)} para delivery gratis
+          Falta ${numberFormatter(rc.envioGratisMinimo - subtotal)} para delivery gratis
         </p>
       )}
     </div>

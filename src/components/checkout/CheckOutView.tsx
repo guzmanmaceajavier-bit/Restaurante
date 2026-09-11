@@ -6,7 +6,7 @@ import { ProductsList } from '../cart/ProductsList'
 import { CheckOutForm, type OrderData } from './CheckOutForm'
 import { Summary } from './Summary'
 import { storage } from '../../lib/storage'
-import { CONFIG } from '../../lib/config'
+import { getRestaurantConfig } from '../../lib/config'
 import { calcularPuntos, puntosParaSiguienteNivel, FIDELIDAD_CONFIG } from '../../lib/fidelidad'
 import { toast } from 'sonner'
 import { SEO } from '../../lib/seo'
@@ -29,8 +29,9 @@ export function CheckOutView() {
     setOrderData(data)
 
     const orderId = `ORD-${Date.now().toString(36).toUpperCase()}`
+    const rc = getRestaurantConfig()
     const subtotal = cart.reduce((acc, item) => acc + (item.precio ?? 0) * item.quantity, 0)
-    const deliveryFee = data.typeOrder === 'delivery' && subtotal < CONFIG.delivery.minimoGratis ? CONFIG.delivery.tarifa : 0
+    const deliveryFee = data.typeOrder === 'delivery' && subtotal < rc.envioGratisMinimo ? rc.costoDomicilio : 0
     const promoDiscount = data.appliedPromo ? Math.round(subtotal * data.appliedPromo.descuento / 100) : 0
     const total = subtotal + deliveryFee - promoDiscount
 
@@ -82,7 +83,8 @@ export function CheckOutView() {
     if (puntos > 0) message += `⭐ *Puntos ganados:* ${puntos}%0A`
     message += `%0A🙏 ¡Gracias!`
 
-    const whatsappUrl = `https://wa.me/${CONFIG.contacto.whatsapp}?text=${encodeURIComponent(message)}`
+    const rc2 = getRestaurantConfig()
+    const whatsappUrl = `https://wa.me/${rc2.whatsapp}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, '_blank')
 
     clearCart()
