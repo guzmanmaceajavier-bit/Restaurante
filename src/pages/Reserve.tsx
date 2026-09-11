@@ -6,6 +6,7 @@ import { SEO } from '../lib/seo'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { FaCalendarAlt, FaUser, FaArrowRight, FaArrowLeft, FaMinus, FaPlus, FaUsers, FaCheck, FaWhatsapp, FaCalendarPlus, FaClock } from 'react-icons/fa'
+import { useAuthStore } from '../store/useAuthStore'
 import clsx from 'clsx'
 
 const OCASIONES = [...CONFIG.reservas.ocasiones, 'Otra']
@@ -142,8 +143,21 @@ export default function Reserve() {
             const reservas = storage.getReservas()
             const id = `RES-${Date.now().toString(36).toUpperCase()}`
             const ocasionFinal = values.ocasion === 'Otra' ? values.ocasionOtra : values.ocasion
-            reservas.push({ ...values, ocasion: ocasionFinal, id, estado: 'Pendiente', createdAt: new Date().toISOString() })
+            const nueva = { ...values, ocasion: ocasionFinal, id, estado: 'Pendiente', createdAt: new Date().toISOString() }
+            reservas.push(nueva)
             storage.setReservas(reservas)
+            // Vincular al historial del cliente logueado si coincide teléfono/email
+            try {
+              const addReserva = useAuthStore.getState().addReservaToHistory
+              const cliente = useAuthStore.getState().clienteActual
+              if (cliente && (cliente.telefono === values.telefono || cliente.email === values.email)) {
+                addReserva(nueva.id)
+              }
+              // También actualizar lista general clientes por teléfono
+              const clientes = JSON.parse(localStorage.getItem('clientes')||'[]')
+              const idx = clientes.findIndex((c:any)=> c.telefono===values.telefono || c.email===values.email)
+              if(idx!==-1){ clientes[idx].historialReservas = [...(clientes[idx].historialReservas||[]), nueva.id]; localStorage.setItem('clientes', JSON.stringify(clientes)) }
+            } catch {}
             setConfirmed({ ...values, ocasion: ocasionFinal, id })
             toast.success('¡Reserva enviada!')
           }}
