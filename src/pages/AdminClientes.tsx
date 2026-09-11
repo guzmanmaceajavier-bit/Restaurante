@@ -330,6 +330,7 @@ export default function AdminClientes() {
           </div>
         </div>
       ) : (
+      <>
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
         {[
           { label: 'Total', value: stats.total, color: 'bg-blue-500' },
@@ -491,6 +492,7 @@ export default function AdminClientes() {
           />
         </>
       )}
+      </>
       )}
 
       {selected && (
