@@ -3,7 +3,7 @@ import { FaChevronDown } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 import clsx from 'clsx'
 
-const faqs = [
+const defaultFaqs = [
   {
     q: '¿Hacen domicilios?',
     a: 'Sí, realizamos domicilios en todo el municipio de Sahagún. El tiempo de entrega es de 30 a 45 minutos dependiendo de la zona.',
@@ -25,6 +25,7 @@ const faqs = [
     a: 'Aceptamos efectivo, Nequi, Daviplata y transferencia bancaria. Próximamente acceptaremos tarjetas de crédito y débito.',
   },
 ]
+const faqs = (()=>{ try{ const s=JSON.parse(localStorage.getItem('home_faq')||'null'); return s && Array.isArray(s) && s.length ? s : defaultFaqs } catch{ return defaultFaqs } })()
 
 export default function FAQ() {
   const [open, setOpen] = useState<number | null>(null)

@@ -1,11 +1,18 @@
 import { FaStar, FaQuoteLeft } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 
-const testimonials = [
+const fallbackTestimonials = [
   { name: 'María G.', text: 'La bandeja paisa es espectacular. Se siente como comer en casa de la abuela. El servicio es increíble.', rating: 5 },
   { name: 'Carlos R.', text: 'Reservé para el cumpleaños de mi hija y fue perfecto. Todo el equipo fue muy atento y la comida deliciosa.', rating: 5 },
   { name: 'Ana L.', text: 'Los patacones con todo son mi debilidad. Siempre voy con la familia y nunca nos decepcionan.', rating: 5 },
 ]
+const testimonials = (()=>{ try{
+  const custom=JSON.parse(localStorage.getItem('home_testimonials')||'null')
+  if(custom && Array.isArray(custom) && custom.length) return custom
+  const resenas=JSON.parse(localStorage.getItem('resenas')||'[]')
+  if(resenas.length>=3) return resenas.slice(0,3).map((r:any)=> ({name:r.nombre||r.name, text:r.comentario||r.text, rating:r.estrellas||r.rating||5}))
+  return fallbackTestimonials
+} catch{ return fallbackTestimonials }})()
 
 export default function Testimonials() {
   const { ref, isVisible } = useScrollAnimate(0.1)

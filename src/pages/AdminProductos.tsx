@@ -5,6 +5,7 @@ import EmptyState from '../components/core/EmptyState'
 import { ProductForm } from '../components/admin/ProductForm'
 import { Pagination } from '../components/admin/Pagination'
 import ConfirmModal from '../components/core/ConfirmModal'
+import { logActivity } from '../lib/activity'
 import type { IProduct } from '../types/product'
 
 const ITEMS_PER_PAGE = 8
@@ -48,11 +49,11 @@ export default function AdminProductos() {
   const save = (data: Omit<IProduct, 'id'>) => {
     if (editing) {
       const updated = productos.map((p) => p.id === editing.id ? { ...data, id: editing.id } : p) as IProduct[]
-      setProductos(updated); localStorage.setItem('productos', JSON.stringify(updated)); toast.success('Producto actualizado')
+      setProductos(updated); localStorage.setItem('productos', JSON.stringify(updated)); toast.success('Producto actualizado'); logActivity('Productos', `Actualizó "${(data as any).nombre}"`)
     } else {
       const newProduct = { ...data, id: `prod-${Date.now().toString(36)}` } as IProduct
       const updated = [...productos, newProduct]
-      setProductos(updated); localStorage.setItem('productos', JSON.stringify(updated)); toast.success('Producto creado')
+      setProductos(updated); localStorage.setItem('productos', JSON.stringify(updated)); toast.success('Producto creado'); logActivity('Productos', `Creó "${(data as any).nombre}"`)
     }
     setShowForm(false); setEditing(null)
   }
