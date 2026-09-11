@@ -6,7 +6,7 @@ import { storage } from '../lib/storage'
 import { getRestaurantConfig } from '../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
-import { FaUser, FaShoppingBag, FaCalendarAlt, FaStar, FaSignOutAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaUtensils, FaGift, FaCog, FaHome, FaTrophy, FaCheckCircle, FaEdit, FaChevronRight, FaBell, FaFire } from 'react-icons/fa'
+import { FaUser, FaShoppingBag, FaCalendarAlt, FaStar, FaSignOutAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaUtensils, FaGift, FaCog, FaHome, FaTrophy, FaCheckCircle, FaEdit, FaChevronRight, FaBell, FaFire, FaTimes, FaClock } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 import EmptyState from '../components/core/EmptyState'
 import ConfirmModal from '../components/core/ConfirmModal'
@@ -23,6 +23,7 @@ const estadoBadge: Record<string, { bg: string; text: string }> = {
   entregado: { bg: 'bg-[#F8FAFC] border-[#E5E7EB]', text: 'text-[#475569]' },
   cancelado: { bg: 'bg-[#FEF2F2] border-[#FECACA]', text: 'text-[#991B1B]' },
 }
+const ORDER_STEPS = ['recibido','preparando','listo','entregado']
 
 type Tab = 'inicio' | 'perfil' | 'menu' | 'pedidos' | 'reservas' | 'favoritos' | 'puntos' | 'recompensas' | 'config'
 
@@ -309,6 +310,25 @@ export default function ClientPanel() {
                         </div>
                       ))}
                     </div>
+                    <div className="flex items-center gap-1.5 mb-3">
+                      {ORDER_STEPS.map((step, idx)=>{
+                        const currentIdx = ORDER_STEPS.indexOf(o.estado)
+                        const isDone = idx <= currentIdx && o.estado!=='cancelado'
+                        return <div key={step} className="flex items-center gap-1.5 flex-1">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${isDone ? 'bg-[#1C2A0F] text-white border-[#1C2A0F]' : 'bg-white text-[#94A3B8] border-[#E5E7EB]'}`}>{isDone ? '✓' : idx+1}</div>
+                          {idx<3 && <div className={`flex-1 h-0.5 ${idx < currentIdx ? 'bg-[#1C2A0F]' : 'bg-[#E5E7EB]'}`} />}
+                        </div>
+                      })}
+                    </div>
+                    <div className="flex justify-between text-[10px] font-medium tracking-wide uppercase text-[#94A3B8] mb-3">
+                      <span>Recibido</span><span>Preparando</span><span>Listo</span><span>Entregado</span>
+                    </div>
+                    {(o as any).typeOrder==='delivery' && o.estado!=='cancelado' && o.estado!=='entregado' && (
+                      <div className="mb-3 p-2.5 rounded-xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center gap-2 text-xs text-[#92400E]">
+                        <FaClock size={11}/> <span>En camino — {o.estado==='preparando' ? 'Preparando tu pedido' : o.estado==='listo' ? 'Listo para salir' : 'Recibido, pronto en preparación'}</span>
+                        <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Dónde está mi pedido #${o.id}?`)}`} target="_blank" className="ml-auto text-[11px] font-medium underline">Rastrear</a>
+                      </div>
+                    )}
                     <div className="flex flex-wrap gap-2">
                       <Link to={`/orden-confirmacion/${o.id}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#E5E7EB] text-xs font-medium text-[#475569] hover:bg-[#F8FAFC]">
                         <FaEye size={11} /> Ver
@@ -316,6 +336,9 @@ export default function ClientPanel() {
                       <button onClick={() => handleRepeatOrder(o)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F4F7EC] border border-[#E5EDCF] text-xs font-medium text-[#30451D] hover:bg-[#EAF0D8]">
                         <FaRedo size={11} /> Repetir
                       </button>
+                      {o.estado==='recibido' && (
+                        <button onClick={()=> handleCancelPedido(o)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#FECACA] text-xs font-medium text-[#DC2626] hover:bg-[#FEF2F2]"><FaTimes size={11}/> Cancelar</button>
+                      )}
                       <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Seguimiento pedido #${o.id}`)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-xs font-medium text-[#065F46] hover:bg-[#D1FAE5]">
                         <FaWhatsapp size={11} /> WhatsApp
                       </a>
