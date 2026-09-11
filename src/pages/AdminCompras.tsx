@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
+﻿import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
-import { FaShoppingCart, FaPlus, FaSearch, FaTrash } from 'react-icons/fa'
+import { FaShoppingCart, FaPlus, FaSearch, FaTrash, FaTruck, FaEdit } from 'react-icons/fa'
 import EmptyState from '../components/core/EmptyState'
 import ConfirmModal from '../components/core/ConfirmModal'
 import { SEO } from '../lib/seo'
@@ -10,7 +10,9 @@ interface Compra { id: string; proveedor: string; productos: string; cantidad: n
 const ITEMS_PER_PAGE = 10
 
 export default function AdminCompras() {
+  const [tab, setTab] = useState<'compras'|'proveedores'>('compras')
   const [compras, setCompras] = useState<Compra[]>(() => { try { const s = JSON.parse(localStorage.getItem('compras')||'[]'); return s } catch { return [] } })
+  const [proveedores, setProveedores] = useState<any[]>(() => { try { const s=JSON.parse(localStorage.getItem('proveedores')||'[]'); return s } catch{ return [] } })
   const [busqueda, setBusqueda] = useState('')
   const [page, setPage] = useState(1)
   const [showForm, setShowForm] = useState(false)
@@ -39,14 +41,19 @@ export default function AdminCompras() {
   return (
     <div>
       <SEO title="Compras" />
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div><h1 className="text-2xl font-display font-bold text-espresso-800">Compras</h1><p className="text-steel text-sm mt-1">Registra compras a proveedores — actualiza inventario automáticamente</p></div>
-        <button onClick={()=>setShowForm(true)} className="flex items-center gap-2 bg-olive-500 hover:bg-olive-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-sm"><FaPlus size={12}/> Nueva compra</button>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+        <div><p className="text-[11px] font-medium tracking-widest uppercase text-[#94A3B8]">INVENTARIO / COMPRAS</p><h1 className="text-[18px] font-semibold tracking-tight text-[#0F172A] mt-1">Compras</h1><p className="text-[13px] text-[#64748B] mt-1">Compras a proveedores + proveedores vinculados</p></div>
+        <button onClick={()=>setShowForm(true)} className="inline-flex items-center gap-1.5 bg-[#0F172A] text-white px-4 py-2 rounded-md text-[13px] font-medium hover:bg-[#1E293B]"><FaPlus size={11}/> Nueva compra</button>
+      </div>
+      <div className="flex gap-1.5 mb-4">
+        <button onClick={()=> setTab('compras')} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${tab==='compras' ? 'bg-[#0F172A] text-white border-[#0F172A]' : 'bg-white text-[#475569] border-[#E5E7EB] hover:bg-[#F8FAFC]'}`}>Compras ┬À {compras.length}</button>
+        <button onClick={()=> setTab('proveedores')} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${tab==='proveedores' ? 'bg-[#0F172A] text-white border-[#0F172A]' : 'bg-white text-[#475569] border-[#E5E7EB] hover:bg-[#F8FAFC]'}`}>Proveedores ┬À {proveedores.length}</button>
       </div>
       <div className="flex gap-3 mb-4">
         <div className="relative flex-1"><FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14}/><input value={busqueda} onChange={e=>{setBusqueda(e.target.value); setPage(1)}} placeholder="Buscar proveedor o producto..." className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-cream-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-olive-500/20" /></div>
       </div>
-      {pagina.length===0 ? <EmptyState icon={<FaShoppingCart size={24}/>} title="Sin compras" description="Registra tus compras a proveedores" action={{label:'Nueva compra', onClick:()=>setShowForm(true)}} /> : (
+      {tab==='compras' && (
+        pagina.length===0 ? <EmptyState icon={<FaShoppingCart size={24}/>} title="Sin compras" description="Registra tus compras a proveedores" action={{label:'Nueva compra', onClick:()=>setShowForm(true)}} /> : (
         <>
           <div className="bg-white rounded-2xl border border-cream-200 overflow-hidden">
             <div className="overflow-x-auto">
@@ -80,13 +87,46 @@ export default function AdminCompras() {
           </div>
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </>
+        )
+      )}
+      {tab==='proveedores' && (
+        <div className="bg-white rounded-2xl border border-cream-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead><tr className="bg-cream-50 border-b border-cream-200"><th className="p-3 text-left text-xs font-semibold uppercase">Proveedor</th><th className="p-3 text-left text-xs font-semibold uppercase">Categor├¡a</th><th className="p-3 text-left text-xs font-semibold uppercase">Contacto</th><th className="p-3 text-center text-xs font-semibold uppercase">Estado</th></tr></thead>
+              <tbody>
+                {proveedores.length===0 ? <tr><td colSpan={4} className="p-8 text-center text-sm text-steel">Sin proveedores ÔÇö cr├®alos en /admin-proveedores</td></tr> : proveedores.slice(0,20).map((p:any)=> (
+                  <tr key={p.id} className="border-t border-cream-100 hover:bg-cream-50/50">
+                    <td className="p-3"><p className="text-sm font-medium text-espresso-800 flex items-center gap-2"><FaTruck size={11} className="text-[#94A3B8]"/>{p.nombre}</p><p className="text-xs text-steel">{p.email}</p></td>
+                    <td className="p-3 text-xs text-steel">{p.categoria||'ÔÇö'}</td>
+                    <td className="p-3 text-xs text-steel">{p.telefono||'ÔÇö'} ┬À {p.contacto||''}</td>
+                    <td className="p-3 text-center"><span className={`px-2 py-1 rounded-full text-[11px] font-medium border ${p.estado==='activo' ? 'bg-[#ECFDF5] text-[#065F46] border-[#A7F3D0]' : 'bg-[#F1F5F9] text-[#64748B] border-[#E5E7EB]'}`}>{p.estado}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="px-3 py-2 bg-[#F8FAFC] border-t border-[#E5E7EB] text-xs text-[#64748B] flex items-center justify-between">
+            <span>Proveedores vinculados a compras ÔÇö gestiona completo en <a href="/admin-proveedores" className="text-[#0F172A] underline">/admin-proveedores</a></span>
+            <span className="hidden sm:inline">Selecciona proveedor en ÔÇ£Nueva compraÔÇØ</span>
+          </div>
+        </div>
       )}
       {showForm && (
         <div className="fixed inset-0 bg-espresso-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={()=>setShowForm(false)}>
           <div className="bg-white rounded-3xl w-full max-w-lg shadow-xl" onClick={e=>e.stopPropagation()}>
-            <div className="p-6 border-b border-cream-200 flex items-center justify-between"><h3 className="text-lg font-display font-bold text-espresso-800">Nueva compra</h3><button onClick={()=>setShowForm(false)} className="p-2 hover:bg-cream-100 rounded-xl">✕</button></div>
+            <div className="p-6 border-b border-cream-200 flex items-center justify-between"><h3 className="text-lg font-display font-bold text-espresso-800">Nueva compra</h3><button onClick={()=>setShowForm(false)} className="p-2 hover:bg-cream-100 rounded-xl">Ô£ò</button></div>
             <div className="p-6 space-y-4">
-              <div><label className="block text-xs font-semibold text-espresso-700 mb-1.5">Proveedor *</label><input value={form.proveedor} onChange={e=>setForm({...form, proveedor:e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-cream-200 text-sm focus:outline-none focus:ring-2 focus:ring-olive-500/20" /></div>
+              <div><label className="block text-xs font-semibold text-espresso-700 mb-1.5">Proveedor *</label>
+                {proveedores.length ? (
+                  <select value={form.proveedor} onChange={e=> setForm({...form, proveedor:e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-cream-200 text-sm focus:outline-none focus:ring-2 focus:ring-olive-500/20">
+                    <option value="">Selecciona proveedor</option>
+                    {proveedores.map((p:any)=> <option key={p.id} value={p.nombre}>{p.nombre} ÔÇö {p.categoria}</option>)}
+                  </select>
+                ) : (
+                  <input value={form.proveedor} onChange={e=>setForm({...form, proveedor:e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-cream-200 text-sm focus:outline-none focus:ring-2 focus:ring-olive-500/20" placeholder="Ej: Distribuciones La Sabana" />
+                )}
+              </div>
               <div><label className="block text-xs font-semibold text-espresso-700 mb-1.5">Productos *</label><input value={form.productos} onChange={e=>setForm({...form, productos:e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-cream-200 text-sm focus:outline-none focus:ring-2 focus:ring-olive-500/20" placeholder="Ej: Arroz 10kg, Pollo 5kg" /></div>
               <div className="grid grid-cols-3 gap-4">
                 <div><label className="block text-xs font-semibold text-espresso-700 mb-1.5">Cantidad</label><input type="number" min={1} value={form.cantidad} onChange={e=>setForm({...form, cantidad:Number(e.target.value)})} className="w-full px-4 py-2.5 rounded-xl border border-cream-200 text-sm" /></div>
@@ -99,7 +139,7 @@ export default function AdminCompras() {
           </div>
         </div>
       )}
-      <ConfirmModal open={!!confirmDelete} onClose={()=>setConfirmDelete(null)} onConfirm={()=>{ if(confirmDelete){ save(compras.filter(c=>c.id!==confirmDelete)); setConfirmDelete(null); toast.success('Compra eliminada')}}} title="Eliminar compra" message="¿Eliminar esta compra?" confirmText="Eliminar" variant="danger" />
+      <ConfirmModal open={!!confirmDelete} onClose={()=>setConfirmDelete(null)} onConfirm={()=>{ if(confirmDelete){ save(compras.filter(c=>c.id!==confirmDelete)); setConfirmDelete(null); toast.success('Compra eliminada')}}} title="Eliminar compra" message="┬┐Eliminar esta compra?" confirmText="Eliminar" variant="danger" />
     </div>
   )
 }

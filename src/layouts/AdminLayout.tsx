@@ -30,7 +30,6 @@ const sections: Section[] = [
   ]},
   { title: 'INVENTARIO', items: [
     { label: 'Inventario', icon: FaClipboardList, link: '/admin-inventario' },
-    { label: 'Proveedores', icon: FaTruck, link: '/admin-proveedores' },
     { label: 'Compras', icon: FaShoppingCart, link: '/admin-compras' },
   ]},
   { title: 'FINANZAS', items: [
