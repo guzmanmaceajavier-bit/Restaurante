@@ -464,7 +464,8 @@ function MenuTab() {
   const [prepTime, setPrepTime] = useState<string | null>(null)
   const [spiceLevel, setSpiceLevel] = useState(0)
   const { favorites, toggleFavorite } = useFavorites()
-  const allProducts = dataService.getProductos()
+  const [allProducts, setAllProducts] = useState(()=> dataService.getProductos())
+  useEffect(()=>{ const id=setInterval(()=> setAllProducts(dataService.getProductos()), 3000); const onStorage=()=> setAllProducts(dataService.getProductos()); window.addEventListener('storage', onStorage); return ()=>{ clearInterval(id); window.removeEventListener('storage', onStorage)}}, [])
   const { isVisible } = useScrollAnimate(0.1)
 
   const categorias = useMemo(() => {
