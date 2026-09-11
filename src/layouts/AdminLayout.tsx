@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { getRestaurantConfig } from '../lib/config'
-import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog, FaTags, FaTag, FaClipboardList, FaDollarSign, FaChartBar, FaUserFriends, FaHistory, FaDatabase, FaClock, FaCashRegister, FaFileInvoiceDollar, FaTruck, FaShoppingCart, FaTrophy, FaShieldAlt, FaMoneyBillWave, FaChevronDown, FaChevronRight, FaSearch, FaBell, FaQuestionCircle, FaAngleDoubleLeft, FaAngleDoubleRight, FaGlassCheers, FaImages } from 'react-icons/fa'
+import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog, FaTags, FaTag, FaClipboardList, FaDollarSign, FaChartBar, FaUserFriends, FaHistory, FaDatabase, FaClock, FaCashRegister, FaFileInvoiceDollar, FaTruck, FaShoppingCart, FaTrophy, FaShieldAlt, FaMoneyBillWave, FaChevronDown, FaChevronRight, FaSearch, FaBell, FaQuestionCircle, FaAngleDoubleLeft, FaAngleDoubleRight, FaGlassCheers, FaImages, FaWhatsapp, FaPhone, FaEnvelope } from 'react-icons/fa'
 import { AdminSkeleton } from '../components/core/LoadingSkeleton'
 import { useLoading } from '../hooks/useLoading'
 import { CommandPalette } from '../components/admin/CommandPalette'
@@ -76,6 +76,7 @@ export default function AdminLayout() {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
   const loading = useLoading(300)
   const badges = useBadges()
   const config = getRestaurantConfig()
@@ -221,7 +222,7 @@ export default function AdminLayout() {
               </div>
             )}
           </div>
-          <a href="#" onClick={e=>{e.preventDefault(); alert('Centro de ayuda — contacta a soporte')}} className="w-7 h-7 rounded-md hover:bg-[#F1F5F9] hidden sm:flex items-center justify-center text-[#64748B]"><FaQuestionCircle size={13}/></a>
+          <button onClick={()=> setHelpOpen(true)} className="w-7 h-7 rounded-md hover:bg-[#F1F5F9] hidden sm:flex items-center justify-center text-[#64748B]" title="Centro de ayuda"><FaQuestionCircle size={13}/></button>
           {/* User */}
           <div className="relative">
             <button onClick={()=> setUserMenuOpen(v=>!v)} className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-md hover:bg-[#F1F5F9] transition-colors">
@@ -240,6 +241,41 @@ export default function AdminLayout() {
         </div>
         <div className="px-4 lg:px-6 py-4 lg:py-5"><Outlet /></div>
       </div>
+      {helpOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-sm" onClick={()=> setHelpOpen(false)} />
+          <div className="relative w-96 bg-white h-full shadow-2xl flex flex-col">
+            <div className="p-5 border-b border-[#E5E7EB] flex items-center justify-between">
+              <h3 className="font-semibold text-[#0F172A]">Centro de ayuda</h3>
+              <button onClick={()=> setHelpOpen(false)} className="w-7 h-7 rounded-md hover:bg-[#F1F5F9] flex items-center justify-center text-[#64748B]"><FaTimes size={12}/></button>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-[#64748B]">¿Necesitas ayuda? Contacta al equipo de {config.nombre}:</p>
+              <div className="space-y-2">
+                <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent('Hola, necesito ayuda con el panel admin')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg border border-[#E5E7EB] hover:bg-[#F8FAFC] transition-colors">
+                  <FaWhatsapp size={16} className="text-[#10B981]" />
+                  <div><p className="text-sm font-medium text-[#0F172A]">WhatsApp Soporte</p><p className="text-xs text-[#64748B]">{config.whatsapp}</p></div>
+                </a>
+                <a href={`tel:${config.telefono}`} className="flex items-center gap-3 p-3 rounded-lg border border-[#E5E7EB] hover:bg-[#F8FAFC] transition-colors">
+                  <FaPhone size={16} className="text-[#3B82F6]" />
+                  <div><p className="text-sm font-medium text-[#0F172A]">Teléfono</p><p className="text-xs text-[#64748B]">{config.telefono}</p></div>
+                </a>
+                <a href={`mailto:${config.email}`} className="flex items-center gap-3 p-3 rounded-lg border border-[#E5E7EB] hover:bg-[#F8FAFC] transition-colors">
+                  <FaEnvelope size={16} className="text-[#F59E0B]" />
+                  <div><p className="text-sm font-medium text-[#0F172A]">Email</p><p className="text-xs text-[#64748B]">{config.email}</p></div>
+                </a>
+              </div>
+              <div className="pt-4 border-t border-[#E5E7EB]">
+                <p className="text-xs font-medium text-[#0F172A] mb-2">Atajos</p>
+                <p className="text-xs text-[#64748B]"><span className="px-1.5 py-0.5 rounded bg-[#F1F5F9] border border-[#E5E7EB] text-[11px]">Ctrl+K</span> Búsqueda global</p>
+              </div>
+              <div className="pt-4 border-t border-[#E5E7EB]">
+                <p className="text-xs text-[#94A3B8]">Horario: {config.horarioApertura} – {config.horarioCierre} · {config.direccion}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <CommandPalette open={paletteOpen} onClose={()=> setPaletteOpen(false)} />
     </div>
   )

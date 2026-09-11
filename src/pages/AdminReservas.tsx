@@ -60,7 +60,18 @@ export default function AdminReservas(){
 
   const crear=()=>{
     if(!formCreate.nombre||!formCreate.email||!formCreate.telefono||!formCreate.fecha||!formCreate.hora){ toast.error('Completa obligatorios'); return}
-    const n:Reserva={...formCreate, id:'res_'+Date.now(), createdAt:new Date().toISOString()}; guardar([...reservas,n]); setShowCreate(false); setFormCreate(emptyForm); toast.success('Reserva creada')
+    const n:Reserva={...formCreate, id:'res_'+Date.now(), createdAt:new Date().toISOString()}; guardar([...reservas,n])
+    // Vincular al historial del cliente si existe (para que cliente lo vea en /mi-cuenta)
+    try {
+      const clientes = JSON.parse(localStorage.getItem('clientes')||'[]')
+      const idx = clientes.findIndex((c:any)=> c.telefono===formCreate.telefono || c.email===formCreate.email)
+      if(idx!==-1){ clientes[idx].historialReservas = [...(clientes[idx].historialReservas||[]), n.id]; localStorage.setItem('clientes', JSON.stringify(clientes))
+        // también actualizar auth-client-storage si es el mismo cliente logueado
+        const authRaw = localStorage.getItem('auth-client-storage')
+        if(authRaw){ const auth=JSON.parse(authRaw); if(auth.state?.clienteActual && (auth.state.clienteActual.telefono===formCreate.telefono || auth.state.clienteActual.email===formCreate.email)){ auth.state.clienteActual.historialReservas = [...(auth.state.clienteActual.historialReservas||[]), n.id]; auth.state.clientes = auth.state.clientes.map((c:any)=> c.id===clientes[idx].id ? {...c, historialReservas: clientes[idx].historialReservas} : c); localStorage.setItem('auth-client-storage', JSON.stringify(auth)) } }
+      }
+    } catch {}
+    setShowCreate(false); setFormCreate(emptyForm); toast.success('Reserva creada y vinculada al cliente si existe')
   }
   const guardarEdit=()=>{
     if(!showEdit) return

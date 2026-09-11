@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
@@ -59,8 +59,20 @@ export default function ClientPanel() {
     )
   }
 
-  const ordenes = storage.getOrdenes<Order>().filter((o) => clienteActual.historialPedidos.includes(o.id)).reverse()
-  const reservas = storage.getReservas().filter((r: any) => clienteActual.historialReservas.includes(r.id)).reverse()
+  const [ordenes, setOrdenes] = useState<Order[]>([])
+  const [reservas, setReservas] = useState<any[]>([])
+  useEffect(() => {
+    if (!clienteActual) return
+    const load = () => {
+      setOrdenes(storage.getOrdenes<Order>().filter((o) => clienteActual.historialPedidos.includes(o.id)).reverse())
+      setReservas(storage.getReservas().filter((r: any) => clienteActual.historialReservas.includes(r.id)).reverse())
+    }
+    load()
+    const id = setInterval(load, 3000)
+    const onStorage = () => load()
+    window.addEventListener('storage', onStorage)
+    return () => { clearInterval(id); window.removeEventListener('storage', onStorage) }
+  }, [clienteActual])
 
   const handleLogout = () => { logout(); toast.success('Sesión cerrada'); navigate('/') }
 
