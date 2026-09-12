@@ -33,25 +33,18 @@ import OrderHistory from '../pages/OrderHistory'
 import Promociones from '../pages/Promociones'
 import AdminLogin from '../pages/AdminLogin'
 import AdminWhatsApp from '../pages/AdminWhatsApp'
-import AdminProductos from '../pages/AdminProductos'
 import AdminClientes from '../pages/AdminClientes'
 import AdminResenas from '../pages/AdminResenas'
 import AdminCocina from '../pages/AdminCocina'
 import AdminMesas from '../pages/AdminMesas'
 import AdminConfig from '../pages/AdminConfig'
-import AdminCategorias from '../pages/AdminCategorias'
 import AdminPromociones from '../pages/AdminPromociones'
 import AdminInventario from '../pages/AdminInventario'
 import AdminFinanzas from '../pages/AdminFinanzas'
-import AdminReportes from '../pages/AdminReportes'
-import AdminSegmentacion from '../pages/AdminSegmentacion'
 import AdminActividad from '../pages/AdminActividad'
-import AdminBackup from '../pages/AdminBackup'
-import AdminHorarios from '../pages/AdminHorarios'
 import AdminProveedores from '../pages/AdminProveedores'
 import AdminCompras from '../pages/AdminCompras'
 import AdminCaja from '../pages/AdminCaja'
-import AdminGastos from '../pages/AdminGastos'
 import AdminFacturacion from '../pages/AdminFacturacion'
 import AdminUsuarios from '../pages/AdminUsuarios'
 import AdminFidelizacion from '../pages/AdminFidelizacion'
@@ -104,25 +97,18 @@ export default function MainRoutes() {
         <Route path={RoutesPath.adminReservas} element={<AdminReservas />} />
         <Route path={RoutesPath.adminOrdenes} element={<AdminOrdenes />} />
         <Route path={RoutesPath.adminWhatsApp} element={<AdminWhatsApp />} />
-        <Route path={RoutesPath.adminProductos} element={<AdminProductos />} />
         <Route path={RoutesPath.adminClientes} element={<AdminClientes />} />
         <Route path={RoutesPath.adminResenas} element={<AdminResenas />} />
         <Route path={RoutesPath.adminCocina} element={<AdminCocina />} />
         <Route path={RoutesPath.adminMesas} element={<AdminMesas />} />
         <Route path="/admin-config" element={<AdminConfig />} />
-        <Route path={RoutesPath.adminCategorias} element={<AdminCategorias />} />
         <Route path={RoutesPath.adminPromociones} element={<AdminPromociones />} />
         <Route path={RoutesPath.adminInventario} element={<AdminInventario />} />
         <Route path={RoutesPath.adminFinanzas} element={<AdminFinanzas />} />
-        <Route path={RoutesPath.adminReportes} element={<AdminReportes />} />
-        <Route path={RoutesPath.adminSegmentacion} element={<AdminSegmentacion />} />
         <Route path={RoutesPath.adminActividad} element={<AdminActividad />} />
-        <Route path={RoutesPath.adminBackup} element={<AdminBackup />} />
-        <Route path={RoutesPath.adminHorarios} element={<AdminHorarios />} />
         <Route path={RoutesPath.adminProveedores} element={<AdminProveedores />} />
         <Route path={RoutesPath.adminCompras} element={<AdminCompras />} />
         <Route path={RoutesPath.adminCaja} element={<AdminCaja />} />
-        <Route path={RoutesPath.adminGastos} element={<AdminGastos />} />
         <Route path={RoutesPath.adminFacturacion} element={<AdminFacturacion />} />
         <Route path={RoutesPath.adminUsuarios} element={<AdminUsuarios />} />
         <Route path={RoutesPath.adminFidelizacion} element={<AdminFidelizacion />} />
