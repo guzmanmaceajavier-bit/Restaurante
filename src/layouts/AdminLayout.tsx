@@ -23,9 +23,9 @@ const sections: Section[] = [
     { label: 'Promociones', icon: FaTag, link: '/admin-promociones' },
   ]},
   { title: 'INVENTARIO', items: [
-    { label: 'Inventario', icon: FaClipboardList, link: '/admin-inventario' },
-    { label: 'Compras', icon: FaShoppingCart, link: '/admin-compras' },
-  ]},
+     { label: 'Stock', icon: FaClipboardList, link: '/admin-catalogo#inventario' },
+     { label: 'Compras', icon: FaShoppingCart, link: '/admin-compras' },
+   ]},
   { title: 'FINANZAS', items: [
     { label: 'Caja', icon: FaCashRegister, link: '/admin-caja' },
     { label: 'Facturación', icon: FaFileInvoiceDollar, link: '/admin-facturacion' },

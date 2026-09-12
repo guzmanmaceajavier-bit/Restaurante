@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { FaBox, FaSearch, FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaEdit, FaTrash, FaPlus, FaTimes } from 'react-icons/fa'
 import EmptyState from '../components/core/EmptyState'
@@ -26,6 +27,8 @@ const STATUS_CONFIG: Record<StockStatus, { label: string; color: string; icon: t
 const emptyProduct: Omit<IProduct, 'id'> = { nombre: '', descripcion: '', precio: 0, categoría: '', imagen: '', stock: 0 }
 
 export default function AdminInventario() {
+  const navigate = useNavigate()
+  useEffect(()=>{ toast.info('Inventario ahora en Catálogo → Stock (fuente única productos::stock)'); const t=setTimeout(()=> navigate('/admin-catalogo', {replace:true}), 900); return ()=> clearTimeout(t) }, [navigate])
   const [productos, setProductos] = useState<IProduct[]>(() => dataService.getProductos())
   const [busqueda, setBusqueda] = useState('')
   const [filtroCategoria, setFiltroCategoria] = useState('')

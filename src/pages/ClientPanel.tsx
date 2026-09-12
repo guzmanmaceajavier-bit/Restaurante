@@ -62,14 +62,21 @@ export default function ClientPanel() {
 
   const [ordenes, setOrdenes] = useState<Order[]>([])
   const [reservas, setReservas] = useState<any[]>([])
+  const [showVincular, setShowVincular] = useState(false)
   useEffect(() => {
     if (!clienteActual) return
+    // Aislamiento estricto: solo historialPedidos/historialReservas (fuente única por cliente.id)
+    // Migración legacy desactivada para no filtrar por teléfono/nombre compartido
     const load = () => {
       const allOrdenes = storage.getOrdenes<Order>()
       const allReservas = storage.getReservas() as any[]
+      setOrdenes(allOrdenes.filter((o) => clienteActual.historialPedidos.includes(o.id)).reverse())
+      setReservas(allReservas.filter((r: any) => clienteActual.historialReservas.includes(r.id)).reverse())
+      // Detectar pedidos/reservas huérfanos por teléfono/email para ofrecer vinculación explícita (opt-in)
       const matchPhone = (a:string,b:string)=> a && b && a.replace(/\D/g,'')===b.replace(/\D/g,'')
-      setOrdenes(allOrdenes.filter((o) => clienteActual.historialPedidos.includes(o.id) || matchPhone(o.phone, clienteActual.telefono) || o.email===clienteActual.email).reverse())
-      setReservas(allReservas.filter((r: any) => clienteActual.historialReservas.includes(r.id) || matchPhone(r.telefono, clienteActual.telefono) || r.email===clienteActual.email || r.nombre===clienteActual.nombre).reverse())
+      const huérfanosOrdenes = allOrdenes.filter(o=> !clienteActual.historialPedidos.includes(o.id) && (matchPhone((o as any).phone, clienteActual.telefono) || (o as any).email===clienteActual.email)).length
+      const huérfanosReservas = allReservas.filter((r:any)=> !clienteActual.historialReservas.includes(r.id) && (matchPhone(r.telefono, clienteActual.telefono) || r.email===clienteActual.email)).length
+      setShowVincular(huérfanosOrdenes>0 || huérfanosReservas>0)
     }
     load()
     const id = setInterval(load, 2000)
@@ -122,6 +129,16 @@ export default function ClientPanel() {
     else { addDireccion({ alias: dirAlias.trim(), direccion: dirDireccion.trim(), indicaciones: dirIndicaciones.trim() }); toast.success('Dirección agregada')}
     setShowDirForm(false); setEditingDir(null); setDirAlias(''); setDirDireccion(''); setDirIndicaciones('')
   }
+  const vincularPasados = () => {
+    const allOrdenes = storage.getOrdenes<Order>()
+    const allReservas = storage.getReservas() as any[]
+    const matchPhone = (a:string,b:string)=> a && b && a.replace(/\D/g,'')===b.replace(/\D/g,'')
+    let c=0
+    allOrdenes.forEach((o:any)=> { if(!clienteActual.historialPedidos.includes(o.id) && (matchPhone(o.phone, clienteActual.telefono) || o.email===clienteActual.email)){ useAuthStore.getState().addOrderToHistory(o.id); c++ } })
+    allReservas.forEach((r:any)=> { if(!clienteActual.historialReservas.includes(r.id) && (matchPhone(r.telefono, clienteActual.telefono) || r.email===clienteActual.email)){ useAuthStore.getState().addReservaToHistory(r.id); c++ } })
+    toast.success(c? `${c} registros vinculados a tu cuenta (aislamiento por historial)` : 'Nada para vincular')
+    setShowVincular(false)
+  }
 
   const tabs: { id: Tab; icon: any; label: string; count?: number }[] = [
     { id: 'inicio', icon: FaHome, label: 'Resumen' },
@@ -161,6 +178,12 @@ export default function ClientPanel() {
           </button>
         ))}
       </div>
+      {showVincular && (
+        <div className="mb-3 flex items-center justify-between gap-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-xl px-4 py-2.5">
+          <p className="text-xs text-[#92400E] leading-relaxed">Detectamos pedidos/reservas con tu teléfono/email no vinculados. <span className="font-semibold">Aislamiento por historial</span> — vincula solo si son tuyos.</p>
+          <button onClick={vincularPasados} className="shrink-0 px-3 py-1.5 rounded-full bg-[#92400E] text-white text-xs font-medium hover:bg-[#7C3D11]">Vincular</button>
+        </div>
+      )}
 
       {tab==='inicio' && (
         <div className="space-y-4">

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { toast } from 'sonner'
 import { FaSearch, FaPlus, FaEdit, FaTrash, FaTags, FaFolder, FaBox, FaClipboardList } from 'react-icons/fa'
 import EmptyState from '../components/core/EmptyState'
@@ -39,6 +39,7 @@ export default function AdminCatalogo() {
   const [catForm, setCatForm] = useState('')
   const [catEditing, setCatEditing] = useState<string | null>(null)
   const [showCatForm, setShowCatForm] = useState(false)
+  useEffect(()=>{ const h=window.location.hash.replace('#',''); if(h==='inventario'||h==='stock') setTab('inventario'); else if(h==='categorias') setTab('categorias'); else if(h==='productos') setTab('productos') },[])
 
   const categoriasList = useMemo(() => [...new Set(productos.map(p=> (p as any)['categoría']).filter(Boolean))] as string[], [productos])
   const filtrados = useMemo(() => productos.filter(p=>{
@@ -91,6 +92,15 @@ export default function AdminCatalogo() {
 
   const catFiltradas = useMemo(()=> !catBusqueda ? categorias : categorias.filter(c=> c.toLowerCase().includes(catBusqueda.toLowerCase())), [categorias, catBusqueda])
 
+  // Stock inline editing — single source of truth (same 'productos' key as AdminInventario)
+  const [editingStockId, setEditingStockId] = useState<string | null>(null)
+  const [editStockValue, setEditStockValue] = useState('')
+  const saveStock = (id: string, n: number) => {
+    const v = Math.max(0, Math.floor(n))
+    const u = productos.map(p=> p.id===id ? {...p, stock: v} as IProduct : p)
+    setProductos(u); localStorage.setItem('productos', JSON.stringify(u)); toast.success('Stock actualizado')
+  }
+
   return (
     <div>
       <SEO title="Catálogo" />
@@ -141,16 +151,20 @@ export default function AdminCatalogo() {
         <div className="bg-white border border-[#E5E7EB] rounded-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-[#F8FAFC] border-b border-[#E5E7EB]"><tr><th className="px-3 py-2 text-left text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">Producto</th><th className="px-3 py-2 text-left text-[11px] font-semibold tracking-widest uppercase text-[#64748B] hidden sm:table-cell">Categoría</th><th className="px-3 py-2 text-right text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">Stock</th><th className="px-3 py-2 text-center text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">Estado</th></tr></thead>
+              <thead className="bg-[#F8FAFC] border-b border-[#E5E7EB]"><tr><th className="px-3 py-2 text-left text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">Producto</th><th className="px-3 py-2 text-left text-[11px] font-semibold tracking-widest uppercase text-[#64748B] hidden sm:table-cell">Categoría</th><th className="px-3 py-2 text-center text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">Stock</th><th className="px-3 py-2 text-center text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">Estado</th></tr></thead>
               <tbody>
                 {filtrados.slice(0,20).map(p=> {
                   const s=p.stock||0; const st = s<=0? 'Agotado': s<=5? 'Bajo':'OK'; const cls = s<=0? 'bg-[#FEF2F2] text-[#991B1B] border-[#FECACA]': s<=5? 'bg-[#FFFBEB] text-[#92400E] border-[#FDE68A]':'bg-[#ECFDF5] text-[#065F46] border-[#A7F3D0]'
-                  return <tr key={p.id} className="border-t border-[#F1F5F9] hover:bg-[#F8FAFC]"><td className="px-3 py-2.5 text-[13px] text-[#0F172A] flex items-center gap-2"><img src={p.imagen} alt="" className="w-7 h-7 rounded-md object-cover border border-[#E5E7EB]"/>{p.nombre}</td><td className="px-3 py-2.5 text-xs text-[#64748B] hidden sm:table-cell">{(p as any)['categoría']||'—'}</td><td className="px-3 py-2.5 text-right text-sm font-medium" data-numeric>{s}</td><td className="px-3 py-2.5 text-center"><span className={`px-2 py-1 rounded-full text-[11px] font-medium border ${cls}`}>{st}</span></td></tr>
+                  const isEd = editingStockId===p.id
+                  return <tr key={p.id} className="border-t border-[#F1F5F9] hover:bg-[#F8FAFC]"><td className="px-3 py-2.5 text-[13px] text-[#0F172A] flex items-center gap-2"><img src={p.imagen} alt="" className="w-7 h-7 rounded-md object-cover border border-[#E5E7EB]"/>{p.nombre}</td><td className="px-3 py-2.5 text-xs text-[#64748B] hidden sm:table-cell">{(p as any)['categoría']||'—'}</td><td className="px-3 py-2.5 text-center">
+                    {isEd ? <input autoFocus type="number" min={0} value={editStockValue} onChange={e=> setEditStockValue(e.target.value)} onBlur={()=>{ const n=parseInt(editStockValue,10); if(!isNaN(n)) saveStock(p.id, n); setEditingStockId(null)}} onKeyDown={e=>{ if(e.key==='Enter'){ const n=parseInt(editStockValue,10); if(!isNaN(n)) saveStock(p.id, n); setEditingStockId(null)} else if(e.key==='Escape') setEditingStockId(null)}} className="w-20 text-center text-sm font-bold border border-[#0F172A] rounded-md px-2 py-1 focus:outline-none" />
+                    : <button onClick={()=>{ setEditingStockId(p.id); setEditStockValue(String(s))}} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-bold text-[#0F172A] hover:bg-[#F1F5F9] border border-transparent hover:border-[#E5E7EB]" title="Click para editar">{s} <FaEdit size={10} className="text-[#94A3B8]"/></button>}
+                  </td><td className="px-3 py-2.5 text-center"><span className={`px-2 py-1 rounded-full text-[11px] font-medium border ${cls}`}>{st}</span></td></tr>
                 })}
               </tbody>
             </table>
           </div>
-          <div className="px-3 py-2 bg-[#FFFBEB] border-t border-[#FDE68A] text-xs text-[#92400E]">Stock ≤5 = bajo · Edita stock desde Productos (doble clic en card) o Inventario inline próximo.</div>
+          <div className="px-3 py-2 bg-[#ECFDF5] border-t border-[#A7F3D0] text-xs text-[#065F46]">Fuente única: <code className="bg-white px-1 rounded border">productos::stock</code> · mismo storage que Inventario · edición inline (Enter/blur guarda).</div>
         </div>
       )}
 
