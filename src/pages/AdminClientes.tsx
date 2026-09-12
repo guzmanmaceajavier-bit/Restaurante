@@ -49,6 +49,28 @@ export default function AdminClientes() {
 
   useEffect(() => {
     const stored: ClientData[] = JSON.parse(localStorage.getItem('clientes') || '[]')
+    // Unificar con auth-client-storage (portal cliente) — fuente única portal
+    try{
+      const authRaw = localStorage.getItem('auth-client-storage')
+      if(authRaw){
+        const auth = JSON.parse(authRaw)
+        const authClientes: ClientData[] = (auth?.state?.clientes || auth?.clientes || []) as any[]
+        const byTel = new Map(stored.map(c=> [c.telefono, c]))
+        const byEmail = new Map(stored.map(c=> [c.email, c]))
+        authClientes.forEach(ac=>{
+          const exists = byTel.get(ac.telefono) || byEmail.get(ac.email)
+          if(!exists){
+            stored.push({ ...ac, activo: (ac as any).activo ?? true, historialPedidos: (ac as any).historialPedidos || [], historialReservas: (ac as any).historialReservas || [] } as any)
+          } else {
+            // sincronizar puntos/nivel/historial desde portal
+            exists.puntos = (ac as any).puntos ?? exists.puntos
+            exists.nivel = (ac as any).nivel ?? exists.nivel
+            if((ac as any).historialPedidos) exists.historialPedidos = (ac as any).historialPedidos
+            if((ac as any).historialReservas) exists.historialReservas = (ac as any).historialReservas
+          }
+        })
+      }
+    } catch{}
     const ordenes: any[] = storage.getOrdenes<any>()
     const enriched = stored.map((c) => {
       const clientOrders = ordenes.filter(
@@ -196,6 +218,9 @@ export default function AdminClientes() {
       )
       setClientes(updated)
       localStorage.setItem('clientes', JSON.stringify(updated))
+      try{
+        const raw=localStorage.getItem('auth-client-storage'); if(raw){ const j=JSON.parse(raw); const state=j.state||j; if(state.clientes){ state.clientes = state.clientes.map((c:any)=> c.telefono===form.telefono || c.email===form.email ? {...c, nombre:form.nombre.trim(), email:form.email.trim(), telefono:form.telefono.trim(), puntos:form.puntos, nivel:form.nivel} : c); localStorage.setItem('auth-client-storage', JSON.stringify(j.state? {...j, state}: j))}}
+      } catch{}
       toast.success('Cliente actualizado')
     } else {
       const newClient: ClientData = {
@@ -214,6 +239,9 @@ export default function AdminClientes() {
       const updated = [...clientes, newClient]
       setClientes(updated)
       localStorage.setItem('clientes', JSON.stringify(updated))
+      try{
+        const raw=localStorage.getItem('auth-client-storage'); if(raw){ const j=JSON.parse(raw); const state=j.state||j; if(state.clientes){ if(!state.clientes.some((c:any)=> c.telefono===newClient.telefono || c.email===newClient.email)){ state.clientes.push({...newClient, password: newClient.password || '123456'}); localStorage.setItem('auth-client-storage', JSON.stringify(j.state? {...j, state}: j)) } } }
+      } catch{}
       toast.success('Cliente creado')
     }
     resetForm()

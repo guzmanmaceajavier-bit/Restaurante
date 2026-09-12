@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FaUtensils, FaMotorcycle, FaShoppingBag, FaCheck, FaRegClock } from 'react-icons/fa'
 import { CONFIG, getRestaurantConfig } from '../../lib/config'
 import { toast } from 'sonner'
@@ -6,6 +6,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { validarCodigo } from '../../lib/promociones'
 import type { Promocion } from '../../lib/config'
+import { useAuthStore } from '../../store/useAuthStore'
 import clsx from 'clsx'
 
 export interface OrderData {
@@ -49,15 +50,17 @@ const validationSchemas = [
 ]
 
 export function CheckOutForm({ onSubmit }: IProps) {
+  const { clienteActual } = useAuthStore()
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<OrderData>({
-    typeOrder: '', fullName: '', phone: '', tableNumber: '',
+    typeOrder: '', fullName: clienteActual?.nombre || '', phone: clienteActual?.telefono || '', tableNumber: '',
     address: '', neighborhood: '', paymentMethod: '',
     scheduled: false, scheduledTime: '', extras: [],
   })
   const [promoCode, setPromoCode] = useState('')
   const [appliedPromo, setAppliedPromo] = useState<Promocion | null>(null)
   const [promoError, setPromoError] = useState('')
+  useEffect(()=>{ if(clienteActual){ setForm(p=> ({...p, fullName: clienteActual.nombre || p.fullName, phone: clienteActual.telefono || p.phone})) } }, [clienteActual])
 
   const update = (field: string, value: unknown) => setForm((prev) => ({ ...prev, [field]: value }))
 
@@ -214,10 +217,27 @@ export function CheckOutForm({ onSubmit }: IProps) {
                 </div>
               )}
               {values.typeOrder === 'delivery' && (
-                <div>
-                  <label className="text-sm font-medium text-espresso-700">Dirección completa *</label>
-                  <Field name="address" placeholder="Cra 10 #20-30, Barrio, Ciudad" className="input-base mt-2" />
-                  <ErrorMessage name="address" component="p" className="text-red-500 text-xs mt-1" />
+                <div className="space-y-3">
+                  {clienteActual?.direcciones && clienteActual.direcciones.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-espresso-700 mb-2">Mis direcciones guardadas</p>
+                      <div className="space-y-2">
+                        {clienteActual.direcciones.map(d=> (
+                          <button key={d.id} type="button" onClick={()=>{ update('address', d.direccion); setFieldTouched('address', true)}}
+                            className={clsx('w-full text-left p-3 rounded-xl border-2 transition-all', values.address===d.direccion ? 'border-olive-500 bg-olive-50' : 'border-cream-200 hover:border-olive-300 bg-white')}>
+                            <p className="text-sm font-semibold text-espresso-800">{d.alias}</p>
+                            <p className="text-xs text-steel">{d.direccion}{d.indicaciones ? ` · ${d.indicaciones}` : ''}</p>
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-xs text-steel mt-2">O escribe otra dirección abajo</p>
+                    </div>
+                  )}
+                  <div>
+                    <label className="text-sm font-medium text-espresso-700">Dirección completa *</label>
+                    <Field name="address" placeholder="Cra 10 #20-30, Barrio, Ciudad" className="input-base mt-2" />
+                    <ErrorMessage name="address" component="p" className="text-red-500 text-xs mt-1" />
+                  </div>
                 </div>
               )}
             </div>

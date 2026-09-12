@@ -124,6 +124,15 @@ export const useAuthStore = create<AuthStore>()(
         if(!actual) return {ok:false, error:'No autenticado'}
         if(data.email && data.email!==actual.email && get().clientes.some(c=> c.email===data.email)) return {ok:false, error:'Ese email ya está en uso'}
         if(data.telefono && data.telefono!==actual.telefono && get().clientes.some(c=> c.telefono===data.telefono)) return {ok:false, error:'Ese teléfono ya está en uso'}
+        // Migrar favoritos si cambia teléfono
+        if(data.telefono && data.telefono!==actual.telefono){
+          try{
+            const oldKey=`sabor-favorites-${actual.telefono}`
+            const newKey=`sabor-favorites-${data.telefono}`
+            const fav=localStorage.getItem(oldKey)
+            if(fav && !localStorage.getItem(newKey)) localStorage.setItem(newKey, fav)
+          } catch{}
+        }
         const updated={...actual, ...data}
         set({ clienteActual: updated, clientes: get().clientes.map(c=> c.id===actual.id ? updated : c)})
         return {ok:true}

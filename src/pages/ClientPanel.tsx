@@ -14,6 +14,7 @@ import { dataService } from '../lib/dataService'
 import type { Order } from '../types/order'
 import { numberFormatter } from '../utils/numberFormatter'
 import clsx from 'clsx'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const estadoBadge: Record<string, { bg: string; text: string }> = {
   recibido: { bg: 'bg-[#EFF6FF] border-[#BFDBFE]', text: 'text-[#1D4ED8]' },
@@ -35,6 +36,8 @@ export default function ClientPanel() {
     return (['inicio','pedidos','reservas','favoritos','direcciones','fidelidad','cuenta'] as Tab[]).includes(h as Tab) ? h : 'inicio'
   })
   const [confirmCancel, setConfirmCancel] = useState<string | null>(null)
+  const [confirmCancelPedido, setConfirmCancelPedido] = useState<string | null>(null)
+  const [confirmFav, setConfirmFav] = useState<string | null>(null)
   const [confirmDeleteDir, setConfirmDeleteDir] = useState<string | null>(null)
   const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false)
   const [editingReserva, setEditingReserva] = useState<any>(null)
@@ -219,13 +222,13 @@ export default function ClientPanel() {
       )}
 
       {tab==='pedidos' && (
-        <div className="space-y-3">
+        <motion.div initial="hidden" animate="visible" variants={{hidden:{}, visible:{transition:{staggerChildren:0.04}}}} className="space-y-3">
           {ordenes.length===0 ? <div className="bg-white rounded-2xl border border-[#F1E9D8] p-8"><EmptyState icon={<FaShoppingBag size={22}/>} title="Sin pedidos" description="Haz tu primer pedido" action={{label:'Ver menú', onClick:()=> navigate('/menu')}}/></div> :
             ordenes.map(o=>{
               const badge = estadoBadge[o.estado] || { bg:'bg-[#F8FAFC] border-[#E5E7EB]', text:'text-[#475569]'}
               const puedeCancelar = o.estado==='recibido'
               return (
-                <div key={o.id} className="bg-white rounded-2xl border border-[#F1E9D8] p-4">
+                <motion.div key={o.id} variants={{hidden:{opacity:0, y:8}, visible:{opacity:1, y:0, transition:{type:'spring', damping:24, stiffness:260}}}} whileHover={{y:-2}} className="bg-white rounded-2xl border border-[#F1E9D8] p-4 hover:shadow-md transition-shadow">
                   <div className="flex justify-between gap-3">
                     <div>
                       <p className="font-mono text-[11px] tracking-wide uppercase text-[#94A3B8]">{o.id.slice(0,14)}</p>
@@ -243,23 +246,23 @@ export default function ClientPanel() {
                     <Link to={`/orden-confirmacion/${o.id}`} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white border border-[#E5E7EB] text-xs font-medium text-[#475569]"><FaEye size={11}/> Ver</Link>
                     <button onClick={()=> handleRepeatOrder(o)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-xs font-medium text-[#92400E]"><FaRedo size={11}/> Repetir</button>
                     <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Seguimiento pedido #${o.id}`)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-xs font-medium text-[#065F46]"><FaWhatsapp size={11}/> Soporte</a>
-                    {puedeCancelar && <button onClick={()=> { const all=storage.getOrdenes<Order>(); storage.setOrdenes(all.map(x=> x.id===o.id?{...x, estado:'cancelado'}:x) as Order[]); toast.success('Pedido cancelado')}} className="px-3 py-1.5 rounded-full bg-white border border-[#FECACA] text-xs font-medium text-[#DC2626] flex items-center gap-1"><FaTrash size={10}/> Cancelar</button>}
+                    {puedeCancelar && <button onClick={()=> setConfirmCancelPedido(o.id)} className="px-3 py-1.5 rounded-full bg-white border border-[#FECACA] text-xs font-medium text-[#DC2626] flex items-center gap-1"><FaTrash size={10}/> Cancelar</button>}
                   </div>
-                </div>
+                </motion.div>
               )
             })}
-        </div>
+        </motion.div>
       )}
 
       {tab==='reservas' && (
-        <div className="space-y-3">
+        <motion.div initial="hidden" animate="visible" variants={{hidden:{}, visible:{transition:{staggerChildren:0.05}}}} className="space-y-3">
           <div className="flex justify-between items-center">
             <p className="text-xs font-medium tracking-widest uppercase text-[#94A3B8]">{reservas.length} reservas</p>
             <Link to="/reservas" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1C2A0F] text-white text-xs font-medium"><FaPlus size={10}/> Nueva</Link>
           </div>
           {reservas.length===0 ? <div className="bg-white rounded-2xl border border-[#F1E9D8] p-8"><EmptyState icon={<FaCalendarAlt size={22}/>} title="Sin reservas" description="Reserva tu mesa" action={{label:'Reservar', onClick:()=> navigate('/reservas')}}/></div> :
             reservas.map((r:any)=> (
-              <div key={r.id} className="bg-white rounded-2xl border border-[#F1E9D8] p-4">
+              <motion.div key={r.id} variants={{hidden:{opacity:0, y:8}, visible:{opacity:1, y:0, transition:{type:'spring', damping:24, stiffness:260}}}} whileHover={{y:-2}} className="bg-white rounded-2xl border border-[#F1E9D8] p-4 hover:shadow-md transition-shadow">
                 <div className="flex justify-between gap-3">
                   <div>
                     <p className="font-mono text-[11px] uppercase text-[#94A3B8]">{r.id.slice(0,12)}</p>
@@ -273,14 +276,15 @@ export default function ClientPanel() {
                   {r.estado!=='Cancelada' && <button onClick={()=> setConfirmCancel(r.id)} className="px-3 py-1.5 rounded-full bg-white border border-[#FECACA] text-xs font-medium text-[#DC2626]">Cancelar</button>}
                   <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Reserva #${r.id} ${r.fecha} ${r.hora}`)}`} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-xs font-medium text-[#065F46] inline-flex items-center gap-1"><FaWhatsapp size={11}/> Ayuda</a>
                 </div>
-              </div>
+              </motion.div>
             ))}
-        </div>
+        </motion.div>
       )}
 
+      <AnimatePresence>
       {editingReserva && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={()=> setEditingReserva(null)}>
-          <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={e=> e.stopPropagation()}>
+        <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={()=> setEditingReserva(null)}>
+          <motion.div initial={{scale:0.98, opacity:0}} animate={{scale:1, opacity:1}} exit={{scale:0.98, opacity:0}} transition={{type:'spring', damping:24, stiffness:260}} className="bg-white rounded-2xl w-full max-w-md p-6" onClick={e=> e.stopPropagation()}>
             <h3 className="font-semibold text-[#1C2A0F] mb-4">Modificar reserva</h3>
             <div className="space-y-3">
               <div><label className="block text-xs font-medium text-[#475569] mb-1">Fecha</label><input type="date" value={editFecha} onChange={e=> setEditFecha(e.target.value)} className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /></div>
@@ -291,12 +295,14 @@ export default function ClientPanel() {
               <button onClick={()=> setEditingReserva(null)} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium">Cancelar</button>
               <button onClick={handleSaveEditReserva} className="flex-1 py-2.5 rounded-full bg-[#1C2A0F] text-white text-sm font-medium">Guardar</button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
+      <AnimatePresence>
       {editingProfile && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={()=> setEditingProfile(false)}>
-          <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={e=> e.stopPropagation()}>
+        <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={()=> setEditingProfile(false)}>
+          <motion.div initial={{scale:0.98, opacity:0}} animate={{scale:1, opacity:1}} exit={{scale:0.98, opacity:0}} transition={{type:'spring', damping:24, stiffness:260}} className="bg-white rounded-2xl w-full max-w-md p-6" onClick={e=> e.stopPropagation()}>
             <h3 className="font-semibold text-[#1C2A0F] mb-1">Editar datos personales</h3>
             <p className="text-xs text-[#64748B] mb-4">Actualiza tu nombre, email, teléfono o contraseña</p>
             <div className="space-y-3">
@@ -313,23 +319,24 @@ export default function ClientPanel() {
                 else { toast.success('Datos actualizados'); setEditingProfile(false) }
               }} className="flex-1 py-2.5 rounded-full bg-[#1C2A0F] text-white text-sm font-medium">Guardar</button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {tab==='favoritos' && (
         <div>
           {favoriteProducts.length===0 ? <div className="bg-white rounded-2xl border border-[#F1E9D8] p-8"><EmptyState icon={<FaHeart size={22}/>} title="Sin favoritos" description="Guarda tus platos para pedir más rápido" action={{label:'Explorar menú', onClick:()=> navigate('/menu')}}/></div> :
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <motion.div initial="hidden" animate="visible" variants={{hidden:{}, visible:{transition:{staggerChildren:0.06}}}} className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {favoriteProducts.map(p=> (
-                <div key={p.id} className="bg-white rounded-2xl border border-[#F1E9D8] overflow-hidden group">
+                <motion.div key={p.id} variants={{hidden:{opacity:0, scale:0.98}, visible:{opacity:1, scale:1, transition:{type:'spring', damping:22, stiffness:280}}}} whileHover={{y:-3, scale:1.01}} className="bg-white rounded-2xl border border-[#F1E9D8] overflow-hidden group hover:shadow-md transition-shadow">
                   <div className="relative aspect-[4/3] bg-[#F8FAFC]"><img src={p.imagen} alt={p.nombre} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"/><button onClick={()=> { toggleFavorite(p.id||p.nombre); toast.success('Eliminado de favoritos')}} className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/95 border border-[#F1E9D8] flex items-center justify-center"><FaHeart size={12} className="text-[#E11D48] fill-[#E11D48]"/></button></div>
                   <div className="p-3"><h4 className="text-xs font-semibold text-[#1C2A0F] truncate">{p.nombre}</h4><p className="text-[#F59E0B] font-bold text-sm mt-1">${numberFormatter(p.precio??0)}</p>
-                    <div className="flex gap-1.5 mt-2"><button onClick={()=>{ addToCart({nombre:p.nombre, precio:p.precio, quantity:1, imagen:p.imagen}); toast.success(`${p.nombre} agregado`)}} className="flex-1 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium">Agregar</button><button onClick={()=> toggleFavorite(p.id||p.nombre)} className="px-3 py-2 rounded-full bg-white border border-[#FECACA] text-[#DC2626] text-xs"><FaTrash size={10}/></button></div>
+                    <div className="flex gap-1.5 mt-2"><button onClick={()=>{ addToCart({nombre:p.nombre, precio:p.precio, quantity:1, imagen:p.imagen}); toast.success(`${p.nombre} agregado`)}} className="flex-1 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium">Agregar</button><button onClick={()=> setConfirmFav(p.id||p.nombre)} className="px-3 py-2 rounded-full bg-white border border-[#FECACA] text-[#DC2626] text-xs"><FaTrash size={10}/></button></div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>}
+            </motion.div>}
         </div>
       )}
 
@@ -340,9 +347,9 @@ export default function ClientPanel() {
             <button onClick={()=>{ setEditingDir(null); setDirAlias(''); setDirDireccion(''); setDirIndicaciones(''); setShowDirForm(true)}} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1C2A0F] text-white text-xs font-medium"><FaPlus size={10}/> Agregar</button>
           </div>
           {(clienteActual.direcciones||[]).length===0 ? <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-8 text-center"><FaMapMarkerAlt size={22} className="mx-auto text-[#CBD5E1] mb-2"/><p className="text-sm font-medium text-[#1C2A0F]">Sin direcciones</p><p className="text-xs text-[#64748B]">Agrega tu casa u oficina para pedir más rápido</p><button onClick={()=> setShowDirForm(true)} className="mt-3 px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium">Agregar dirección</button></div> :
-            <div className="grid sm:grid-cols-2 gap-3">
+            <motion.div initial="hidden" animate="visible" variants={{hidden:{}, visible:{transition:{staggerChildren:0.05}}}} className="grid sm:grid-cols-2 gap-3">
               {(clienteActual.direcciones||[]).map(d=> (
-                <div key={d.id} className="bg-white rounded-2xl border border-[#F1E9D8] p-4">
+                <motion.div key={d.id} variants={{hidden:{opacity:0, y:8}, visible:{opacity:1, y:0, transition:{type:'spring', damping:24, stiffness:260}}}} whileHover={{y:-2}} className="bg-white rounded-2xl border border-[#F1E9D8] p-4 hover:shadow-md transition-shadow">
                   <div className="flex justify-between gap-2">
                     <div className="flex gap-2.5">
                       <span className="w-8 h-8 rounded-full bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center shrink-0"><FaMapMarkerAlt size={12} className="text-[#B45309]"/></span>
@@ -357,12 +364,13 @@ export default function ClientPanel() {
                     <button onClick={()=>{ setEditingDir(d); setDirAlias(d.alias); setDirDireccion(d.direccion); setDirIndicaciones(d.indicaciones||''); setShowDirForm(true)}} className="flex-1 py-1.5 rounded-full bg-white border border-[#E5E7EB] text-xs font-medium text-[#475569]"><FaEdit size={10} className="inline mr-1"/> Editar</button>
                     <button onClick={()=> setConfirmDeleteDir(d.id)} className="flex-1 py-1.5 rounded-full bg-white border border-[#FECACA] text-xs font-medium text-[#DC2626]"><FaTrash size={10} className="inline mr-1"/> Eliminar</button>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>}
+            </motion.div>}
+          <AnimatePresence>
           {showDirForm && (
-            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={()=> setShowDirForm(false)}>
-              <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={e=> e.stopPropagation()}>
+            <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={()=> setShowDirForm(false)}>
+              <motion.div initial={{scale:0.98, opacity:0}} animate={{scale:1, opacity:1}} exit={{scale:0.98, opacity:0}} transition={{type:'spring', damping:24, stiffness:260}} className="bg-white rounded-2xl w-full max-w-md p-6" onClick={e=> e.stopPropagation()}>
                 <h3 className="font-semibold text-[#1C2A0F] mb-4">{editingDir? 'Editar dirección':'Nueva dirección'}</h3>
                 <div className="space-y-3">
                   <div><label className="block text-xs font-medium text-[#475569] mb-1">Alias *</label><input value={dirAlias} onChange={e=> setDirAlias(e.target.value)} placeholder="Casa, Trabajo..." className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /></div>
@@ -373,9 +381,10 @@ export default function ClientPanel() {
                   <button onClick={()=> setShowDirForm(false)} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium">Cancelar</button>
                   <button onClick={handleSaveDireccion} className="flex-1 py-2.5 rounded-full bg-[#1C2A0F] text-white text-sm font-medium">{editingDir? 'Guardar':'Agregar'}</button>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           )}
+          </AnimatePresence>
         </div>
       )}
 
@@ -467,6 +476,8 @@ export default function ClientPanel() {
         </div>
       )}
 
+      <ConfirmModal open={!!confirmCancelPedido} onClose={()=> setConfirmCancelPedido(null)} onConfirm={()=>{ if(confirmCancelPedido){ const all=storage.getOrdenes<Order>(); storage.setOrdenes(all.map(x=> x.id===confirmCancelPedido?{...x, estado:'cancelado'}:x) as Order[]); toast.success('Pedido cancelado'); setConfirmCancelPedido(null)} }} title="Cancelar pedido" message="¿Cancelar este pedido? Solo pedidos en estado recibido pueden cancelarse." confirmText="Sí, cancelar" cancelText="Mantener" />
+      <ConfirmModal open={!!confirmFav} onClose={()=> setConfirmFav(null)} onConfirm={()=>{ if(confirmFav){ toggleFavorite(confirmFav); toast.success('Eliminado de favoritos'); setConfirmFav(null)} }} title="Quitar favorito" message="¿Quitar este plato de tus favoritos?" confirmText="Quitar" cancelText="Mantener" />
       <ConfirmModal open={!!confirmCancel} onClose={()=> setConfirmCancel(null)} onConfirm={()=>{ const r=reservas.find((x:any)=> x.id===confirmCancel); if(r) handleCancelReserva(r)}} title="Cancelar reserva" message="¿Cancelar esta reserva?" confirmText="Sí, cancelar" cancelText="Mantener" />
       <ConfirmModal open={!!confirmDeleteDir} onClose={()=> setConfirmDeleteDir(null)} onConfirm={()=>{ if(confirmDeleteDir) deleteDireccion(confirmDeleteDir); setConfirmDeleteDir(null); toast.success('Dirección eliminada')}} title="Eliminar dirección" message="¿Eliminar esta dirección? No se puede deshacer." confirmText="Eliminar" cancelText="Cancelar" />
       <ConfirmModal open={confirmDeleteAccount} onClose={()=> setConfirmDeleteAccount(false)} onConfirm={()=>{ deleteAccount(); toast.success('Cuenta eliminada'); navigate('/')}} title="Eliminar cuenta" message="¿Seguro que quieres eliminar tu cuenta? Se borrarán tus datos y direcciones." confirmText="Sí, eliminar" cancelText="Cancelar" />

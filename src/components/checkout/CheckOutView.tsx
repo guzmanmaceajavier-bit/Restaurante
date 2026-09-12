@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCartStore } from '../../store/useCartStore'
 import { useClientStore } from '../../store/useClientStore'
+import { useAuthStore } from '../../store/useAuthStore'
 import { ProductsList } from '../cart/ProductsList'
 import { CheckOutForm, type OrderData } from './CheckOutForm'
 import { Summary } from './Summary'
@@ -41,6 +42,20 @@ export function CheckOutView() {
     }
     setClienteActual(cliente)
     sumarPuntos(data.phone, total, orderId)
+    // Vincular a portal cliente (aislamiento estricto por historial)
+    try{
+      const auth = useAuthStore.getState()
+      const c = auth.clienteActual
+      if(c && (c.telefono===data.phone || c.email===data.fullName)){
+        auth.addOrderToHistory(orderId)
+      } else if(c && data.phone===c.telefono){
+        auth.addOrderToHistory(orderId)
+      } else {
+        // buscar por teléfono en auth clientes
+        const match = auth.clientes.find(x=> x.telefono===data.phone)
+        if(match) useAuthStore.setState(s=> ({ clientes: s.clientes.map(x=> x.id===match.id ? {...x, historialPedidos:[...x.historialPedidos, orderId]}:x), clienteActual: s.clienteActual?.id===match.id ? {...s.clienteActual, historialPedidos:[...s.clienteActual.historialPedidos, orderId]} : s.clienteActual }))
+      }
+    } catch{}
     const puntos = calcularPuntos(total)
     setPuntosGanados(puntos)
 
