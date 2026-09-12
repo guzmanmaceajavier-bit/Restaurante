@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+export interface DireccionCliente { id: string; alias: string; direccion: string; indicaciones?: string }
 export interface ClienteAuth {
   id: string
   nombre: string
@@ -12,6 +13,7 @@ export interface ClienteAuth {
   historialPedidos: string[]
   historialReservas: string[]
   createdAt: string
+  direcciones?: DireccionCliente[]
 }
 
 interface AuthStore {
@@ -25,6 +27,10 @@ interface AuthStore {
   addPuntos: (monto: number) => void
   canjearPuntos: (costo: number) => { ok:boolean; error?:string }
   updateProfile: (data: Partial<Pick<ClienteAuth,'nombre'|'email'|'telefono'|'password'>>) => { ok:boolean; error?:string }
+  addDireccion: (d: Omit<DireccionCliente,'id'>) => void
+  updateDireccion: (id: string, d: Partial<DireccionCliente>) => void
+  deleteDireccion: (id: string) => void
+  deleteAccount: () => void
 }
 
 const getFidelizacionCfg = () => {
@@ -121,6 +127,26 @@ export const useAuthStore = create<AuthStore>()(
         const updated={...actual, ...data}
         set({ clienteActual: updated, clientes: get().clientes.map(c=> c.id===actual.id ? updated : c)})
         return {ok:true}
+      },
+      addDireccion: (d) => {
+        const actual=get().clienteActual; if(!actual) return
+        const nueva={...d, id:`DIR-${Date.now().toString(36).toUpperCase()}`}
+        const updated={...actual, direcciones:[...(actual.direcciones||[]), nueva]}
+        set({ clienteActual: updated, clientes: get().clientes.map(c=> c.id===actual.id ? updated : c)})
+      },
+      updateDireccion: (id, d) => {
+        const actual=get().clienteActual; if(!actual) return
+        const updated={...actual, direcciones:(actual.direcciones||[]).map(x=> x.id===id ? {...x, ...d}: x)}
+        set({ clienteActual: updated, clientes: get().clientes.map(c=> c.id===actual.id ? updated : c)})
+      },
+      deleteDireccion: (id) => {
+        const actual=get().clienteActual; if(!actual) return
+        const updated={...actual, direcciones:(actual.direcciones||[]).filter(x=> x.id!==id)}
+        set({ clienteActual: updated, clientes: get().clientes.map(c=> c.id===actual.id ? updated : c)})
+      },
+      deleteAccount: () => {
+        const actual=get().clienteActual; if(!actual) return
+        set({ clientes: get().clientes.filter(c=> c.id!==actual.id), clienteActual: null })
       },
     }),
     { name: 'auth-client-storage' }

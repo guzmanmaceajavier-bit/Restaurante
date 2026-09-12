@@ -1,16 +1,18 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import { getRestaurantConfig } from '../lib/config'
-import { FaShoppingBag, FaSignOutAlt, FaHome, FaUser, FaUtensils, FaCalendarAlt, FaHeart, FaTrophy } from 'react-icons/fa'
+import { FaShoppingBag, FaSignOutAlt, FaHome, FaUtensils, FaCalendarAlt, FaHeart, FaTrophy, FaMapMarkerAlt, FaShieldAlt } from 'react-icons/fa'
 import { useCartStore } from '../store/useCartStore'
 
 const navItems = [
-  { label: 'Inicio', icon: FaHome, path: '/mi-cuenta', tab: 'inicio' },
-  { label: 'Pedidos', icon: FaShoppingBag, path: '/mi-cuenta', tab: 'pedidos' },
-  { label: 'Reservas', icon: FaCalendarAlt, path: '/mi-cuenta', tab: 'reservas' },
-  { label: 'Menú', icon: FaUtensils, path: '/menu', tab: null },
-  { label: 'Favoritos', icon: FaHeart, path: '/mi-cuenta', tab: 'favoritos' },
-  { label: 'Puntos', icon: FaTrophy, path: '/mi-cuenta', tab: 'puntos' },
+  { label: 'Resumen', icon: FaHome, path: '/mi-cuenta#inicio' },
+  { label: 'Pedidos', icon: FaShoppingBag, path: '/mi-cuenta#pedidos' },
+  { label: 'Reservas', icon: FaCalendarAlt, path: '/mi-cuenta#reservas' },
+  { label: 'Favoritos', icon: FaHeart, path: '/mi-cuenta#favoritos' },
+  { label: 'Direcciones', icon: FaMapMarkerAlt, path: '/mi-cuenta#direcciones' },
+  { label: 'Fidelidad', icon: FaTrophy, path: '/mi-cuenta#fidelidad' },
+  { label: 'Cuenta', icon: FaShieldAlt, path: '/mi-cuenta#cuenta' },
+  { label: 'Menú', icon: FaUtensils, path: '/menu' },
 ]
 
 export default function ClientLayout() {
@@ -102,10 +104,12 @@ export default function ClientLayout() {
         </header>
         <main className="flex-1 p-4 lg:p-6 pb-20 lg:pb-6"><Outlet /></main>
 
-        {/* Bottom nav mobile */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#F1E9D8] flex justify-around py-2 px-2 z-20">
-          {navItems.slice(0,5).map(item=> (
-            <Link key={item.label} to={item.path} className="flex flex-col items-center gap-1 px-3 py-1 rounded-lg hover:bg-[#FFFBF5] text-[#64748B]">
+        {/* Bottom nav mobile — 5 primarios */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#F1E9D8] flex justify-around py-2 px-1 z-20">
+          {[
+            navItems[0], navItems[1], navItems[2], navItems[3], navItems[6]
+          ].map(item=> (
+            <Link key={item.label} to={item.path} className="flex flex-col items-center gap-1 px-2 py-1 rounded-lg hover:bg-[#FFFBF5] text-[#64748B]">
               <item.icon size={14} />
               <span className="text-[10px] font-medium">{item.label}</span>
             </Link>

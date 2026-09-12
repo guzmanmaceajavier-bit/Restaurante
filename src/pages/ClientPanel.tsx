@@ -6,7 +6,7 @@ import { storage } from '../lib/storage'
 import { getRestaurantConfig } from '../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
-import { FaShoppingBag, FaCalendarAlt, FaStar, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaUtensils, FaGift, FaCog, FaHome, FaTrophy, FaCheckCircle, FaEdit, FaChevronRight, FaBell, FaFire, FaUser } from 'react-icons/fa'
+import { FaShoppingBag, FaCalendarAlt, FaStar, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaUtensils, FaGift, FaHome, FaTrophy, FaCheckCircle, FaEdit, FaTrash, FaMapMarkerAlt, FaShieldAlt, FaHeadset, FaPlus } from 'react-icons/fa'
 import EmptyState from '../components/core/EmptyState'
 import ConfirmModal from '../components/core/ConfirmModal'
 import { useFavorites } from '../hooks/useFavorites'
@@ -23,14 +23,16 @@ const estadoBadge: Record<string, { bg: string; text: string }> = {
   cancelado: { bg: 'bg-[#FEF2F2] border-[#FECACA]', text: 'text-[#991B1B]' },
 }
 
-type Tab = 'inicio' | 'perfil' | 'menu' | 'pedidos' | 'reservas' | 'favoritos' | 'puntos' | 'recompensas' | 'config'
+type Tab = 'inicio' | 'pedidos' | 'reservas' | 'favoritos' | 'direcciones' | 'fidelidad' | 'cuenta'
 
 export default function ClientPanel() {
-  const { clienteActual, logout, canjearPuntos, updateProfile } = useAuthStore()
+  const { clienteActual, logout, canjearPuntos, updateProfile, addDireccion, updateDireccion, deleteDireccion, deleteAccount } = useAuthStore()
   const navigate = useNavigate()
   const addToCart = useCartStore((s) => s.addToCart)
   const [tab, setTab] = useState<Tab>('inicio')
   const [confirmCancel, setConfirmCancel] = useState<string | null>(null)
+  const [confirmDeleteDir, setConfirmDeleteDir] = useState<string | null>(null)
+  const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false)
   const [editingReserva, setEditingReserva] = useState<any>(null)
   const [editFecha, setEditFecha] = useState('')
   const [editHora, setEditHora] = useState('')
@@ -40,6 +42,15 @@ export default function ClientPanel() {
   const [editEmail, setEditEmail] = useState('')
   const [editTelefono, setEditTelefono] = useState('')
   const [editPassword, setEditPassword] = useState('')
+  const [editingDir, setEditingDir] = useState<any>(null)
+  const [dirAlias, setDirAlias] = useState('')
+  const [dirDireccion, setDirDireccion] = useState('')
+  const [dirIndicaciones, setDirIndicaciones] = useState('')
+  const [showDirForm, setShowDirForm] = useState(false)
+  const [prefs, setPrefs] = useState(()=> {
+    try{ const k=clienteActual? `prefs_${clienteActual.id}`: 'prefs_guest'; return JSON.parse(localStorage.getItem(k)||'{"whatsapp":true,"email":true,"promos":true}') } catch{ return {whatsapp:true,email:true,promos:true}}
+  })
+  useEffect(()=>{ if(clienteActual){ const k=`prefs_${clienteActual.id}`; localStorage.setItem(k, JSON.stringify(prefs)) }}, [prefs, clienteActual])
   const { favorites, toggleFavorite } = useFavorites(clienteActual?.telefono)
 
   const favoriteProducts = useMemo(() => {
@@ -71,7 +82,7 @@ export default function ClientPanel() {
 
   useEffect(() => {
     const h = window.location.hash.replace('#','') as Tab
-    if (h && ['inicio','perfil','menu','pedidos','reservas','favoritos','puntos','recompensas','config'].includes(h)) setTab(h)
+    if (h && ['inicio','pedidos','reservas','favoritos','direcciones','fidelidad','cuenta'].includes(h)) setTab(h)
     const onHash = () => { const v = window.location.hash.replace('#','') as Tab; if (v) setTab(v) }
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
@@ -105,17 +116,21 @@ export default function ClientPanel() {
     storage.setReservas((storage.getReservas() as any[]).map((x:any)=> x.id===editingReserva.id?{...x, fecha:editFecha, hora:editHora, personas:editPersonas, estado:'Pendiente'}:x))
     setEditingReserva(null); toast.success('Reserva modificada — pendiente de confirmación')
   }
+  const handleSaveDireccion = () => {
+    if(!dirAlias.trim() || !dirDireccion.trim()){ toast.error('Alias y dirección son obligatorios'); return}
+    if(editingDir){ updateDireccion(editingDir.id, { alias: dirAlias.trim(), direccion: dirDireccion.trim(), indicaciones: dirIndicaciones.trim() }); toast.success('Dirección actualizada')}
+    else { addDireccion({ alias: dirAlias.trim(), direccion: dirDireccion.trim(), indicaciones: dirIndicaciones.trim() }); toast.success('Dirección agregada')}
+    setShowDirForm(false); setEditingDir(null); setDirAlias(''); setDirDireccion(''); setDirIndicaciones('')
+  }
 
   const tabs: { id: Tab; icon: any; label: string; count?: number }[] = [
     { id: 'inicio', icon: FaHome, label: 'Resumen' },
     { id: 'pedidos', icon: FaShoppingBag, label: 'Pedidos', count: ordenes.length },
     { id: 'reservas', icon: FaCalendarAlt, label: 'Reservas', count: reservas.length },
-    { id: 'menu', icon: FaUtensils, label: 'Menú' },
     { id: 'favoritos', icon: FaHeart, label: 'Favoritos', count: favorites.length },
-    { id: 'puntos', icon: FaTrophy, label: 'Puntos' },
-    { id: 'recompensas', icon: FaGift, label: 'Recompensas' },
-    { id: 'perfil', icon: FaUser, label: 'Perfil' },
-    { id: 'config', icon: FaCog, label: 'Ajustes' },
+    { id: 'direcciones', icon: FaMapMarkerAlt, label: 'Direcciones', count: (clienteActual.direcciones||[]).length },
+    { id: 'fidelidad', icon: FaTrophy, label: 'Fidelidad' },
+    { id: 'cuenta', icon: FaShieldAlt, label: 'Cuenta' },
   ]
 
   const proximaReserva = reservas.find((r:any)=> r.estado!=='Cancelada') || null
@@ -124,7 +139,6 @@ export default function ClientPanel() {
   return (
     <div className="max-w-[980px] mx-auto">
       <SEO title="Mi cuenta" />
-      {/* Encabezado integrado con layout */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
         <div>
           <h1 className="text-[11px] font-semibold tracking-widest uppercase text-[#F59E0B]">Mi cuenta</h1>
@@ -137,7 +151,6 @@ export default function ClientPanel() {
         </div>
       </div>
 
-      {/* Tabs secundarias — nuevo estilo gold */}
       <div className="flex gap-1.5 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide">
         {tabs.map(t=> (
           <button key={t.id} onClick={()=>{ setTab(t.id); window.location.hash=t.id}}
@@ -149,7 +162,6 @@ export default function ClientPanel() {
         ))}
       </div>
 
-      {/* INICIO — dashboard nuevo: próximareserva + pedido activo + stats */}
       {tab==='inicio' && (
         <div className="space-y-4">
           <div className="grid md:grid-cols-2 gap-3">
@@ -175,7 +187,6 @@ export default function ClientPanel() {
               )}
             </div>
           </div>
-
           <div className="grid grid-cols-3 gap-3">
             {[{label:'Pedidos', value:ordenes.length, icon:FaShoppingBag},{label:'Reservas', value:reservas.length, icon:FaCalendarAlt},{label:'Favoritos', value:favorites.length, icon:FaHeart}].map(s=> (
               <div key={s.label} className="bg-white rounded-2xl border border-[#F1E9D8] p-4 text-center">
@@ -185,49 +196,29 @@ export default function ClientPanel() {
               </div>
             ))}
           </div>
-
           <div className="bg-[#1C2A0F] rounded-2xl p-5 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <p className="text-xs tracking-widest uppercase text-[#F5B51B] font-semibold">Fidelidad</p>
               <p className="text-lg font-bold">{clienteActual.puntos||0} puntos · {clienteActual.nivel||'bronce'}</p>
               <p className="text-xs text-white/70">{100 - ((clienteActual.puntos||0)%100)} pts para siguiente nivel</p>
             </div>
-            <button onClick={()=> setTab('recompensas')} className="px-4 py-2 rounded-full bg-[#F5B51B] text-[#1C2A0F] text-xs font-semibold hover:bg-[#FFC93A]">Ver recompensas</button>
+            <button onClick={()=> setTab('fidelidad')} className="px-4 py-2 rounded-full bg-[#F5B51B] text-[#1C2A0F] text-xs font-semibold hover:bg-[#FFC93A]">Ver recompensas</button>
           </div>
         </div>
       )}
-
-      {tab==='perfil' && (
-        <div className="space-y-4">
-          <div className="bg-white rounded-2xl border border-[#F1E9D8] p-6 flex gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#1C2A0F] flex items-center justify-center text-white font-bold text-lg shrink-0">{clienteActual.nombre.charAt(0)}</div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[#1C2A0F] truncate">{clienteActual.nombre}</p>
-              <p className="text-xs text-[#64748B] truncate">{clienteActual.email} · {clienteActual.telefono}</p>
-              <span className="inline-flex mt-2 px-2.5 py-1 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-xs font-medium text-[#92400E]"><FaStar size={10} className="mr-1 text-[#F59E0B]"/>{clienteActual.nivel||'bronce'} · {clienteActual.puntos||0} pts</span>
-            </div>
-            <button onClick={()=>{ setEditNombre(clienteActual.nombre); setEditEmail(clienteActual.email); setEditTelefono(clienteActual.telefono); setEditPassword(clienteActual.password||''); setEditingProfile(true)}} className="h-8 px-3 rounded-full bg-[#F8FAFC] border border-[#E5E7EB] text-xs font-medium text-[#475569]"><FaEdit size={10} className="inline mr-1"/> Editar</button>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-3">
-            <Link to="/menu" className="py-3 rounded-full bg-[#1C2A0F] text-white text-sm font-medium text-center">Hacer pedido <FaArrowRight size={11} className="inline ml-1"/></Link>
-            <Link to="/reservas" className="py-3 rounded-full bg-white border border-[#F1E9D8] text-sm font-medium text-center text-[#1C2A0F]">Reservar mesa</Link>
-          </div>
-        </div>
-      )}
-
-      {tab==='menu' && <div className="bg-white rounded-2xl border border-[#F1E9D8] p-4"><MenuTab /></div>}
 
       {tab==='pedidos' && (
         <div className="space-y-3">
           {ordenes.length===0 ? <div className="bg-white rounded-2xl border border-[#F1E9D8] p-8"><EmptyState icon={<FaShoppingBag size={22}/>} title="Sin pedidos" description="Haz tu primer pedido" action={{label:'Ver menú', onClick:()=> navigate('/menu')}}/></div> :
             ordenes.map(o=>{
               const badge = estadoBadge[o.estado] || { bg:'bg-[#F8FAFC] border-[#E5E7EB]', text:'text-[#475569]'}
+              const puedeCancelar = o.estado==='recibido'
               return (
                 <div key={o.id} className="bg-white rounded-2xl border border-[#F1E9D8] p-4">
                   <div className="flex justify-between gap-3">
                     <div>
                       <p className="font-mono text-[11px] tracking-wide uppercase text-[#94A3B8]">{o.id.slice(0,14)}</p>
-                      <p className="text-xs text-[#64748B]">{new Date(o.createdAt).toLocaleDateString('es-CO')} · {o.items?.length||0} items</p>
+                      <p className="text-xs text-[#64748B]">{new Date(o.createdAt).toLocaleDateString('es-CO')} · {o.items?.length||0} items · {o.tipoEntrega||'domicilio'}</p>
                     </div>
                     <div className="text-right">
                       <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium border ${badge.bg} ${badge.text}`}>{o.estado}</span>
@@ -240,8 +231,8 @@ export default function ClientPanel() {
                   <div className="flex flex-wrap gap-1.5 mt-3">
                     <Link to={`/orden-confirmacion/${o.id}`} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white border border-[#E5E7EB] text-xs font-medium text-[#475569]"><FaEye size={11}/> Ver</Link>
                     <button onClick={()=> handleRepeatOrder(o)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-xs font-medium text-[#92400E]"><FaRedo size={11}/> Repetir</button>
-                    <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Seguimiento pedido #${o.id}`)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-xs font-medium text-[#065F46]"><FaWhatsapp size={11}/> WhatsApp</a>
-                    {o.estado==='recibido' && <button onClick={()=> handleCancelReserva({id:o.id} as any)} className="px-3 py-1.5 rounded-full bg-white border border-[#FECACA] text-xs font-medium text-[#DC2626]">Cancelar</button>}
+                    <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Seguimiento pedido #${o.id}`)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-xs font-medium text-[#065F46]"><FaWhatsapp size={11}/> Soporte</a>
+                    {puedeCancelar && <button onClick={()=> { const all=storage.getOrdenes<Order>(); storage.setOrdenes(all.map(x=> x.id===o.id?{...x, estado:'cancelado'}:x) as Order[]); toast.success('Pedido cancelado')}} className="px-3 py-1.5 rounded-full bg-white border border-[#FECACA] text-xs font-medium text-[#DC2626] flex items-center gap-1"><FaTrash size={10}/> Cancelar</button>}
                   </div>
                 </div>
               )
@@ -251,6 +242,10 @@ export default function ClientPanel() {
 
       {tab==='reservas' && (
         <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <p className="text-xs font-medium tracking-widest uppercase text-[#94A3B8]">{reservas.length} reservas</p>
+            <Link to="/reservas" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1C2A0F] text-white text-xs font-medium"><FaPlus size={10}/> Nueva</Link>
+          </div>
           {reservas.length===0 ? <div className="bg-white rounded-2xl border border-[#F1E9D8] p-8"><EmptyState icon={<FaCalendarAlt size={22}/>} title="Sin reservas" description="Reserva tu mesa" action={{label:'Reservar', onClick:()=> navigate('/reservas')}}/></div> :
             reservas.map((r:any)=> (
               <div key={r.id} className="bg-white rounded-2xl border border-[#F1E9D8] p-4">
@@ -258,14 +253,14 @@ export default function ClientPanel() {
                   <div>
                     <p className="font-mono text-[11px] uppercase text-[#94A3B8]">{r.id.slice(0,12)}</p>
                     <p className="text-sm font-semibold text-[#1C2A0F]">{r.fecha} — {r.hora}</p>
-                    <p className="text-xs text-[#64748B]">{r.personas} pers. · {r.zona||'—'}</p>
+                    <p className="text-xs text-[#64748B]">{r.personas} pers. · {r.zona||'—'} · Mesa {r.mesa||'—'}</p>
                   </div>
                   <span className={clsx('h-6 px-2.5 py-1 rounded-full text-xs font-medium border', r.estado==='Pendiente'?'bg-[#FFFBEB] border-[#FDE68A] text-[#92400E]': r.estado==='Cancelada'?'bg-[#FEF2F2] border-[#FECACA] text-[#991B1B]':'bg-[#ECFDF5] border-[#A7F3D0] text-[#065F46]')}>{r.estado}</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5 mt-3">
                   {r.estado!=='Cancelada' && r.estado!=='confirmada' && <button onClick={()=> handleEditReserva(r)} className="px-3 py-1.5 rounded-full bg-white border border-[#E5E7EB] text-xs font-medium text-[#475569]"><FaEdit size={11} className="inline mr-1"/> Modificar</button>}
                   {r.estado!=='Cancelada' && <button onClick={()=> setConfirmCancel(r.id)} className="px-3 py-1.5 rounded-full bg-white border border-[#FECACA] text-xs font-medium text-[#DC2626]">Cancelar</button>}
-                  <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Reserva #${r.id} ${r.fecha} ${r.hora}`)}`} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-xs font-medium text-[#065F46] inline-flex items-center gap-1"><FaWhatsapp size={11}/> WhatsApp</a>
+                  <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Reserva #${r.id} ${r.fecha} ${r.hora}`)}`} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-xs font-medium text-[#065F46] inline-flex items-center gap-1"><FaWhatsapp size={11}/> Ayuda</a>
                 </div>
               </div>
             ))}
@@ -313,89 +308,157 @@ export default function ClientPanel() {
 
       {tab==='favoritos' && (
         <div>
-          {favoriteProducts.length===0 ? <div className="bg-white rounded-2xl border border-[#F1E9D8] p-8"><EmptyState icon={<FaHeart size={22}/>} title="Sin favoritos" description="Guarda tus platos" action={{label:'Explorar menú', onClick:()=> navigate('/menu')}}/></div> :
+          {favoriteProducts.length===0 ? <div className="bg-white rounded-2xl border border-[#F1E9D8] p-8"><EmptyState icon={<FaHeart size={22}/>} title="Sin favoritos" description="Guarda tus platos para pedir más rápido" action={{label:'Explorar menú', onClick:()=> navigate('/menu')}}/></div> :
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {favoriteProducts.map(p=> (
-                <div key={p.id} className="bg-white rounded-2xl border border-[#F1E9D8] overflow-hidden">
-                  <div className="relative aspect-[4/3] bg-[#F8FAFC]"><img src={p.imagen} alt={p.nombre} className="w-full h-full object-cover"/><button onClick={()=> toggleFavorite(p.id||p.nombre)} className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/95 border border-[#F1E9D8] flex items-center justify-center"><FaHeart size={12} className="text-[#E11D48] fill-[#E11D48]"/></button></div>
-                  <div className="p-3"><h4 className="text-xs font-semibold text-[#1C2A0F] truncate">{p.nombre}</h4><p className="text-[#F59E0B] font-bold text-sm mt-1">${numberFormatter(p.precio??0)}</p><button onClick={()=>{ addToCart({nombre:p.nombre, precio:p.precio, quantity:1, imagen:p.imagen}); toast.success(`${p.nombre} agregado`)}} className="w-full mt-2 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium">Agregar</button></div>
+                <div key={p.id} className="bg-white rounded-2xl border border-[#F1E9D8] overflow-hidden group">
+                  <div className="relative aspect-[4/3] bg-[#F8FAFC]"><img src={p.imagen} alt={p.nombre} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"/><button onClick={()=> { toggleFavorite(p.id||p.nombre); toast.success('Eliminado de favoritos')}} className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/95 border border-[#F1E9D8] flex items-center justify-center"><FaHeart size={12} className="text-[#E11D48] fill-[#E11D48]"/></button></div>
+                  <div className="p-3"><h4 className="text-xs font-semibold text-[#1C2A0F] truncate">{p.nombre}</h4><p className="text-[#F59E0B] font-bold text-sm mt-1">${numberFormatter(p.precio??0)}</p>
+                    <div className="flex gap-1.5 mt-2"><button onClick={()=>{ addToCart({nombre:p.nombre, precio:p.precio, quantity:1, imagen:p.imagen}); toast.success(`${p.nombre} agregado`)}} className="flex-1 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium">Agregar</button><button onClick={()=> toggleFavorite(p.id||p.nombre)} className="px-3 py-2 rounded-full bg-white border border-[#FECACA] text-[#DC2626] text-xs"><FaTrash size={10}/></button></div>
+                  </div>
                 </div>
               ))}
             </div>}
         </div>
       )}
 
-      {tab==='puntos' && (
+      {tab==='direcciones' && (
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <p className="text-xs font-medium tracking-widest uppercase text-[#94A3B8]">Tus direcciones · entrega a domicilio</p>
+            <button onClick={()=>{ setEditingDir(null); setDirAlias(''); setDirDireccion(''); setDirIndicaciones(''); setShowDirForm(true)}} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1C2A0F] text-white text-xs font-medium"><FaPlus size={10}/> Agregar</button>
+          </div>
+          {(clienteActual.direcciones||[]).length===0 ? <div className="bg-white rounded-2xl border border-dashed border-[#E5E7EB] p-8 text-center"><FaMapMarkerAlt size={22} className="mx-auto text-[#CBD5E1] mb-2"/><p className="text-sm font-medium text-[#1C2A0F]">Sin direcciones</p><p className="text-xs text-[#64748B]">Agrega tu casa u oficina para pedir más rápido</p><button onClick={()=> setShowDirForm(true)} className="mt-3 px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium">Agregar dirección</button></div> :
+            <div className="grid sm:grid-cols-2 gap-3">
+              {(clienteActual.direcciones||[]).map(d=> (
+                <div key={d.id} className="bg-white rounded-2xl border border-[#F1E9D8] p-4">
+                  <div className="flex justify-between gap-2">
+                    <div className="flex gap-2.5">
+                      <span className="w-8 h-8 rounded-full bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center shrink-0"><FaMapMarkerAlt size={12} className="text-[#B45309]"/></span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-[#1C2A0F]">{d.alias}</p>
+                        <p className="text-xs text-[#475569] leading-relaxed break-words">{d.direccion}</p>
+                        {d.indicaciones && <p className="text-[11px] text-[#94A3B8] mt-1">↳ {d.indicaciones}</p>}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-1.5 mt-3">
+                    <button onClick={()=>{ setEditingDir(d); setDirAlias(d.alias); setDirDireccion(d.direccion); setDirIndicaciones(d.indicaciones||''); setShowDirForm(true)}} className="flex-1 py-1.5 rounded-full bg-white border border-[#E5E7EB] text-xs font-medium text-[#475569]"><FaEdit size={10} className="inline mr-1"/> Editar</button>
+                    <button onClick={()=> setConfirmDeleteDir(d.id)} className="flex-1 py-1.5 rounded-full bg-white border border-[#FECACA] text-xs font-medium text-[#DC2626]"><FaTrash size={10} className="inline mr-1"/> Eliminar</button>
+                  </div>
+                </div>
+              ))}
+            </div>}
+          {showDirForm && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={()=> setShowDirForm(false)}>
+              <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={e=> e.stopPropagation()}>
+                <h3 className="font-semibold text-[#1C2A0F] mb-4">{editingDir? 'Editar dirección':'Nueva dirección'}</h3>
+                <div className="space-y-3">
+                  <div><label className="block text-xs font-medium text-[#475569] mb-1">Alias *</label><input value={dirAlias} onChange={e=> setDirAlias(e.target.value)} placeholder="Casa, Trabajo..." className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /></div>
+                  <div><label className="block text-xs font-medium text-[#475569] mb-1">Dirección *</label><input value={dirDireccion} onChange={e=> setDirDireccion(e.target.value)} placeholder="Calle 123 #45-67, barrio" className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /></div>
+                  <div><label className="block text-xs font-medium text-[#475569] mb-1">Indicaciones</label><input value={dirIndicaciones} onChange={e=> setDirIndicaciones(e.target.value)} placeholder="Portería, apto, referencia" className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /></div>
+                </div>
+                <div className="flex gap-2 mt-6">
+                  <button onClick={()=> setShowDirForm(false)} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium">Cancelar</button>
+                  <button onClick={handleSaveDireccion} className="flex-1 py-2.5 rounded-full bg-[#1C2A0F] text-white text-sm font-medium">{editingDir? 'Guardar':'Agregar'}</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab==='fidelidad' && (
         <div className="space-y-4">
           <div className="rounded-2xl p-6 text-center border border-[#FDE68A] bg-gradient-to-br from-[#FFFBEB] via-[#FEF3C7] to-[#FDE68A]">
             <FaTrophy size={26} className="mx-auto mb-2 text-[#B45309]"/>
             <p className="text-3xl font-bold text-[#92400E]">{clienteActual.puntos||0}</p>
-            <p className="text-xs tracking-widest uppercase font-semibold text-[#B45309]">Puntos</p>
+            <p className="text-xs tracking-widest uppercase font-semibold text-[#B45309]">Puntos acumulados</p>
             <div className="mt-3 h-2 rounded-full bg-white/60 border border-[#FDE68A] p-0.5"><div className="h-full rounded-full bg-[#F59E0B] transition-all" style={{width:`${Math.min(((clienteActual.puntos||0)%100),100)}%`}}/></div>
-            <p className="text-xs text-[#92400E]/70 mt-1">{100 - ((clienteActual.puntos||0)%100)} para siguiente nivel</p>
+            <p className="text-xs text-[#92400E]/70 mt-1">{100 - ((clienteActual.puntos||0)%100)} para siguiente nivel · 1 pto / $10.000</p>
           </div>
           <div className="bg-white rounded-2xl border border-[#F1E9D8] p-4">
-            <h3 className="text-sm font-semibold text-[#1C2A0F] mb-2 flex items-center gap-1.5"><FaFire size={11} className="text-[#F59E0B]"/> Niveles</h3>
+            <h3 className="text-sm font-semibold text-[#1C2A0F] mb-2">Niveles</h3>
             <div className="grid grid-cols-3 gap-2">{[{name:'Bronce',min:0},{name:'Plata',min:200},{name:'Oro',min:500}].map(l=>{ const a=(clienteActual.puntos||0)>=l.min; return <div key={l.name} className={clsx('rounded-xl border p-3 text-center', a?'bg-[#FFFBF5] border-[#FDE68A]':'bg-white border-[#F1E9D8] opacity-60')}><p className="text-xs font-medium text-[#1C2A0F]">{l.name}</p><p className="text-[11px] text-[#94A3B8]">{l.min} pts</p>{a&&<FaCheckCircle size={11} className="text-[#10B981] mx-auto mt-1"/>}</div>})}</div>
           </div>
-        </div>
-      )}
-
-      {tab==='recompensas' && (
-        <div className="space-y-3">
-          <div className="bg-white rounded-2xl border border-[#F1E9D8] p-4 flex justify-between items-center"><span className="text-sm text-[#64748B]">Tienes</span><span className="text-lg font-bold text-[#1C2A0F]">{clienteActual.puntos||0} pts</span></div>
-          {(() => {
-            const stored = (()=>{ try{ const s=JSON.parse(localStorage.getItem('fidelizacion_recompensas')||'[]'); return s.length? s : null } catch{ return null }})()
-            const recompensas = stored || [{ name: 'Descuento $10.000', cost: 100, icon: '🏷️', desc: '$10.000' }, { name: 'Bebida gratis', cost: 50, icon: '🥤', desc: 'Bebida' }, { name: 'Postre gratis', cost: 75, icon: '🍰', desc: 'Postre' }, { name: 'Envío gratis', cost: 30, icon: '🚴', desc: 'Envío' }]
-            return recompensas.map((r:any) => (
-            <div key={r.name||r.nombre} className="bg-white rounded-2xl border border-[#F1E9D8] p-4 flex items-center gap-3">
-              <span className="w-10 h-10 rounded-xl bg-[#FFFBF5] border border-[#F1E9D8] flex items-center justify-center text-lg">{r.icon||'🎁'}</span>
-              <div className="flex-1 min-w-0"><h4 className="text-sm font-semibold text-[#1C2A0F]">{r.name||r.nombre}</h4><p className="text-xs text-[#64748B]">{r.desc||r.descripcion} · <span className="text-[#F59E0B] font-medium">{r.cost||r.puntos} pts</span></p></div>
-              <button onClick={()=>{ const c=r.cost||r.puntos; const res=canjearPuntos(c); if(res.ok) toast.success(`¡${r.name||r.nombre} canjeado!`); else toast.error(res.error||'Puntos insuficientes')}} disabled={(clienteActual.puntos||0) < (r.cost||r.puntos)} className="px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium disabled:bg-[#F1F5F9] disabled:text-[#94A3B8] disabled:border">Canjear</button>
+          <div className="bg-white rounded-2xl border border-[#F1E9D8] p-4">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-sm font-semibold text-[#1C2A0F] flex items-center gap-1.5"><FaGift size={12} className="text-[#F59E0B]"/> Recompensas</h3>
+              <span className="text-xs font-medium text-[#F59E0B]">{clienteActual.puntos||0} pts</span>
             </div>
-          ))})()}
+            {(() => {
+              const stored = (()=>{ try{ const s=JSON.parse(localStorage.getItem('fidelizacion_recompensas')||'[]'); return s.length? s : null } catch{ return null }})()
+              const recompensas = stored || [{ name: 'Descuento $10.000', cost: 100, icon: '🏷️', desc: '$10.000' }, { name: 'Bebida gratis', cost: 50, icon: '🥤', desc: 'Bebida' }, { name: 'Postre gratis', cost: 75, icon: '🍰', desc: 'Postre' }, { name: 'Envío gratis', cost: 30, icon: '🚴', desc: 'Envío' }]
+              return <div className="space-y-2">{recompensas.map((r:any) => (
+              <div key={r.name||r.nombre} className="flex items-center gap-3 p-3 rounded-xl border border-[#F1E9D8] hover:border-[#FDE68A] transition-colors">
+                <span className="w-9 h-9 rounded-xl bg-[#FFFBF5] border border-[#F1E9D8] flex items-center justify-center text-lg">{r.icon||'🎁'}</span>
+                <div className="flex-1 min-w-0"><h4 className="text-sm font-semibold text-[#1C2A0F]">{r.name||r.nombre}</h4><p className="text-xs text-[#64748B]">{r.desc||r.descripcion} · <span className="text-[#F59E0B] font-medium">{r.cost||r.puntos} pts</span></p></div>
+                <button onClick={()=>{ const c=r.cost||r.puntos; const res=canjearPuntos(c); if(res.ok) toast.success(`¡${r.name||r.nombre} canjeado!`); else toast.error(res.error||'Puntos insuficientes')}} disabled={(clienteActual.puntos||0) < (r.cost||r.puntos)} className="px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium disabled:bg-[#F1F5F9] disabled:text-[#94A3B8] disabled:border">Canjear</button>
+              </div>
+            ))}</div>})()}
+          </div>
         </div>
       )}
 
-      {tab==='config' && (
-        <div className="bg-white rounded-2xl border border-[#F1E9D8] overflow-hidden">
-          <div className="divide-y divide-[#F1E9D8]">
-            {[{label:'Notificaciones', icon:FaBell, action:()=> toast.info('Próximamente')},{label:'Privacidad', icon:FaEye, action:()=> navigate('/politica-privacidad')},{label:'Términos', icon:FaEye, action:()=> navigate('/terminos-condiciones')}].map(it=> (
-              <button key={it.label} onClick={it.action} className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-[#FFFBF5]"><span className="w-8 h-8 rounded-full bg-[#F8FAFC] border border-[#F1E9D8] flex items-center justify-center"><it.icon size={11} className="text-[#64748B]"/></span><span className="flex-1 text-sm font-medium text-[#1C2A0F]">{it.label}</span><FaChevronRight size={11} className="text-[#CBD5E1]"/></button>
-            ))}
+      {tab==='cuenta' && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-2xl border border-[#F1E9D8] p-5 flex gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#1C2A0F] flex items-center justify-center text-white font-bold shrink-0">{clienteActual.nombre.charAt(0)}</div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-[#1C2A0F] truncate">{clienteActual.nombre}</p>
+              <p className="text-xs text-[#64748B] truncate">{clienteActual.email} · {clienteActual.telefono}</p>
+              <p className="text-[11px] text-[#94A3B8]">Miembro desde {new Date(clienteActual.createdAt).toLocaleDateString('es-CO')}</p>
+            </div>
+            <button onClick={()=>{ setEditNombre(clienteActual.nombre); setEditEmail(clienteActual.email); setEditTelefono(clienteActual.telefono); setEditPassword(clienteActual.password||''); setEditingProfile(true)}} className="h-8 px-3 rounded-full bg-[#F8FAFC] border border-[#E5E7EB] text-xs font-medium text-[#475569]"><FaEdit size={10} className="inline mr-1"/> Editar</button>
           </div>
-          <div className="p-4 bg-[#FFFBF5] border-t border-[#F1E9D8]"><button onClick={handleLogout} className="w-full py-3 rounded-full bg-white border border-[#FECACA] text-[#DC2626] text-sm font-medium">Cerrar sesión</button></div>
+
+          <div className="bg-white rounded-2xl border border-[#F1E9D8] overflow-hidden">
+            <div className="px-5 py-3 border-b border-[#F1E9D8] flex items-center gap-2">
+              <FaShieldAlt size={12} className="text-[#F59E0B]"/><h3 className="text-sm font-semibold text-[#1C2A0F]">Preferencias</h3>
+            </div>
+            <div className="divide-y divide-[#F1E9D8]">
+              {[{k:'whatsapp', label:'WhatsApp — estado de pedidos y reservas', desc:'Recibir por WhatsApp'},{k:'email', label:'Email — comprobantes y facturas', desc:'Recibir por correo'},{k:'promos', label:'Promos y novedades', desc:'Ofertas y eventos'}].map(it=> (
+                <label key={it.k} className="flex items-center justify-between px-5 py-3.5 cursor-pointer hover:bg-[#FFFBF5]">
+                  <div>
+                    <p className="text-sm font-medium text-[#1C2A0F]">{it.label}</p>
+                    <p className="text-xs text-[#94A3B8]">{it.desc}</p>
+                  </div>
+                  <input type="checkbox" checked={(prefs as any)[it.k]} onChange={e=> setPrefs((p:any)=> ({...p, [it.k]: e.target.checked}))} className="w-4 h-4 accent-[#1C2A0F]" />
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#F1E9D8] overflow-hidden">
+            <div className="px-5 py-3 border-b border-[#F1E9D8] flex items-center gap-2">
+              <FaHeadset size={12} className="text-[#F59E0B]"/><h3 className="text-sm font-semibold text-[#1C2A0F]">Ayuda</h3>
+            </div>
+            <div className="divide-y divide-[#F1E9D8]">
+              <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent('Hola, necesito ayuda con mi cuenta')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between px-5 py-3.5 hover:bg-[#FFFBF5]">
+                <div><p className="text-sm font-medium text-[#1C2A0F]">Contactar por WhatsApp</p><p className="text-xs text-[#94A3B8]">Respuesta en minutos</p></div>
+                <FaWhatsapp size={14} className="text-[#10B981]"/>
+              </a>
+              <Link to="/contacto" className="flex items-center justify-between px-5 py-3.5 hover:bg-[#FFFBF5]">
+                <div><p className="text-sm font-medium text-[#1C2A0F]">Ir a Contacto</p><p className="text-xs text-[#94A3B8]">Formulario, horarios y mapa</p></div>
+                <FaEye size={12} className="text-[#94A3B8]"/>
+              </Link>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#FECACA] overflow-hidden">
+            <div className="px-5 py-3 border-b border-[#FECACA] bg-[#FEF2F2]"><h3 className="text-sm font-semibold text-[#991B1B]">Zona de peligro</h3></div>
+            <div className="p-4 flex flex-col sm:flex-row gap-2">
+              <button onClick={handleLogout} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium text-[#475569]">Cerrar sesión</button>
+              <button onClick={()=> setConfirmDeleteAccount(true)} className="flex-1 py-2.5 rounded-full bg-[#DC2626] text-white text-sm font-medium hover:bg-[#B91C1C]">Eliminar cuenta</button>
+            </div>
+            <p className="px-5 pb-3 text-[11px] text-[#94A3B8]">Eliminar borra tu perfil, direcciones y desvincula pedidos/reservas de tu cuenta.</p>
+          </div>
         </div>
       )}
 
       <ConfirmModal open={!!confirmCancel} onClose={()=> setConfirmCancel(null)} onConfirm={()=>{ const r=reservas.find((x:any)=> x.id===confirmCancel); if(r) handleCancelReserva(r)}} title="Cancelar reserva" message="¿Cancelar esta reserva?" confirmText="Sí, cancelar" cancelText="Mantener" />
-    </div>
-  )
-}
-
-function MenuTab() {
-  const addToCart = useCartStore((s) => s.addToCart)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [priceRange, setPriceRange] = useState<string | null>(null)
-  const { favorites, toggleFavorite } = useFavorites()
-  const [allProducts, setAllProducts] = useState(()=> dataService.getProductos())
-  useEffect(()=>{ const id=setInterval(()=> setAllProducts(dataService.getProductos()), 3000); const onStorage=()=> setAllProducts(dataService.getProductos()); window.addEventListener('storage', onStorage); return ()=>{ clearInterval(id); window.removeEventListener('storage', onStorage)}}, [])
-  const categorias = useMemo(() => Array.from(new Set(allProducts.map(p => (p as any)['categoría']).filter(Boolean))) as string[], [allProducts])
-  const productosFiltrados = useMemo(() => {
-    let r=[...allProducts]
-    if(searchQuery.trim()){ const q=searchQuery.toLowerCase(); r=r.filter(p=> p.nombre.toLowerCase().includes(q) || p.descripcion?.toLowerCase().includes(q))}
-    if(selectedCategory) r=r.filter(p=> (p as any)['categoría']===selectedCategory)
-    if(priceRange){ const [min,max]=priceRange.split('-').map(Number); r=r.filter(p=>{ const pr=p.precio??0; return max? pr>=min && pr<=max : pr>=min})}
-    return r
-  }, [allProducts, searchQuery, selectedCategory, priceRange])
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2 bg-[#FFFBF5] border border-[#F1E9D8] rounded-full px-4 py-2">
-        <FaUtensils size={11} className="text-[#94A3B8]"/><input value={searchQuery} onChange={e=> setSearchQuery(e.target.value)} placeholder="Buscar platos…" className="flex-1 bg-transparent text-sm outline-none placeholder:text-[#94A3B8]"/>{searchQuery && <button onClick={()=> setSearchQuery('')} className="text-xs text-[#F59E0B] font-medium">Limpiar</button>}
-      </div>
-      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide"><button onClick={()=> setSelectedCategory(null)} className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border ${!selectedCategory?'bg-[#1C2A0F] text-white border-[#1C2A0F]':'bg-white text-[#475569] border-[#F1E9D8]'}`}>Todos</button>{categorias.map(c=> <button key={c} onClick={()=> setSelectedCategory(selectedCategory===c?null:c)} className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border ${selectedCategory===c?'bg-[#1C2A0F] text-white border-[#1C2A0F]':'bg-white text-[#475569] border-[#F1E9D8]'}`}>{c}</button>)}</div>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">{productosFiltrados.map(p=> <div key={p.id||p.nombre} className="bg-white rounded-2xl border border-[#F1E9D8] overflow-hidden"><div className="relative aspect-[4/3] bg-[#F8FAFC]"><img src={p.imagen} alt={p.nombre} className="w-full h-full object-cover"/><button onClick={()=> toggleFavorite(p.id||p.nombre)} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/95 border border-[#F1E9D8] flex items-center justify-center"><FaHeart size={11} className={favorites.includes(p.id||p.nombre)?'text-[#E11D48] fill-[#E11D48]':'text-[#CBD5E1]'}/></button></div><div className="p-3"><h4 className="text-xs font-semibold text-[#1C2A0F] truncate">{p.nombre}</h4><p className="text-xs text-[#64748B] line-clamp-2 mt-1">{p.descripcion}</p><div className="flex justify-between items-center mt-2"><p className="text-sm font-bold text-[#1C2A0F]">${numberFormatter(p.precio??0)}</p><button onClick={()=>{ addToCart({nombre:p.nombre, precio:p.precio, quantity:1, imagen:p.imagen}); toast.success(`${p.nombre} agregado`)}} className="w-7 h-7 rounded-full bg-[#1C2A0F] text-white flex items-center justify-center"><FaShoppingBag size={11}/></button></div></div></div>)}</div>
+      <ConfirmModal open={!!confirmDeleteDir} onClose={()=> setConfirmDeleteDir(null)} onConfirm={()=>{ if(confirmDeleteDir) deleteDireccion(confirmDeleteDir); setConfirmDeleteDir(null); toast.success('Dirección eliminada')}} title="Eliminar dirección" message="¿Eliminar esta dirección? No se puede deshacer." confirmText="Eliminar" cancelText="Cancelar" />
+      <ConfirmModal open={confirmDeleteAccount} onClose={()=> setConfirmDeleteAccount(false)} onConfirm={()=>{ deleteAccount(); toast.success('Cuenta eliminada'); navigate('/')}} title="Eliminar cuenta" message="¿Seguro que quieres eliminar tu cuenta? Se borrarán tus datos y direcciones." confirmText="Sí, eliminar" cancelText="Cancelar" />
     </div>
   )
 }
