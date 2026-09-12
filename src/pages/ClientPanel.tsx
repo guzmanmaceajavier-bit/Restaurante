@@ -15,6 +15,9 @@ import type { Order } from '../types/order'
 import { numberFormatter } from '../utils/numberFormatter'
 import clsx from 'clsx'
 import { motion, AnimatePresence } from 'framer-motion'
+import { FIDELIDAD_CONFIG } from '../lib/fidelidad'
+import * as Yup from 'yup'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
 
 const estadoBadge: Record<string, { bg: string; text: string }> = {
   recibido: { bg: 'bg-[#EFF6FF] border-[#BFDBFE]', text: 'text-[#1D4ED8]' },
@@ -70,28 +73,32 @@ export default function ClientPanel() {
   const [ordenes, setOrdenes] = useState<Order[]>([])
   const [reservas, setReservas] = useState<any[]>([])
   const [showVincular, setShowVincular] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [storageError, setStorageError] = useState<string | null>(null)
   useEffect(() => {
     if (!clienteActual) return
-    // Aislamiento estricto: solo historialPedidos/historialReservas (fuente única por cliente.id)
-    // Migración legacy desactivada para no filtrar por teléfono/nombre compartido
+    setLoading(true); setStorageError(null)
     const load = () => {
-      const allOrdenes = storage.getOrdenes<Order>()
-      const allReservas = storage.getReservas() as any[]
-      setOrdenes(allOrdenes.filter((o) => clienteActual.historialPedidos.includes(o.id)).reverse())
-      setReservas(allReservas.filter((r: any) => clienteActual.historialReservas.includes(r.id)).reverse())
-      // Detectar pedidos/reservas huérfanos por teléfono/email para ofrecer vinculación explícita (opt-in)
-      const matchPhone = (a:string,b:string)=> a && b && a.replace(/\D/g,'')===b.replace(/\D/g,'')
-      const huérfanosOrdenes = allOrdenes.filter(o=> !clienteActual.historialPedidos.includes(o.id) && (matchPhone((o as any).phone, clienteActual.telefono) || (o as any).email===clienteActual.email)).length
-      const huérfanosReservas = allReservas.filter((r:any)=> !clienteActual.historialReservas.includes(r.id) && (matchPhone(r.telefono, clienteActual.telefono) || r.email===clienteActual.email)).length
-      setShowVincular(huérfanosOrdenes>0 || huérfanosReservas>0)
+      try{
+        const allOrdenes = storage.getOrdenes<Order>()
+        const allReservas = storage.getReservas() as any[]
+        setOrdenes(allOrdenes.filter((o) => clienteActual.historialPedidos.includes(o.id)).reverse())
+        setReservas(allReservas.filter((r: any) => clienteActual.historialReservas.includes(r.id)).reverse())
+        const matchPhone = (a:string,b:string)=> a && b && a.replace(/\D/g,'')===b.replace(/\D/g,'')
+        const huérfanosOrdenes = allOrdenes.filter(o=> !clienteActual.historialPedidos.includes(o.id) && (matchPhone((o as any).phone, clienteActual.telefono) || (o as any).email===clienteActual.email)).length
+        const huérfanosReservas = allReservas.filter((r:any)=> !clienteActual.historialReservas.includes(r.id) && (matchPhone(r.telefono, clienteActual.telefono) || r.email===clienteActual.email)).length
+        setShowVincular(huérfanosOrdenes>0 || huérfanosReservas>0)
+        setStorageError(null)
+      }catch(e:any){ setStorageError(e?.message || 'Error al leer datos locales')}
     }
     load()
+    const t=setTimeout(()=> setLoading(false), 600)
     const id = setInterval(load, 2000)
     const onStorage = () => load()
     const onFocus = () => load()
     window.addEventListener('storage', onStorage)
     window.addEventListener('focus', onFocus)
-    return () => { clearInterval(id); window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus) }
+    return () => { clearTimeout(t); clearInterval(id); window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus) }
   }, [clienteActual])
 
   // Sincroniza tab con hash sin necesidad de recarga (React Router Link + hashchange)
@@ -175,6 +182,7 @@ export default function ClientPanel() {
           <button onClick={vincularPasados} className="shrink-0 px-3 py-1.5 rounded-full bg-[#92400E] text-white text-xs font-medium hover:bg-[#7C3D11]">Vincular</button>
         </div>
       )}
+      {storageError && <div className="mb-3 bg-[#FEF2F2] border border-[#FECACA] rounded-xl px-4 py-2.5 text-xs text-[#991B1B]">Error localStorage: {storageError} — recarga o limpia datos.</div>}
 
       {tab==='inicio' && (
         <div className="space-y-4">
@@ -223,7 +231,7 @@ export default function ClientPanel() {
 
       {tab==='pedidos' && (
         <motion.div initial="hidden" animate="visible" variants={{hidden:{}, visible:{transition:{staggerChildren:0.04}}}} className="space-y-3">
-          {ordenes.length===0 ? <div className="bg-white rounded-2xl border border-[#F1E9D8] p-8"><EmptyState icon={<FaShoppingBag size={22}/>} title="Sin pedidos" description="Haz tu primer pedido" action={{label:'Ver menú', onClick:()=> navigate('/menu')}}/></div> :
+          {loading ? <div className="space-y-3">{[1,2,3].map(i=> <div key={i} className="bg-white rounded-2xl border border-[#F1E9D8] p-4 animate-pulse"><div className="h-3 bg-[#F1F5F9] rounded w-1/3 mb-2"/><div className="h-4 bg-[#F1F5F9] rounded w-2/3 mb-2"/><div className="h-2 bg-[#F1F5F9] rounded w-full"/></div>)}</div> : ordenes.length===0 ? <div className="bg-white rounded-2xl border border-[#F1E9D8] p-8"><EmptyState icon={<FaShoppingBag size={22}/>} title="Sin pedidos" description="Haz tu primer pedido" action={{label:'Ver menú', onClick:()=> navigate('/menu')}}/></div> :
             ordenes.map(o=>{
               const badge = estadoBadge[o.estado] || { bg:'bg-[#F8FAFC] border-[#E5E7EB]', text:'text-[#475569]'}
               const puedeCancelar = o.estado==='recibido'
@@ -257,10 +265,10 @@ export default function ClientPanel() {
       {tab==='reservas' && (
         <motion.div initial="hidden" animate="visible" variants={{hidden:{}, visible:{transition:{staggerChildren:0.05}}}} className="space-y-3">
           <div className="flex justify-between items-center">
-            <p className="text-xs font-medium tracking-widest uppercase text-[#94A3B8]">{reservas.length} reservas</p>
+            <p className="text-xs font-medium tracking-widest uppercase text-[#94A3B8]">{loading ? '—' : `${reservas.length} reservas`}</p>
             <Link to="/reservas" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1C2A0F] text-white text-xs font-medium"><FaPlus size={10}/> Nueva</Link>
           </div>
-          {reservas.length===0 ? <div className="bg-white rounded-2xl border border-[#F1E9D8] p-8"><EmptyState icon={<FaCalendarAlt size={22}/>} title="Sin reservas" description="Reserva tu mesa" action={{label:'Reservar', onClick:()=> navigate('/reservas')}}/></div> :
+          {loading ? <div className="space-y-3">{[1,2].map(i=> <div key={i} className="bg-white rounded-2xl border border-[#F1E9D8] p-4 animate-pulse"><div className="h-3 bg-[#F1F5F9] rounded w-1/4 mb-2"/><div className="h-4 bg-[#F1F5F9] rounded w-1/2"/></div>)}</div> : reservas.length===0 ? <div className="bg-white rounded-2xl border border-[#F1E9D8] p-8"><EmptyState icon={<FaCalendarAlt size={22}/>} title="Sin reservas" description="Reserva tu mesa" action={{label:'Reservar', onClick:()=> navigate('/reservas')}}/></div> :
             reservas.map((r:any)=> (
               <motion.div key={r.id} variants={{hidden:{opacity:0, y:8}, visible:{opacity:1, y:0, transition:{type:'spring', damping:24, stiffness:260}}}} whileHover={{y:-2}} className="bg-white rounded-2xl border border-[#F1E9D8] p-4 hover:shadow-md transition-shadow">
                 <div className="flex justify-between gap-3">
@@ -304,21 +312,21 @@ export default function ClientPanel() {
         <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={()=> setEditingProfile(false)}>
           <motion.div initial={{scale:0.98, opacity:0}} animate={{scale:1, opacity:1}} exit={{scale:0.98, opacity:0}} transition={{type:'spring', damping:24, stiffness:260}} className="bg-white rounded-2xl w-full max-w-md p-6" onClick={e=> e.stopPropagation()}>
             <h3 className="font-semibold text-[#1C2A0F] mb-1">Editar datos personales</h3>
-            <p className="text-xs text-[#64748B] mb-4">Actualiza tu nombre, email, teléfono o contraseña</p>
-            <div className="space-y-3">
-              <div><label className="block text-xs font-medium text-[#475569] mb-1">Nombre</label><input value={editNombre} onChange={e=> setEditNombre(e.target.value)} className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" placeholder="Tu nombre" /></div>
-              <div><label className="block text-xs font-medium text-[#475569] mb-1">Email</label><input type="email" value={editEmail} onChange={e=> setEditEmail(e.target.value)} className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" placeholder="correo@ejemplo.com" /></div>
-              <div><label className="block text-xs font-medium text-[#475569] mb-1">Teléfono</label><input value={editTelefono} onChange={e=> setEditTelefono(e.target.value)} className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" placeholder="300 123 4567" /></div>
-              <div><label className="block text-xs font-medium text-[#475569] mb-1">Contraseña</label><input type="password" value={editPassword} onChange={e=> setEditPassword(e.target.value)} className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" placeholder="Nueva contraseña" /></div>
-            </div>
-            <div className="flex gap-2 mt-6">
-              <button onClick={()=> setEditingProfile(false)} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium">Cancelar</button>
-              <button onClick={()=>{
-                const res = updateProfile({ nombre: editNombre.trim(), email: editEmail.trim(), telefono: editTelefono.trim(), password: editPassword })
-                if(!res.ok) toast.error(res.error)
-                else { toast.success('Datos actualizados'); setEditingProfile(false) }
-              }} className="flex-1 py-2.5 rounded-full bg-[#1C2A0F] text-white text-sm font-medium">Guardar</button>
-            </div>
+            <p className="text-xs text-[#64748B] mb-4">Validación con Formik/Yup</p>
+            <Formik initialValues={{nombre:editNombre, email:editEmail, telefono:editTelefono, password:editPassword}} enableReinitialize validationSchema={Yup.object({nombre:Yup.string().min(3,'Mínimo 3 caracteres').required('Requerido'), email:Yup.string().email('Email inválido').required('Requerido'), telefono:Yup.string().matches(/^\d[\d\s]*$/,'Teléfono inválido').min(10,'Mínimo 10 dígitos').required('Requerido'), password:Yup.string().min(6,'Mínimo 6 caracteres')})} onSubmit={(values,{setSubmitting})=>{ const res=updateProfile({nombre:values.nombre.trim(), email:values.email.trim(), telefono:values.telefono.trim(), password:values.password}); if(!res.ok) toast.error(res.error); else { toast.success('Datos actualizados'); setEditingProfile(false)}; setSubmitting(false)}}>
+              {({isSubmitting})=> (
+              <Form className="space-y-3">
+                <div><label className="block text-xs font-medium text-[#475569] mb-1">Nombre</label><Field name="nombre" className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" placeholder="Tu nombre" /><ErrorMessage name="nombre" component="p" className="text-xs text-[#DC2626] mt-1" /></div>
+                <div><label className="block text-xs font-medium text-[#475569] mb-1">Email</label><Field name="email" type="email" className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" placeholder="correo@ejemplo.com" /><ErrorMessage name="email" component="p" className="text-xs text-[#DC2626] mt-1" /></div>
+                <div><label className="block text-xs font-medium text-[#475569] mb-1">Teléfono</label><Field name="telefono" className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" placeholder="300 123 4567" /><ErrorMessage name="telefono" component="p" className="text-xs text-[#DC2626] mt-1" /></div>
+                <div><label className="block text-xs font-medium text-[#475569] mb-1">Contraseña</label><Field name="password" type="password" className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" placeholder="Nueva contraseña" /><ErrorMessage name="password" component="p" className="text-xs text-[#DC2626] mt-1" /></div>
+                <div className="flex gap-2 mt-6">
+                  <button type="button" onClick={()=> setEditingProfile(false)} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium">Cancelar</button>
+                  <button type="submit" disabled={isSubmitting} className="flex-1 py-2.5 rounded-full bg-[#1C2A0F] text-white text-sm font-medium disabled:opacity-60">Guardar</button>
+                </div>
+              </Form>
+              )}
+            </Formik>
           </motion.div>
         </motion.div>
       )}
@@ -330,7 +338,7 @@ export default function ClientPanel() {
             <motion.div initial="hidden" animate="visible" variants={{hidden:{}, visible:{transition:{staggerChildren:0.06}}}} className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {favoriteProducts.map(p=> (
                 <motion.div key={p.id} variants={{hidden:{opacity:0, scale:0.98}, visible:{opacity:1, scale:1, transition:{type:'spring', damping:22, stiffness:280}}}} whileHover={{y:-3, scale:1.01}} className="bg-white rounded-2xl border border-[#F1E9D8] overflow-hidden group hover:shadow-md transition-shadow">
-                  <div className="relative aspect-[4/3] bg-[#F8FAFC]"><img src={p.imagen} alt={p.nombre} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"/><button onClick={()=> { toggleFavorite(p.id||p.nombre); toast.success('Eliminado de favoritos')}} className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/95 border border-[#F1E9D8] flex items-center justify-center"><FaHeart size={12} className="text-[#E11D48] fill-[#E11D48]"/></button></div>
+                  <div className="relative aspect-[4/3] bg-[#F8FAFC]"><img src={p.imagen} alt={p.nombre} onError={(e)=>{ (e.currentTarget as HTMLImageElement).src='https://via.placeholder.com/400x300?text=Sin+imagen'; (e.currentTarget as HTMLImageElement).onerror=null}} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"/><button onClick={()=> { toggleFavorite(p.id||p.nombre); toast.success('Eliminado de favoritos')}} className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/95 border border-[#F1E9D8] flex items-center justify-center"><FaHeart size={12} className="text-[#E11D48] fill-[#E11D48]"/></button></div>
                   <div className="p-3"><h4 className="text-xs font-semibold text-[#1C2A0F] truncate">{p.nombre}</h4><p className="text-[#F59E0B] font-bold text-sm mt-1">${numberFormatter(p.precio??0)}</p>
                     <div className="flex gap-1.5 mt-2"><button onClick={()=>{ addToCart({nombre:p.nombre, precio:p.precio, quantity:1, imagen:p.imagen}); toast.success(`${p.nombre} agregado`)}} className="flex-1 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium">Agregar</button><button onClick={()=> setConfirmFav(p.id||p.nombre)} className="px-3 py-2 rounded-full bg-white border border-[#FECACA] text-[#DC2626] text-xs"><FaTrash size={10}/></button></div>
                   </div>
@@ -372,15 +380,19 @@ export default function ClientPanel() {
             <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={()=> setShowDirForm(false)}>
               <motion.div initial={{scale:0.98, opacity:0}} animate={{scale:1, opacity:1}} exit={{scale:0.98, opacity:0}} transition={{type:'spring', damping:24, stiffness:260}} className="bg-white rounded-2xl w-full max-w-md p-6" onClick={e=> e.stopPropagation()}>
                 <h3 className="font-semibold text-[#1C2A0F] mb-4">{editingDir? 'Editar dirección':'Nueva dirección'}</h3>
-                <div className="space-y-3">
-                  <div><label className="block text-xs font-medium text-[#475569] mb-1">Alias *</label><input value={dirAlias} onChange={e=> setDirAlias(e.target.value)} placeholder="Casa, Trabajo..." className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /></div>
-                  <div><label className="block text-xs font-medium text-[#475569] mb-1">Dirección *</label><input value={dirDireccion} onChange={e=> setDirDireccion(e.target.value)} placeholder="Calle 123 #45-67, barrio" className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /></div>
-                  <div><label className="block text-xs font-medium text-[#475569] mb-1">Indicaciones</label><input value={dirIndicaciones} onChange={e=> setDirIndicaciones(e.target.value)} placeholder="Portería, apto, referencia" className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /></div>
-                </div>
-                <div className="flex gap-2 mt-6">
-                  <button onClick={()=> setShowDirForm(false)} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium">Cancelar</button>
-                  <button onClick={handleSaveDireccion} className="flex-1 py-2.5 rounded-full bg-[#1C2A0F] text-white text-sm font-medium">{editingDir? 'Guardar':'Agregar'}</button>
-                </div>
+                <Formik initialValues={{alias:dirAlias, direccion:dirDireccion, indicaciones:dirIndicaciones}} enableReinitialize validationSchema={Yup.object({alias:Yup.string().min(2,'Mínimo 2 caracteres').required('Requerido'), direccion:Yup.string().min(5,'Mínimo 5 caracteres').required('Requerido')})} onSubmit={(values,{setSubmitting})=>{ const v=values as any; if(editingDir){ updateDireccion(editingDir.id, {alias:v.alias.trim(), direccion:v.direccion.trim(), indicaciones:v.indicaciones.trim()}); toast.success('Dirección actualizada')} else { addDireccion({alias:v.alias.trim(), direccion:v.direccion.trim(), indicaciones:v.indicaciones.trim()}); toast.success('Dirección agregada')}; setShowDirForm(false); setEditingDir(null); setDirAlias(''); setDirDireccion(''); setDirIndicaciones(''); setSubmitting(false)}}>
+                  {({isSubmitting})=> (
+                  <Form className="space-y-3">
+                    <div><label className="block text-xs font-medium text-[#475569] mb-1">Alias *</label><Field name="alias" placeholder="Casa, Trabajo..." className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /><ErrorMessage name="alias" component="p" className="text-xs text-[#DC2626] mt-1" /></div>
+                    <div><label className="block text-xs font-medium text-[#475569] mb-1">Dirección *</label><Field name="direccion" placeholder="Calle 123 #45-67, barrio" className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /><ErrorMessage name="direccion" component="p" className="text-xs text-[#DC2626] mt-1" /></div>
+                    <div><label className="block text-xs font-medium text-[#475569] mb-1">Indicaciones</label><Field name="indicaciones" placeholder="Portería, apto, referencia" className="w-full px-3 py-2 rounded-xl border border-[#E5E7EB] text-sm" /></div>
+                    <div className="flex gap-2 mt-6">
+                      <button type="button" onClick={()=> setShowDirForm(false)} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium">Cancelar</button>
+                      <button type="submit" disabled={isSubmitting} className="flex-1 py-2.5 rounded-full bg-[#1C2A0F] text-white text-sm font-medium disabled:opacity-60">{editingDir? 'Guardar':'Agregar'}</button>
+                    </div>
+                  </Form>
+                  )}
+                </Formik>
               </motion.div>
             </motion.div>
           )}
@@ -390,13 +402,19 @@ export default function ClientPanel() {
 
       {tab==='fidelidad' && (
         <div className="space-y-4">
+          {(() => {
+            const pts=clienteActual.puntos||0
+            const niveles=[{name:'Bronce',min:0},{name:'Plata',min:200},{name:'Oro',min:500}]
+            const next = pts<200? {name:'Plata', need:200-pts, progress: pts/200*100} : pts<500? {name:'Oro', need:500-pts, progress:(pts-200)/300*100} : null
+            return (
           <div className="rounded-2xl p-6 text-center border border-[#FDE68A] bg-gradient-to-br from-[#FFFBEB] via-[#FEF3C7] to-[#FDE68A]">
             <FaTrophy size={26} className="mx-auto mb-2 text-[#B45309]"/>
-            <p className="text-3xl font-bold text-[#92400E]">{clienteActual.puntos||0}</p>
+            <p className="text-3xl font-bold text-[#92400E]">{pts}</p>
             <p className="text-xs tracking-widest uppercase font-semibold text-[#B45309]">Puntos acumulados</p>
-            <div className="mt-3 h-2 rounded-full bg-white/60 border border-[#FDE68A] p-0.5"><div className="h-full rounded-full bg-[#F59E0B] transition-all" style={{width:`${Math.min(((clienteActual.puntos||0)%100),100)}%`}}/></div>
-            <p className="text-xs text-[#92400E]/70 mt-1">{100 - ((clienteActual.puntos||0)%100)} para siguiente nivel · 1 pto / $10.000</p>
+            <div className="mt-3 h-2 rounded-full bg-white/60 border border-[#FDE68A] p-0.5"><div className="h-full rounded-full bg-[#F59E0B] transition-all" style={{width:`${next? Math.min(next.progress,100):100}%`}}/></div>
+            <p className="text-xs text-[#92400E]/70 mt-1">{next? `${next.need} pts para ${next.name} · 1 pto / $${FIDELIDAD_CONFIG.pesosPorPunto.toLocaleString('es-CO')}` : '¡Nivel máximo Oro alcanzado! · 1 pto / $'+FIDELIDAD_CONFIG.pesosPorPunto.toLocaleString('es-CO')}</p>
           </div>
+            )})()}
           <div className="bg-white rounded-2xl border border-[#F1E9D8] p-4">
             <h3 className="text-sm font-semibold text-[#1C2A0F] mb-2">Niveles</h3>
             <div className="grid grid-cols-3 gap-2">{[{name:'Bronce',min:0},{name:'Plata',min:200},{name:'Oro',min:500}].map(l=>{ const a=(clienteActual.puntos||0)>=l.min; return <div key={l.name} className={clsx('rounded-xl border p-3 text-center', a?'bg-[#FFFBF5] border-[#FDE68A]':'bg-white border-[#F1E9D8] opacity-60')}><p className="text-xs font-medium text-[#1C2A0F]">{l.name}</p><p className="text-[11px] text-[#94A3B8]">{l.min} pts</p>{a&&<FaCheckCircle size={11} className="text-[#10B981] mx-auto mt-1"/>}</div>})}</div>
@@ -413,9 +431,13 @@ export default function ClientPanel() {
               <div key={r.name||r.nombre} className="flex items-center gap-3 p-3 rounded-xl border border-[#F1E9D8] hover:border-[#FDE68A] transition-colors">
                 <span className="w-9 h-9 rounded-xl bg-[#FFFBF5] border border-[#F1E9D8] flex items-center justify-center text-lg">{r.icon||'🎁'}</span>
                 <div className="flex-1 min-w-0"><h4 className="text-sm font-semibold text-[#1C2A0F]">{r.name||r.nombre}</h4><p className="text-xs text-[#64748B]">{r.desc||r.descripcion} · <span className="text-[#F59E0B] font-medium">{r.cost||r.puntos} pts</span></p></div>
-                <button onClick={()=>{ const c=r.cost||r.puntos; const res=canjearPuntos(c); if(res.ok) toast.success(`¡${r.name||r.nombre} canjeado!`); else toast.error(res.error||'Puntos insuficientes')}} disabled={(clienteActual.puntos||0) < (r.cost||r.puntos)} className="px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium disabled:bg-[#F1F5F9] disabled:text-[#94A3B8] disabled:border">Canjear</button>
+                <button onClick={()=>{ const c=r.cost||r.puntos; const res=canjearPuntos(c); if(res.ok){ try{ const k=`fidelidad_historial_${clienteActual.id}`; const h=JSON.parse(localStorage.getItem(k)||'[]'); h.unshift({id:`canje-${Date.now()}`, nombre:r.name||r.nombre, costo:c, fecha:new Date().toISOString()}); localStorage.setItem(k, JSON.stringify(h.slice(0,20)))}catch{}; toast.success(`¡${r.name||r.nombre} canjeado!`)} else toast.error(res.error||'Puntos insuficientes')}} disabled={(clienteActual.puntos||0) < (r.cost||r.puntos)} className="px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium disabled:bg-[#F1F5F9] disabled:text-[#94A3B8] disabled:border">Canjear</button>
               </div>
             ))}</div>})()}
+          </div>
+          <div className="bg-white rounded-2xl border border-[#F1E9D8] p-4">
+            <h3 className="text-sm font-semibold text-[#1C2A0F] mb-3">Historial de canjes</h3>
+            {(() => { try{ const k=`fidelidad_historial_${clienteActual.id}`; const h=JSON.parse(localStorage.getItem(k)||'[]') as any[]; if(!h.length) return <p className="text-xs text-[#94A3B8] text-center py-4">Aún no has canjeado recompensas</p>; return <div className="space-y-2">{h.map((e:any)=> <div key={e.id} className="flex justify-between items-center p-2.5 rounded-xl bg-[#FFFBF5] border border-[#F1E9D8]"><div><p className="text-xs font-medium text-[#1C2A0F]">{e.nombre}</p><p className="text-[11px] text-[#94A3B8]">{new Date(e.fecha).toLocaleDateString('es-CO')} {new Date(e.fecha).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}</p></div><span className="text-xs font-bold text-[#92400E]">-{e.costo} pts</span></div>)}</div> } catch{ return <p className="text-xs text-[#94A3B8]">Error al cargar historial</p> } })()}
           </div>
         </div>
       )}
@@ -463,6 +485,31 @@ export default function ClientPanel() {
                 <FaEye size={12} className="text-[#94A3B8]"/>
               </Link>
             </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#F1E9D8] p-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-[#1C2A0F]">Descargar mis datos</p>
+              <p className="text-xs text-[#94A3B8]">JSON con perfil, direcciones, pedidos, reservas y canjes</p>
+            </div>
+            <button onClick={()=>{
+              try{
+                const data={
+                  perfil: clienteActual,
+                  direcciones: clienteActual.direcciones||[],
+                  pedidos: ordenes,
+                  reservas,
+                  favoritos: favoriteProducts.map(p=> ({id:p.id, nombre:p.nombre, precio:p.precio})),
+                  historialCanjes: JSON.parse(localStorage.getItem(`fidelidad_historial_${clienteActual.id}`)||'[]'),
+                  preferencias: prefs,
+                  exportado: new Date().toISOString()
+                }
+                const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'})
+                const url=URL.createObjectURL(blob)
+                const a=document.createElement('a'); a.href=url; a.download=`sabor-origen-${clienteActual.id}.json`; a.click(); URL.revokeObjectURL(url)
+                toast.success('Datos descargados')
+              } catch{ toast.error('Error al exportar')}
+            }} className="px-4 py-2 rounded-full bg-white border border-[#E5E7EB] text-xs font-medium text-[#1C2A0F] hover:bg-[#F8FAFC]">Descargar JSON</button>
           </div>
 
           <div className="bg-white rounded-2xl border border-[#FECACA] overflow-hidden">

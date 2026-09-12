@@ -155,6 +155,11 @@ export const useAuthStore = create<AuthStore>()(
       },
       deleteAccount: () => {
         const actual=get().clienteActual; if(!actual) return
+        try{
+          localStorage.removeItem(`sabor-favorites-${actual.telefono}`)
+          localStorage.removeItem(`fidelidad_historial_${actual.id}`)
+          localStorage.removeItem(`prefs_${actual.id}`)
+        } catch{}
         set({ clientes: get().clientes.filter(c=> c.id!==actual.id), clienteActual: null })
       },
     }),
