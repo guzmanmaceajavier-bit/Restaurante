@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
 import { storage } from '../lib/storage'
@@ -28,8 +28,12 @@ type Tab = 'inicio' | 'pedidos' | 'reservas' | 'favoritos' | 'direcciones' | 'fi
 export default function ClientPanel() {
   const { clienteActual, logout, canjearPuntos, updateProfile, addDireccion, updateDireccion, deleteDireccion, deleteAccount } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const addToCart = useCartStore((s) => s.addToCart)
-  const [tab, setTab] = useState<Tab>('inicio')
+  const [tab, setTab] = useState<Tab>(() => {
+    const h = (typeof window !== 'undefined' ? window.location.hash.replace('#','') : '') as Tab
+    return (['inicio','pedidos','reservas','favoritos','direcciones','fidelidad','cuenta'] as Tab[]).includes(h as Tab) ? h : 'inicio'
+  })
   const [confirmCancel, setConfirmCancel] = useState<string | null>(null)
   const [confirmDeleteDir, setConfirmDeleteDir] = useState<string | null>(null)
   const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false)
@@ -87,10 +91,14 @@ export default function ClientPanel() {
     return () => { clearInterval(id); window.removeEventListener('storage', onStorage); window.removeEventListener('focus', onFocus) }
   }, [clienteActual])
 
+  // Sincroniza tab con hash sin necesidad de recarga (React Router Link + hashchange)
   useEffect(() => {
-    const h = window.location.hash.replace('#','') as Tab
-    if (h && ['inicio','pedidos','reservas','favoritos','direcciones','fidelidad','cuenta'].includes(h)) setTab(h)
-    const onHash = () => { const v = window.location.hash.replace('#','') as Tab; if (v) setTab(v) }
+    const h = location.hash.replace('#','') as Tab
+    if (h && (['inicio','pedidos','reservas','favoritos','direcciones','fidelidad','cuenta'] as string[]).includes(h)) setTab(h as Tab)
+    else if (!h) setTab('inicio')
+  }, [location.hash])
+  useEffect(() => {
+    const onHash = () => { const v = window.location.hash.replace('#','') as Tab; if (v && (['inicio','pedidos','reservas','favoritos','direcciones','fidelidad','cuenta'] as string[]).includes(v)) setTab(v as Tab) }
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
@@ -185,7 +193,7 @@ export default function ClientPanel() {
                 <div className="mt-2">
                   <p className="text-sm font-semibold text-[#1C2A0F]">{proximaReserva.fecha} · {proximaReserva.hora} · {proximaReserva.personas} pers.</p>
                   <p className="text-xs text-[#64748B]">{proximaReserva.zona||'—'} · <span className={clsx('px-2 py-0.5 rounded-full text-[11px] font-medium border', proximaReserva.estado==='Pendiente'?'bg-[#FFFBEB] border-[#FDE68A] text-[#92400E]': proximaReserva.estado==='Cancelada'?'bg-[#FEF2F2] border-[#FECACA] text-[#991B1B]':'bg-[#ECFDF5] border-[#A7F3D0] text-[#065F46]')}>{proximaReserva.estado}</span></p>
-                  <button onClick={()=> setTab('reservas')} className="mt-2 text-xs font-medium text-[#1C2A0F] border border-[#F1E9D8] px-3 py-1.5 rounded-full hover:bg-[#FFFBF5]">Gestionar</button>
+                  <button onClick={()=> { setTab('reservas'); window.location.hash='reservas'}} className="mt-2 text-xs font-medium text-[#1C2A0F] border border-[#F1E9D8] px-3 py-1.5 rounded-full hover:bg-[#FFFBF5]">Gestionar</button>
                 </div>
               )}
             </div>
@@ -205,7 +213,7 @@ export default function ClientPanel() {
               <p className="text-lg font-bold">{clienteActual.puntos||0} puntos · {clienteActual.nivel||'bronce'}</p>
               <p className="text-xs text-white/70">{100 - ((clienteActual.puntos||0)%100)} pts para siguiente nivel</p>
             </div>
-            <button onClick={()=> setTab('fidelidad')} className="px-4 py-2 rounded-full bg-[#F5B51B] text-[#1C2A0F] text-xs font-semibold hover:bg-[#FFC93A]">Ver recompensas</button>
+            <button onClick={()=> { setTab('fidelidad'); window.location.hash='fidelidad'}} className="px-4 py-2 rounded-full bg-[#F5B51B] text-[#1C2A0F] text-xs font-semibold hover:bg-[#FFC93A]">Ver recompensas</button>
           </div>
         </div>
       )}
