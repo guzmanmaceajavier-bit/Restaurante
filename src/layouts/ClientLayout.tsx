@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import { getRestaurantConfig } from '../lib/config'
@@ -22,6 +23,10 @@ export default function ClientLayout() {
   const count = useCartStore((s) => s.count)
   const config = getRestaurantConfig()
   const isPortal = location.pathname === '/mi-cuenta'
+  const getHash = () => (typeof window !== 'undefined' ? window.location.hash.replace('#','') || 'inicio' : 'inicio')
+  const [activeHash, setActiveHash] = useState(getHash)
+  useEffect(()=>{ const onHash=()=> setActiveHash(getHash()); window.addEventListener('hashchange', onHash); return ()=> window.removeEventListener('hashchange', onHash)}, [])
+  useEffect(()=>{ setActiveHash(getHash()) }, [location])
 
   const handleLogout = () => {
     logout()
@@ -63,12 +68,16 @@ export default function ClientLayout() {
         <div className="p-3 flex-1 overflow-y-auto">
           <p className="px-2 py-2 text-[11px] font-semibold tracking-widest uppercase text-[#94A3B8]">Navegación</p>
           <nav className="space-y-1">
-            {navItems.map(item=> (
-              <Link key={item.label} to={item.path} className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#475569] hover:bg-[#FFFBF5] hover:text-[#1C2A0F] transition-colors">
-                <item.icon size={13} className="text-[#94A3B8]" />
+            {navItems.map(item=> {
+              const isHash = item.path.includes('#')
+              const itemHash = isHash ? item.path.split('#')[1] : ''
+              const isActive = isHash ? (location.pathname==='/mi-cuenta' && activeHash===itemHash) : location.pathname===item.path
+              return (
+              <Link key={item.label} to={item.path} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${isActive ? 'bg-[#1C2A0F] text-white' : 'text-[#475569] hover:bg-[#FFFBF5] hover:text-[#1C2A0F]'}`}>
+                <item.icon size={13} className={isActive ? 'text-[#F5B51B]' : 'text-[#94A3B8]'} />
                 {item.label}
               </Link>
-            ))}
+            )})}
           </nav>
           {clienteActual && (
             <div className="mt-6 p-3 rounded-xl bg-gradient-to-br from-[#1C2A0F] to-[#2A3D16] text-white">
@@ -108,12 +117,15 @@ export default function ClientLayout() {
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#F1E9D8] flex justify-around py-2 px-1 z-20">
           {[
             navItems[0], navItems[1], navItems[2], navItems[3], navItems[6]
-          ].map(item=> (
-            <Link key={item.label} to={item.path} className="flex flex-col items-center gap-1 px-2 py-1 rounded-lg hover:bg-[#FFFBF5] text-[#64748B]">
-              <item.icon size={14} />
+          ].map(item=> {
+            const itemHash = item.path.split('#')[1] || ''
+            const isActive = location.pathname==='/mi-cuenta' && activeHash===itemHash
+            return (
+            <Link key={item.label} to={item.path} className={`flex flex-col items-center gap-1 px-2 py-1 rounded-lg transition-colors ${isActive ? 'bg-[#1C2A0F] text-white' : 'hover:bg-[#FFFBF5] text-[#64748B]'}`}>
+              <item.icon size={14} className={isActive ? 'text-[#F5B51B]' : ''} />
               <span className="text-[10px] font-medium">{item.label}</span>
             </Link>
-          ))}
+          )})}
         </nav>
       </div>
     </div>

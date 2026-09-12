@@ -140,43 +140,23 @@ export default function ClientPanel() {
     setShowVincular(false)
   }
 
-  const tabs: { id: Tab; icon: any; label: string; count?: number }[] = [
-    { id: 'inicio', icon: FaHome, label: 'Resumen' },
-    { id: 'pedidos', icon: FaShoppingBag, label: 'Pedidos', count: ordenes.length },
-    { id: 'reservas', icon: FaCalendarAlt, label: 'Reservas', count: reservas.length },
-    { id: 'favoritos', icon: FaHeart, label: 'Favoritos', count: favorites.length },
-    { id: 'direcciones', icon: FaMapMarkerAlt, label: 'Direcciones', count: (clienteActual.direcciones||[]).length },
-    { id: 'fidelidad', icon: FaTrophy, label: 'Fidelidad' },
-    { id: 'cuenta', icon: FaShieldAlt, label: 'Cuenta' },
-  ]
-
   const proximaReserva = reservas.find((r:any)=> r.estado!=='Cancelada') || null
   const pedidoActivo = ordenes.find(o=> ['recibido','preparando','listo'].includes(o.estado)) || null
+  const tabTitle: Record<Tab, string> = { inicio:'Resumen', pedidos:'Mis pedidos', reservas:'Mis reservas', favoritos:'Favoritos', direcciones:'Direcciones', fidelidad:'Fidelidad', cuenta:'Cuenta' }
 
   return (
     <div className="max-w-[980px] mx-auto">
       <SEO title="Mi cuenta" />
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-[11px] font-semibold tracking-widest uppercase text-[#F59E0B]">Mi cuenta</h1>
-          <p className="text-xl font-display font-bold text-[#1C2A0F] leading-5">Hola, {clienteActual.nombre.split(' ')[0]} <span className="text-[#F59E0B]">·</span> {clienteActual.puntos||0} pts</p>
-          <p className="text-xs text-[#64748B]">{clienteActual.nivel||'bronce'} · {ordenes.length} pedidos · {reservas.length} reservas</p>
+          <h1 className="text-[11px] font-semibold tracking-widest uppercase text-[#F59E0B]">{tabTitle[tab]}</h1>
+          <p className="text-xl font-display font-bold text-[#1C2A0F] leading-5">Hola, {clienteActual.nombre.split(' ')[0]} <span className="text-[#F59E0B]">·</span> {clienteActual.puntos||0} pts · {clienteActual.nivel||'bronce'}</p>
+          <p className="text-xs text-[#64748B]">{ordenes.length} pedidos · {reservas.length} reservas · {(clienteActual.direcciones||[]).length} direcciones</p>
         </div>
-        <div className="flex gap-2">
+        <div className="hidden sm:flex gap-2">
           <Link to="/menu" className="px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium hover:bg-[#2A3D16]">Pedir ahora</Link>
           <Link to="/reservas" className="px-4 py-2 rounded-full bg-white border border-[#F1E9D8] text-xs font-medium text-[#1C2A0F]">Reservar</Link>
         </div>
-      </div>
-
-      <div className="flex gap-1.5 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide">
-        {tabs.map(t=> (
-          <button key={t.id} onClick={()=>{ setTab(t.id); window.location.hash=t.id}}
-            className={clsx('inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium whitespace-nowrap border transition-all',
-              tab===t.id ? 'bg-[#1C2A0F] text-white border-[#1C2A0F] shadow-sm' : 'bg-white text-[#475569] border-[#E5E7EB] hover:border-[#F1E9D8]')}>
-            <t.icon size={11} className={tab===t.id?'text-[#F5B51B]':'text-[#94A3B8]'} /> {t.label}
-            {t.count!==undefined && t.count>0 && <span className={clsx('ml-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center', tab===t.id?'bg-white/15 text-white':'bg-[#F59E0B] text-white')}>{t.count}</span>}
-          </button>
-        ))}
       </div>
       {showVincular && (
         <div className="mb-3 flex items-center justify-between gap-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-xl px-4 py-2.5">
