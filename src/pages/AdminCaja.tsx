@@ -23,8 +23,12 @@ export default function AdminCaja() {
   const ingresos = movs.filter(m=> m.tipo==='ingreso').reduce((s,m)=> s+m.monto,0) + ventasHoy
   const egresosMovs = movs.filter(m=> m.tipo==='egreso').reduce((s,m)=> s+m.monto,0)
   const egresosGastos = gastos.reduce((s,g:any)=> s+(g.monto||0),0)
-  // Evitar doble conteo: si gasto fue creado desde caja (id gasto_ y concepto igual a mov), ya está en movs; contar solo gastos no duplicados
-  const egresos = egresosMovs + egresosGastos
+  // Evitar doble conteo: gastos que ya tienen movimiento en caja no se cuentan de nuevo
+  const egresosManuales = egresosMovs
+  const gastosNoDuplicados = gastos.filter((g:any)=>{
+    return !movs.some(m=> m.tipo==='egreso' && m.concepto===g.descripcion && m.monto===g.monto)
+  }).reduce((s,g:any)=> s+(g.monto||0),0)
+  const egresos = egresosManuales + gastosNoDuplicados
   const balance = apertura + ingresos - egresos
   const saveMovs = (d:Movimiento[])=>{ setMovs(d); localStorage.setItem('caja_movs', JSON.stringify(d))}
   const abrir = () => { const v=Number(montoApertura)||0; setAbierta(true); setApertura(v); localStorage.setItem('caja_abierta','true'); localStorage.setItem('caja_apertura', String(v)); toast.success(`Caja abierta con $${v.toLocaleString('es-CO')}`)}

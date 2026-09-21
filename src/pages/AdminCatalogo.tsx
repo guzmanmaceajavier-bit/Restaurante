@@ -92,7 +92,7 @@ export default function AdminCatalogo() {
 
   const catFiltradas = useMemo(()=> !catBusqueda ? categorias : categorias.filter(c=> c.toLowerCase().includes(catBusqueda.toLowerCase())), [categorias, catBusqueda])
 
-  // Stock inline editing — single source of truth (same 'productos' key as AdminInventario)
+  // Stock inline editing — single source of truth ('productos' key)
   const [editingStockId, setEditingStockId] = useState<string | null>(null)
   const [editStockValue, setEditStockValue] = useState('')
   const saveStock = (id: string, n: number) => {

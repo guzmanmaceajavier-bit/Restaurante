@@ -1,16 +1,19 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { IProductCart } from '../types/product'
+import type { Promocion } from '../lib/config'
 
 interface CartStore {
   count: number
   cart: IProductCart[]
+  appliedPromo: Promocion | null
   setCount: (count: number) => void
   setCart: (cart: IProductCart[]) => void
   addToCart: (product: IProductCart) => void
   decrementQuantity: (product: IProductCart) => void
   removeItem: (product: IProductCart) => void
   clearCart: () => void
+  setAppliedPromo: (promo: Promocion | null) => void
 }
 
 export const useCartStore = create<CartStore>()(
@@ -18,6 +21,7 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       count: 0,
       cart: [],
+      appliedPromo: null,
 
       setCount: (count) => set({ count }),
       setCart: (cart) => set({ cart }),
@@ -58,7 +62,9 @@ export const useCartStore = create<CartStore>()(
         set({ cart: updated, count: newCount })
       },
 
-      clearCart: () => set({ cart: [], count: 0 }),
+      clearCart: () => set({ cart: [], count: 0, appliedPromo: null }),
+
+      setAppliedPromo: (promo) => set({ appliedPromo: promo }),
     }),
     {
       name: 'cart-storage',

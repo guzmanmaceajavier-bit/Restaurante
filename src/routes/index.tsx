@@ -40,7 +40,7 @@ import AdminCocina from '../pages/AdminCocina'
 import AdminMesas from '../pages/AdminMesas'
 import AdminConfig from '../pages/AdminConfig'
 import AdminPromociones from '../pages/AdminPromociones'
-import AdminInventario from '../pages/AdminInventario'
+import AdminCatalogo from '../pages/AdminCatalogo'
 import AdminFinanzas from '../pages/AdminFinanzas'
 import AdminActividad from '../pages/AdminActividad'
 import AdminProveedores from '../pages/AdminProveedores'
@@ -104,7 +104,6 @@ export default function MainRoutes() {
         <Route path={RoutesPath.adminMesas} element={<AdminMesas />} />
         <Route path="/admin-config" element={<AdminConfig />} />
         <Route path={RoutesPath.adminPromociones} element={<AdminPromociones />} />
-        <Route path={RoutesPath.adminInventario} element={<AdminInventario />} />
         <Route path={RoutesPath.adminFinanzas} element={<AdminFinanzas />} />
         <Route path={RoutesPath.adminActividad} element={<AdminActividad />} />
         <Route path={RoutesPath.adminProveedores} element={<AdminProveedores />} />

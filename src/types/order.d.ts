@@ -5,6 +5,12 @@ export interface OrderItem {
   imagen?: string
 }
 
+export interface OrderHistorialEntry {
+  estado: string
+  fecha: string
+  usuario?: string
+}
+
 export interface Order {
   id: string
   fullName: string
@@ -21,5 +27,6 @@ export interface Order {
   scheduled?: boolean
   scheduledTime?: string
   estado: string
+  historial: OrderHistorialEntry[]
   createdAt: string
 }

@@ -7,6 +7,7 @@ import * as Yup from 'yup'
 import { validarCodigo } from '../../lib/promociones'
 import type { Promocion } from '../../lib/config'
 import { useAuthStore } from '../../store/useAuthStore'
+import { useCartStore } from '../../store/useCartStore'
 import clsx from 'clsx'
 
 export interface OrderData {
@@ -51,14 +52,16 @@ const validationSchemas = [
 
 export function CheckOutForm({ onSubmit }: IProps) {
   const { clienteActual } = useAuthStore()
+  const storePromo = useCartStore((s) => s.appliedPromo)
+  const setStorePromo = useCartStore((s) => s.setAppliedPromo)
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<OrderData>({
     typeOrder: '', fullName: clienteActual?.nombre || '', phone: clienteActual?.telefono || '', tableNumber: '',
     address: '', neighborhood: '', paymentMethod: '',
     scheduled: false, scheduledTime: '', extras: [],
   })
-  const [promoCode, setPromoCode] = useState('')
-  const [appliedPromo, setAppliedPromo] = useState<Promocion | null>(null)
+  const [promoCode, setPromoCode] = useState(storePromo?.codigo || '')
+  const [appliedPromo, setAppliedPromo] = useState<Promocion | null>(storePromo || null)
   const [promoError, setPromoError] = useState('')
   useEffect(()=>{ if(clienteActual){ setForm(p=> ({...p, fullName: clienteActual.nombre || p.fullName, phone: clienteActual.telefono || p.phone})) } }, [clienteActual])
 
@@ -68,10 +71,12 @@ export function CheckOutForm({ onSubmit }: IProps) {
     const promo = validarCodigo(promoCode)
     if (promo) {
       setAppliedPromo(promo)
+      setStorePromo(promo)
       setPromoError('')
       toast.success(`¡Código "${promo.codigo}" aplicado! ${promo.descuento}% de descuento`)
     } else {
       setAppliedPromo(null)
+      setStorePromo(null)
       setPromoError('Código no válido o vencido')
     }
   }

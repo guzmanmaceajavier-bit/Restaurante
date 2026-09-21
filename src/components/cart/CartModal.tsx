@@ -16,9 +16,10 @@ interface IProps {
 
 export function CartModal({ open, setOpen }: IProps) {
   const cart = useCartStore((s) => s.cart)
+  const appliedPromo = useCartStore((s) => s.appliedPromo)
+  const setAppliedPromo = useCartStore((s) => s.setAppliedPromo)
   const navigate = useNavigate()
   const [promoCode, setPromoCode] = useState('')
-  const [promoApplied, setPromoApplied] = useState(false)
 
   useEffect(() => {
     if (open) {
@@ -33,7 +34,7 @@ export function CartModal({ open, setOpen }: IProps) {
     const code = promoCode.trim().toUpperCase()
     const validPromo = dataService.getPromociones()?.find(p => p.codigo?.toUpperCase() === code)
     if (validPromo) {
-      setPromoApplied(true)
+      setAppliedPromo(validPromo)
       toast.success(`Cupón "${code}" aplicado: ${validPromo.descuento}% de descuento`)
     } else {
       toast.error('Cupón no válido')
@@ -83,13 +84,13 @@ export function CartModal({ open, setOpen }: IProps) {
                 <FaTag className="absolute left-3 top-1/2 -translate-y-1/2 text-steel/40" size={12} />
                 <input type="text" value={promoCode} onChange={(e) => setPromoCode(e.target.value)}
                   placeholder="Cupón de descuento"
-                  disabled={promoApplied}
+                  disabled={!!appliedPromo}
                   className="w-full text-xs bg-cream-50 border border-cream-200 rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-olive-400 disabled:opacity-50"
                   onKeyDown={(e) => e.key === 'Enter' && applyPromo()} />
               </div>
-              <button onClick={applyPromo} disabled={promoApplied || !promoCode.trim()}
+              <button onClick={applyPromo} disabled={!!appliedPromo || !promoCode.trim()}
                 className="text-xs font-medium px-3 py-2 rounded-lg bg-olive-500 text-white hover:bg-olive-600 disabled:bg-cream-200 disabled:text-steel transition-colors">
-                {promoApplied ? '✓' : 'Aplicar'}
+                {appliedPromo ? '✓' : 'Aplicar'}
               </button>
             </div>
           )}

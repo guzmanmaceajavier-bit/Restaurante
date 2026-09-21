@@ -17,6 +17,7 @@ const nf = (num: number) => new Intl.NumberFormat('es-CO').format(num)
 
 export function CheckOutView() {
   const { cart, clearCart } = useCartStore()
+  const setStorePromo = useCartStore((s) => s.setAppliedPromo)
   const { addCliente, findCliente, sumarPuntos, clienteActual, setClienteActual } = useClientStore()
   const [orderData, setOrderData] = useState<OrderData | undefined>()
   const [puntosGanados, setPuntosGanados] = useState(0)
@@ -103,6 +104,7 @@ export function CheckOutView() {
     window.open(whatsappUrl, '_blank')
 
     clearCart()
+    setStorePromo(null)
     toast.success(`Pedido #${orderId} enviado!`)
     navigate(`/orden-confirmacion/${orderId}`)
   }

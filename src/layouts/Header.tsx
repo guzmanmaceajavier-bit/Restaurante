@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
 import { getRestaurantConfig } from '@/lib/config'
 import { useState, useEffect, useRef } from 'react'
-import { FaShoppingBag, FaUser, FaSignOutAlt, FaSearch } from 'react-icons/fa'
+import { FaShoppingBag, FaUser, FaSignOutAlt, FaSearch, FaRocket } from 'react-icons/fa'
 import { BiMenu, BiX } from 'react-icons/bi'
 import clsx from 'clsx'
 
@@ -105,6 +105,10 @@ export default function Header({ onCartClick }: Props) {
                 </Link>
               )
             })}
+            <Link to="/demo" className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-olive-600 hover:text-olive-700 bg-olive-50 hover:bg-olive-100 rounded-lg transition-all duration-200 ml-1">
+              <FaRocket size={10} />
+              Demo
+            </Link>
           </nav>
 
           {/* Actions */}
@@ -270,6 +274,11 @@ export default function Header({ onCartClick }: Props) {
                   {l.label}
                 </Link>
               ))}
+              <Link to="/demo" onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 px-6 py-3.5 text-[15px] font-medium text-olive-600 hover:bg-olive-50 border-l-[3px] border-transparent transition-colors">
+                <FaRocket size={12} />
+                Demo del sistema
+              </Link>
             </nav>
 
             <div className="border-t border-cream-200 px-6 py-4">
