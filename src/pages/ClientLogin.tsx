@@ -34,7 +34,18 @@ export default function ClientLogin() {
   }
 
   const handleDemoLogin = () => {
-    const result = login('cliente@demo.com', 'Demo123')
+    let result = login('cliente@demo.com', 'Demo123')
+    if (!result.ok) {
+      try {
+        const raw = localStorage.getItem('auth-client-storage')
+        const parsed = raw ? JSON.parse(raw) : null
+        const demo = parsed?.state?.clientes?.find((c: any) => c.email === 'cliente@demo.com')
+        if (demo) {
+          useAuthStore.setState({ clienteActual: demo, clientes: parsed.state.clientes })
+          result = login('cliente@demo.com', 'Demo123')
+        }
+      } catch {}
+    }
     if (result.ok) { toast.success('¡Bienvenido Laura! (Demo)'); navigate('/mi-cuenta') }
     else { toast.error('Error al entrar en modo demo') }
   }
