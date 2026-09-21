@@ -5,8 +5,6 @@ import { CartModal } from '../components/cart/CartModal'
 import { useState } from 'react'
 import WhatsAppButton from '../components/core/WhatsAppButton'
 import BackToTop from '../components/core/BackToTop'
-import DemoBanner from '../components/core/DemoBanner'
-
 export default function AppLayout() {
   const [cartOpen, setCartOpen] = useState(false)
   const { pathname } = useLocation()
@@ -23,9 +21,8 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen bg-cream-50 dark:bg-[#1a1f16] flex flex-col">
-      <DemoBanner />
       <Header onCartClick={() => setCartOpen(true)} />
-      <main className="flex-1 pt-14 lg:pt-16">
+      <main className="flex-1">
         <Outlet />
       </main>
       <Footer />
