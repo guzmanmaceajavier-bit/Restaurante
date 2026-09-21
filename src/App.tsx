@@ -5,6 +5,7 @@ import { Toaster } from 'sonner'
 import ErrorBoundary from './lib/ErrorBoundary'
 import { initDataService } from './lib/dataService'
 import ScrollToTop from './components/core/ScrollToTop'
+import CookieConsent from './components/core/CookieConsent'
 
 export default function App() {
   useEffect(() => { initDataService() }, [])
@@ -23,6 +24,7 @@ export default function App() {
           position="top-center"
           richColors
         />
+        <CookieConsent />
     </ErrorBoundary>
   )
 }

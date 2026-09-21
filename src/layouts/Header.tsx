@@ -323,7 +323,6 @@ export default function Header({ onCartClick }: Props) {
           </div>
         </div>
       )}
-    </>
       <ConfirmModal open={showLogoutConfirm} onClose={()=> setShowLogoutConfirm(false)} onConfirm={()=>{ logout(); navigate(RoutesPath.home); }} title="Cerrar sesión" message="¿Seguro que quieres cerrar sesión?" confirmText="Cerrar sesión" cancelText="Cancelar" variant="warning" />
     </>
   )
