@@ -124,6 +124,7 @@ export default function ClientPanel() {
     )
   }
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const handleLogout = () => { logout(); toast.success('Sesión cerrada'); navigate('/') }
   const handleRepeatOrder = (order: Order) => {
     if (!order.items) return
@@ -508,7 +509,7 @@ export default function ClientPanel() {
           <div className="bg-white rounded-2xl border border-[#FECACA] overflow-hidden">
             <div className="px-5 py-3 border-b border-[#FECACA] bg-[#FEF2F2]"><h3 className="text-sm font-semibold text-[#991B1B]">Zona de peligro</h3></div>
             <div className="p-4 flex flex-col sm:flex-row gap-2">
-              <button onClick={handleLogout} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium text-[#475569]">Cerrar sesión</button>
+              <button onClick={()=> setShowLogoutConfirm(true)} className="flex-1 py-2.5 rounded-full bg-white border border-[#E5E7EB] text-sm font-medium text-[#475569]">Cerrar sesión</button>
               <button onClick={()=> setConfirmDeleteAccount(true)} className="flex-1 py-2.5 rounded-full bg-[#DC2626] text-white text-sm font-medium hover:bg-[#B91C1C]">Eliminar cuenta</button>
             </div>
             <p className="px-5 pb-3 text-[11px] text-[#94A3B8]">Eliminar borra tu perfil, direcciones y desvincula pedidos/reservas de tu cuenta.</p>
@@ -521,6 +522,7 @@ export default function ClientPanel() {
       <ConfirmModal open={!!confirmCancel} onClose={()=> setConfirmCancel(null)} onConfirm={()=>{ const r=reservas.find((x:any)=> x.id===confirmCancel); if(r) handleCancelReserva(r)}} title="Cancelar reserva" message="¿Cancelar esta reserva?" confirmText="Sí, cancelar" cancelText="Mantener" />
       <ConfirmModal open={!!confirmDeleteDir} onClose={()=> setConfirmDeleteDir(null)} onConfirm={()=>{ if(confirmDeleteDir) deleteDireccion(confirmDeleteDir); setConfirmDeleteDir(null); toast.success('Dirección eliminada')}} title="Eliminar dirección" message="¿Eliminar esta dirección? No se puede deshacer." confirmText="Eliminar" cancelText="Cancelar" />
       <ConfirmModal open={confirmDeleteAccount} onClose={()=> setConfirmDeleteAccount(false)} onConfirm={()=>{ deleteAccount(); toast.success('Cuenta eliminada'); navigate('/')}} title="Eliminar cuenta" message="¿Seguro que quieres eliminar tu cuenta? Se borrarán tus datos y direcciones." confirmText="Sí, eliminar" cancelText="Cancelar" />
+      <ConfirmModal open={showLogoutConfirm} onClose={()=> setShowLogoutConfirm(false)} onConfirm={handleLogout} title="Cerrar sesión" message="¿Seguro que quieres cerrar sesión?" confirmText="Cerrar sesión" cancelText="Cancelar" variant="warning" />
     </div>
   )
 }

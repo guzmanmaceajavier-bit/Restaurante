@@ -6,6 +6,7 @@ import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, F
 import { AdminSkeleton } from '../components/core/LoadingSkeleton'
 import { useLoading } from '../hooks/useLoading'
 import { CommandPalette } from '../components/admin/CommandPalette'
+import ConfirmModal from '../components/core/ConfirmModal'
 
 type Item = { label: string; icon: any; link: string; badgeKey?: string }
 type Section = { title: string; items: Item[] }
@@ -95,6 +96,7 @@ export default function AdminLayout() {
     return { section: sec?.title || '', label: current?.label || '' }
   }, [location.pathname, current])
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const handleLogout = () => { storage.clearAdmin(); navigate('/admin-login') }
   if (loading) return <AdminSkeleton />
 
@@ -152,10 +154,10 @@ export default function AdminLayout() {
           {!collapsed ? (
             <>
               <Link to="/" className="flex items-center gap-2 px-2 py-1.5 rounded-md text-[13px] text-[#475569] hover:bg-[#F8FAFC]"><FaChevronLeft size={11}/> Volver al sitio</Link>
-              <button onClick={handleLogout} className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[13px] text-[#64748B] hover:bg-[#F8FAFC]"><FaSignOutAlt size={11}/> Cerrar sesión</button>
+              <button onClick={()=> setShowLogoutConfirm(true)} className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[13px] text-[#64748B] hover:bg-[#F8FAFC]"><FaSignOutAlt size={11}/> Cerrar sesión</button>
             </>
           ) : (
-            <button onClick={handleLogout} title="Cerrar sesión" className="w-full flex justify-center py-2 text-[#64748B] hover:bg-[#F1F5F9] rounded-md"><FaSignOutAlt size={13}/></button>
+            <button onClick={()=> setShowLogoutConfirm(true)} title="Cerrar sesión" className="w-full flex justify-center py-2 text-[#64748B] hover:bg-[#F1F5F9] rounded-md"><FaSignOutAlt size={13}/></button>
           )}
         </div>
       </aside>
@@ -182,7 +184,7 @@ export default function AdminLayout() {
                 </div>
               ))}
             </nav>
-            <div className="p-3 border-t border-[#E5E7EB]"><button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#DC2626] hover:bg-[#FEF2F2]"><FaSignOutAlt size={12}/> Cerrar sesión</button></div>
+            <div className="p-3 border-t border-[#E5E7EB]"><button onClick={()=> setShowLogoutConfirm(true)} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#DC2626] hover:bg-[#FEF2F2]"><FaSignOutAlt size={12}/> Cerrar sesión</button></div>
           </aside>
         </div>
       )}
@@ -234,7 +236,7 @@ export default function AdminLayout() {
               <div className="absolute right-0 top-10 w-52 bg-white rounded-md border border-[#E5E7EB] shadow-md py-1 z-30">
                 <div className="px-3 py-2 border-b border-[#F1F5F9]"><p className="text-[13px] font-medium text-[#0F172A]">Administrador</p><p className="text-xs text-[#64748B]">{config.nombre}</p></div>
                 <Link to="/" className="flex items-center gap-2 px-3 py-2 text-[13px] text-[#334155] hover:bg-[#F8FAFC]"><FaChevronLeft size={11}/> Volver al sitio</Link>
-                <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#DC2626] hover:bg-[#FEF2F2]"><FaSignOutAlt size={11}/> Cerrar sesión</button>
+                <button onClick={()=> setShowLogoutConfirm(true)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#DC2626] hover:bg-[#FEF2F2]"><FaSignOutAlt size={11}/> Cerrar sesión</button>
               </div>
             )}
           </div>
@@ -277,6 +279,7 @@ export default function AdminLayout() {
         </div>
       )}
       <CommandPalette open={paletteOpen} onClose={()=> setPaletteOpen(false)} />
+      <ConfirmModal open={showLogoutConfirm} onClose={()=> setShowLogoutConfirm(false)} onConfirm={handleLogout} title="Cerrar sesión" message="¿Seguro que quieres cerrar sesión del panel administrativo?" confirmText="Cerrar sesión" cancelText="Cancelar" variant="warning" />
     </div>
   )
 }

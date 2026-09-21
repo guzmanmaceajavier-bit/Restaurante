@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react'
 import { FaShoppingBag, FaUser, FaSignOutAlt, FaSearch, FaRocket } from 'react-icons/fa'
 import { BiMenu, BiX } from 'react-icons/bi'
 import clsx from 'clsx'
+import ConfirmModal from '../components/core/ConfirmModal'
 
 const navLinks = [
   { label: 'Inicio', path: RoutesPath.home },
@@ -28,6 +29,7 @@ export default function Header({ onCartClick }: Props) {
   const [scrolled, setScrolled] = useState(false)
   const [cartBump, setCartBump] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   const prevCount = useRef(count)
@@ -172,7 +174,7 @@ export default function Header({ onCartClick }: Props) {
                   Mi cuenta
                 </Link>
                 <button
-                  onClick={() => { logout(); navigate(RoutesPath.home); }}
+                  onClick={() => setShowLogoutConfirm(true)}
                   className="p-2.5 text-steel hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
                   title="Cerrar sesión"
                 >
@@ -304,7 +306,7 @@ export default function Header({ onCartClick }: Props) {
                     Mi cuenta
                   </Link>
                   <button
-                    onClick={() => { logout(); setMobileOpen(false); navigate(RoutesPath.home); }}
+                    onClick={() => { setMobileOpen(false); setShowLogoutConfirm(true); }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
                   >
                     <FaSignOutAlt size={14} />
@@ -321,6 +323,8 @@ export default function Header({ onCartClick }: Props) {
           </div>
         </div>
       )}
+    </>
+      <ConfirmModal open={showLogoutConfirm} onClose={()=> setShowLogoutConfirm(false)} onConfirm={()=>{ logout(); navigate(RoutesPath.home); }} title="Cerrar sesión" message="¿Seguro que quieres cerrar sesión?" confirmText="Cerrar sesión" cancelText="Cancelar" variant="warning" />
     </>
   )
 }

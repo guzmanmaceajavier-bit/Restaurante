@@ -4,7 +4,7 @@ import { dataService } from '../../lib/dataService'
 import { ProductCard } from '../core/ProductCard'
 import { FaSearch, FaSlidersH, FaTimes, FaSortAmountDown } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
-import { useLoading } from '@/hooks/useLoading'
+
 import { MenuSkeleton } from '../core/LoadingSkeleton'
 import clsx from 'clsx'
 
@@ -38,7 +38,17 @@ export function ProductsSection() {
   const buscarUrl = searchParams.get('buscar')
   const allProducts = dataService.getProductos()
   const searchInputRef = useRef<HTMLInputElement>(null)
-  const loading = useLoading(400)
+  const [loading, setLoading] = useState(true)
+  useEffect(() => {
+    let attempts = 0
+    const check = () => {
+      const data = dataService.getProductos()
+      if (data.length > 0 || attempts > 30) { setLoading(false); return }
+      attempts++
+      setTimeout(check, 150)
+    }
+    check()
+  }, [])
 
   const categorias = useMemo(
     () => ['Todos', ...Array.from(new Set(allProducts.map((item) => item.categoría || 'Otros')))],

@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/useAuthStore'
 import { getRestaurantConfig } from '../lib/config'
 import { FaShoppingBag, FaSignOutAlt, FaHome, FaUtensils, FaCalendarAlt, FaHeart, FaTrophy, FaMapMarkerAlt, FaShieldAlt } from 'react-icons/fa'
 import { useCartStore } from '../store/useCartStore'
+import ConfirmModal from '../components/core/ConfirmModal'
 
 const navItems = [
   { label: 'Resumen', icon: FaHome, path: '/mi-cuenta#inicio' },
@@ -28,6 +29,7 @@ export default function ClientLayout() {
   useEffect(()=>{ const onHash=()=> setActiveHash(getHash()); window.addEventListener('hashchange', onHash); return ()=> window.removeEventListener('hashchange', onHash)}, [])
   useEffect(()=>{ setActiveHash(getHash()) }, [location])
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const handleLogout = () => {
     logout()
     navigate('/')
@@ -89,7 +91,7 @@ export default function ClientLayout() {
         </div>
         <div className="p-3 border-t border-[#F1E9D8]">
           <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#475569] hover:bg-[#F8FAFC]"><FaHome size={12}/> Volver al sitio</Link>
-          {clienteActual && <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#DC2626] hover:bg-[#FEF2F2] mt-1"><FaSignOutAlt size={12}/> Salir</button>}
+          {clienteActual && <button onClick={()=> setShowLogoutConfirm(true)} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[#DC2626] hover:bg-[#FEF2F2] mt-1"><FaSignOutAlt size={12}/> Salir</button>}
         </div>
       </aside>
 
@@ -128,6 +130,7 @@ export default function ClientLayout() {
           )})}
         </nav>
       </div>
+      <ConfirmModal open={showLogoutConfirm} onClose={()=> setShowLogoutConfirm(false)} onConfirm={handleLogout} title="Cerrar sesión" message="¿Seguro que quieres cerrar sesión?" confirmText="Cerrar sesión" cancelText="Cancelar" variant="warning" />
     </div>
   )
 }
