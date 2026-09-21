@@ -36,14 +36,14 @@ export function ProductsSection() {
   const [searchParams] = useSearchParams()
   const categoriaUrl = searchParams.get('categoria')
   const buscarUrl = searchParams.get('buscar')
-  const allProducts = dataService.getProductos()
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(true)
+  const [allProducts, setAllProducts] = useState<ReturnType<typeof dataService.getProductos>>([])
   useEffect(() => {
     let attempts = 0
     const check = () => {
       const data = dataService.getProductos()
-      if (data.length > 0 || attempts > 30) { setLoading(false); return }
+      if (data.length > 0 || attempts > 30) { setAllProducts(data); setLoading(false); return }
       attempts++
       setTimeout(check, 150)
     }
