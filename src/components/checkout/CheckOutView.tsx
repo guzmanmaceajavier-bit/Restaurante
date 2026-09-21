@@ -89,7 +89,7 @@ export function CheckOutView() {
     if (data.neighborhood) message += `📍 *Barrio:* ${data.neighborhood}%0A`
     if (data.address) message += `🏠 *Dirección:* ${data.address}%0A`
     if (data.scheduled && data.scheduledTime) message += `⏰ *Programado:* ${data.scheduledTime}%0A`
-    message += `💳 *Pago:* ${CONFIG.metodosPago.find((m) => m === data.paymentMethod) || data.paymentMethod}%0A%0A`
+    message += `💳 *Pago:* ${CONFIG.metodosPago.find((m) => m.nombre === data.paymentMethod || m.id === data.paymentMethod)?.nombre || data.paymentMethod}%0A%0A`
     message += `🧾 *Productos:*%0A`
     cart.forEach((item) => { message += `- ${item.nombre} ×${item.quantity} = $${nf((item.precio ?? 0) * item.quantity)}%0A` })
     message += `%0A💰 *Subtotal:* $${nf(subtotal)}%0A`
