@@ -8,13 +8,40 @@ export function seedDemoData(force = false) {
   const dateStr = (d: Date) => d.toISOString().split('T')[0]
   const addDays = (d: Date, n: number) => { const x = new Date(d); x.setDate(x.getDate() + n); return x }
 
-  // CLIENTES
+  // Registrar cliente demo en auth-client-storage (Zustand persist)
+  try {
+    const authRaw = localStorage.getItem('auth-client-storage')
+    const auth = authRaw ? JSON.parse(authRaw) : { state: { clientes: [], clienteActual: null }, version: 0 }
+    const existing = (auth.state?.clientes || []).find((c: any) => c.email === 'cliente@demo.com')
+    if (!existing) {
+      const demoCliente = {
+        id: 'CLI-DEMO001',
+        nombre: 'Laura Gómez',
+        email: 'cliente@demo.com',
+        telefono: '3157778899',
+        password: 'Demo123',
+        puntos: 540,
+        nivel: 'oro',
+        historialPedidos: ['ORD-1001', 'ORD-1002', 'ORD-1003', 'ORD-1004', 'ORD-1005'],
+        historialReservas: ['res_100', 'res_101'],
+        createdAt: addDays(now, -90).toISOString(),
+        direcciones: [
+          { id: 'DIR-DEMO1', alias: 'Casa', direccion: 'Calle 15 #5-20, Sahagún', indicaciones: 'Porta azul' },
+          { id: 'DIR-DEMO2', alias: 'Oficina', direccion: 'Carrera 7 #12-35, Sahagún', indicaciones: 'Piso 2' },
+        ],
+      }
+      auth.state.clientes = [...(auth.state.clientes || []), demoCliente]
+      localStorage.setItem('auth-client-storage', JSON.stringify(auth))
+    }
+  } catch {}
+
+  // CLIENTES para panel admin
   const clientes = [
     { id:'cli_1', nombre:'María González', telefono:'3101234567', email:'maria@gmail.com', puntos: 320, nivel:'Oro', totalGastado: 890000, pedidos: 18 },
     { id:'cli_2', nombre:'Carlos Pérez', telefono:'3129876543', email:'carlos@hotmail.com', puntos: 85, nivel:'Plata', totalGastado: 310000, pedidos: 7 },
     { id:'cli_3', nombre:'Ana Torres', telefono:'3005551234', email:'ana.torres@gmail.com', puntos: 12, nivel:'Bronce', totalGastado: 54000, pedidos: 2 },
     { id:'cli_4', nombre:'Jorge Díaz', telefono:'3184445566', email:'jorge.diaz@gmail.com', puntos: 210, nivel:'Plata', totalGastado: 620000, pedidos: 14 },
-    { id:'cli_5', nombre:'Laura Gómez', telefono:'3157778899', email:'laura.gomez@gmail.com', puntos: 540, nivel:'Oro', totalGastado: 1450000, pedidos: 27 },
+    { id:'cli_5', nombre:'Laura Gómez', telefono:'3157778899', email:'cliente@demo.com', puntos: 540, nivel:'Oro', totalGastado: 1450000, pedidos: 27 },
     { id:'cli_6', nombre:'Felipe Rojas', telefono:'3201112233', email:'felipe.r@gmail.com', puntos: 0, nivel:'Bronce', totalGastado: 0, pedidos: 0 },
   ]
   localStorage.setItem('clientes', JSON.stringify(clientes))

@@ -1,5 +1,6 @@
 export const RoutesPath = {
   home: '/',
+  demo: '/demo',
   menu: '/menu',
   menuDetail: (id: string) => `/menu/${id}`,
   checkout: '/checkout',

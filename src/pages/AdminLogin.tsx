@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { CONFIG } from '../lib/config'
 import { storage } from '../lib/storage'
 import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
-import { FaLock, FaUser } from 'react-icons/fa'
+import { FaLock, FaUser, FaRocket } from 'react-icons/fa'
 
 export default function AdminLogin() {
   const [usuario, setUsuario] = useState('')
@@ -20,6 +20,12 @@ export default function AdminLogin() {
     } else {
       toast.error('Usuario o contraseña incorrectos')
     }
+  }
+
+  const handleDemoLogin = () => {
+    storage.setAdmin(true, CONFIG.admin.nombre)
+    toast.success('¡Bienvenido Admin (Demo)!')
+    navigate('/admin-dashboard')
   }
 
   return (
@@ -55,7 +61,22 @@ export default function AdminLogin() {
               Ingresar
             </button>
           </form>
+
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-cream-200" /></div>
+            <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-steel">o</span></div>
+          </div>
+
+          <button onClick={handleDemoLogin}
+            className="w-full flex items-center justify-center gap-2 bg-olive-600 hover:bg-olive-700 text-white py-3 rounded-xl font-medium text-sm transition-all">
+            <FaRocket size={14} />
+            Entrar como administrador demo
+          </button>
         </div>
+
+        <Link to="/demo" className="mt-6 text-white/30 hover:text-white/60 text-xs transition-colors">
+          ← Ver otras interfaces de demo
+        </Link>
       </section>
     </>
   )
