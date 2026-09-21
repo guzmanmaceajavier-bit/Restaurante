@@ -8,7 +8,6 @@ import ConfirmModal from '../components/core/ConfirmModal'
 import { ExportButton } from '../components/admin/ExportButton'
 import { PageHeader } from '../components/admin/PageHeader'
 import type { IProduct } from '../types/product'
-import { dataService } from '../lib/dataService'
 import { SEO } from '../lib/seo'
 
 type Tab = 'productos' | 'inventario' | 'categorias'

@@ -22,7 +22,6 @@ export default function AdminCaja() {
   const ventasHoy = ordenes.filter(o=> o.createdAt?.startsWith(hoy)).reduce((s,o)=> s+(o.total||0),0)
   const ingresos = movs.filter(m=> m.tipo==='ingreso').reduce((s,m)=> s+m.monto,0) + ventasHoy
   const egresosMovs = movs.filter(m=> m.tipo==='egreso').reduce((s,m)=> s+m.monto,0)
-  const egresosGastos = gastos.reduce((s,g:any)=> s+(g.monto||0),0)
   // Evitar doble conteo: gastos que ya tienen movimiento en caja no se cuentan de nuevo
   const egresosManuales = egresosMovs
   const gastosNoDuplicados = gastos.filter((g:any)=>{

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { storage } from '../lib/storage'
 import { SEO } from '../lib/seo'
 import type { Order } from '../types/order'
-import { FaDollarSign, FaShoppingBag, FaChartBar, FaCalendarAlt, FaCreditCard, FaWallet } from 'react-icons/fa'
+import { FaDollarSign, FaShoppingBag, FaChartBar, FaCreditCard, FaWallet } from 'react-icons/fa'
 
 type DateRange = 'hoy' | 'semana' | 'mes' | 'todos'
 

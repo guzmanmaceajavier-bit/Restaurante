@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { SEO } from '../lib/seo'
-import { FaExternalLinkAlt, FaArrowRight, FaRocket, FaClipboardList, FaShoppingCart, FaCog, FaUtensils, FaUsers, FaCalendarAlt } from 'react-icons/fa'
+import { FaExternalLinkAlt, FaArrowRight, FaRocket, FaClipboardList, FaShoppingCart, FaCog, FaUtensils, FaUsers } from 'react-icons/fa'
 
 const steps = [
   { icon: FaUtensils, label: 'Explora el restaurante', desc: 'Navega el menú con 25 platos colombianos', path: '/' },

@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { getRestaurantConfig, saveRestaurantConfig, type RestaurantConfig } from '../lib/config'
 import { FaSave, FaStore, FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaGlobe, FaTruck, FaCalendarAlt, FaImage, FaUpload, FaTimes, FaPalette, FaUser, FaCreditCard, FaFileAlt, FaClock, FaDatabase, FaShieldAlt } from 'react-icons/fa'
-import AdminHorarios from './AdminHorarios'
-import AdminBackup from './AdminBackup'
+
 import AdminUsuarios from './AdminUsuarios'
 
 const defaultConfig: RestaurantConfig = getRestaurantConfig()
@@ -338,7 +337,7 @@ export default function AdminConfig() {
         {activeTab === 'horarios' && (
           <div className="space-y-4">
             <div className="pb-3 border-b border-[#F1F5F9]"><h3 className="text-sm font-semibold text-[#0F172A]">Horarios</h3><p className="text-xs text-[#64748B] mt-1">Ajusta apertura y cierre por día. Se guarda en horarios_config y sincroniza con Configuración.</p></div>
-            <AdminHorarios />
+            <div className="p-4 text-sm text-[#64748B] bg-[#F8FAFC] rounded-xl border border-[#E5E7EB]">Funcionalidad disponible en /admin-horarios</div>
           </div>
         )}
 
@@ -354,7 +353,7 @@ export default function AdminConfig() {
         {activeTab === 'backup' && (
           <div className="space-y-4">
             <div className="pb-3 border-b border-[#F1F5F9]"><h3 className="text-sm font-semibold text-[#0F172A]">Backup</h3><p className="text-xs text-[#64748B] mt-1">Respaldo y restauración. Se guarda en backup_history.</p></div>
-            <AdminBackup />
+            <div className="p-4 text-sm text-[#64748B] bg-[#F8FAFC] rounded-xl border border-[#E5E7EB]">Funcionalidad disponible en /admin-backup</div>
           </div>
         )}
 

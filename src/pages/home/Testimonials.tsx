@@ -27,7 +27,7 @@ export default function Testimonials() {
           </h2>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
-          {testimonials.map((t, i) => (
+          {testimonials.map((t: any, i: number) => (
             <div key={t.name} className={`card-base p-8 relative ${isVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{ transitionDelay: `${i * 120}ms` }}>
               <FaQuoteLeft className="text-olive-200 text-3xl mb-4" />
               <p className="text-espresso-700 leading-relaxed mb-6 text-sm">{t.text}</p>

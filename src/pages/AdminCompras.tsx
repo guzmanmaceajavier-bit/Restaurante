@@ -1,6 +1,6 @@
 ﻿import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
-import { FaShoppingCart, FaPlus, FaSearch, FaTrash, FaTruck, FaEdit } from 'react-icons/fa'
+import { FaShoppingCart, FaPlus, FaSearch, FaTrash, FaTruck } from 'react-icons/fa'
 import EmptyState from '../components/core/EmptyState'
 import ConfirmModal from '../components/core/ConfirmModal'
 import { SEO } from '../lib/seo'
@@ -12,7 +12,7 @@ const ITEMS_PER_PAGE = 10
 export default function AdminCompras() {
   const [tab, setTab] = useState<'compras'|'proveedores'>('compras')
   const [compras, setCompras] = useState<Compra[]>(() => { try { const s = JSON.parse(localStorage.getItem('compras')||'[]'); return s } catch { return [] } })
-  const [proveedores, setProveedores] = useState<any[]>(() => { try { const s=JSON.parse(localStorage.getItem('proveedores')||'[]'); return s } catch{ return [] } })
+  const [proveedores] = useState<any[]>(() => { try { const s=JSON.parse(localStorage.getItem('proveedores')||'[]'); return s } catch{ return [] } })
   const [busqueda, setBusqueda] = useState('')
   const [page, setPage] = useState(1)
   const [showForm, setShowForm] = useState(false)

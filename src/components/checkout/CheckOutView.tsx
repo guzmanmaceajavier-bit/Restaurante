@@ -7,7 +7,7 @@ import { ProductsList } from '../cart/ProductsList'
 import { CheckOutForm, type OrderData } from './CheckOutForm'
 import { Summary } from './Summary'
 import { storage } from '../../lib/storage'
-import { getRestaurantConfig } from '../../lib/config'
+import { getRestaurantConfig, CONFIG } from '../../lib/config'
 import { calcularPuntos, puntosParaSiguienteNivel, FIDELIDAD_CONFIG } from '../../lib/fidelidad'
 import { toast } from 'sonner'
 import { SEO } from '../../lib/seo'
@@ -39,7 +39,7 @@ export function CheckOutView() {
 
     let cliente = findCliente(data.phone)
     if (!cliente) {
-      cliente = addCliente({ nombre: data.fullName, email: '', telefono: data.phone })
+      cliente = addCliente({ nombre: data.fullName, email: '', telefono: data.phone, historialReservas: [], direcciones: [] })
     }
     setClienteActual(cliente)
     sumarPuntos(data.phone, total, orderId)
@@ -89,7 +89,7 @@ export function CheckOutView() {
     if (data.neighborhood) message += `📍 *Barrio:* ${data.neighborhood}%0A`
     if (data.address) message += `🏠 *Dirección:* ${data.address}%0A`
     if (data.scheduled && data.scheduledTime) message += `⏰ *Programado:* ${data.scheduledTime}%0A`
-    message += `💳 *Pago:* ${CONFIG.metodosPago.find(m => m.id === data.paymentMethod)?.nombre}%0A%0A`
+    message += `💳 *Pago:* ${CONFIG.metodosPago.find((m: string) => m === data.paymentMethod) || data.paymentMethod}%0A%0A`
     message += `🧾 *Productos:*%0A`
     cart.forEach((item) => { message += `- ${item.nombre} ×${item.quantity} = $${nf((item.precio ?? 0) * item.quantity)}%0A` })
     message += `%0A💰 *Subtotal:* $${nf(subtotal)}%0A`

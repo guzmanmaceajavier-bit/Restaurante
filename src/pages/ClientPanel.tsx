@@ -6,7 +6,7 @@ import { storage } from '../lib/storage'
 import { getRestaurantConfig } from '../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../lib/seo'
-import { FaShoppingBag, FaCalendarAlt, FaStar, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaUtensils, FaGift, FaHome, FaTrophy, FaCheckCircle, FaEdit, FaTrash, FaMapMarkerAlt, FaShieldAlt, FaHeadset, FaPlus } from 'react-icons/fa'
+import { FaShoppingBag, FaCalendarAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaGift, FaTrophy, FaCheckCircle, FaEdit, FaTrash, FaMapMarkerAlt, FaShieldAlt, FaHeadset, FaPlus } from 'react-icons/fa'
 import EmptyState from '../components/core/EmptyState'
 import ConfirmModal from '../components/core/ConfirmModal'
 import { useFavorites } from '../hooks/useFavorites'
@@ -141,12 +141,6 @@ export default function ClientPanel() {
     storage.setReservas((storage.getReservas() as any[]).map((x:any)=> x.id===editingReserva.id?{...x, fecha:editFecha, hora:editHora, personas:editPersonas, estado:'Pendiente'}:x))
     setEditingReserva(null); toast.success('Reserva modificada — pendiente de confirmación')
   }
-  const handleSaveDireccion = () => {
-    if(!dirAlias.trim() || !dirDireccion.trim()){ toast.error('Alias y dirección son obligatorios'); return}
-    if(editingDir){ updateDireccion(editingDir.id, { alias: dirAlias.trim(), direccion: dirDireccion.trim(), indicaciones: dirIndicaciones.trim() }); toast.success('Dirección actualizada')}
-    else { addDireccion({ alias: dirAlias.trim(), direccion: dirDireccion.trim(), indicaciones: dirIndicaciones.trim() }); toast.success('Dirección agregada')}
-    setShowDirForm(false); setEditingDir(null); setDirAlias(''); setDirDireccion(''); setDirIndicaciones('')
-  }
   const vincularPasados = () => {
     const allOrdenes = storage.getOrdenes<Order>()
     const allReservas = storage.getReservas() as any[]
@@ -240,7 +234,7 @@ export default function ClientPanel() {
                   <div className="flex justify-between gap-3">
                     <div>
                       <p className="font-mono text-[11px] tracking-wide uppercase text-[#94A3B8]">{o.id.slice(0,14)}</p>
-                      <p className="text-xs text-[#64748B]">{new Date(o.createdAt).toLocaleDateString('es-CO')} · {o.items?.length||0} items · {o.tipoEntrega||'domicilio'}</p>
+                      <p className="text-xs text-[#64748B]">{new Date(o.createdAt).toLocaleDateString('es-CO')} · {o.items?.length||0} items · {o.typeOrder||'domicilio'}</p>
                     </div>
                     <div className="text-right">
                       <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium border ${badge.bg} ${badge.text}`}>{o.estado}</span>
@@ -404,7 +398,6 @@ export default function ClientPanel() {
         <div className="space-y-4">
           {(() => {
             const pts=clienteActual.puntos||0
-            const niveles=[{name:'Bronce',min:0},{name:'Plata',min:200},{name:'Oro',min:500}]
             const next = pts<200? {name:'Plata', need:200-pts, progress: pts/200*100} : pts<500? {name:'Oro', need:500-pts, progress:(pts-200)/300*100} : null
             return (
           <div className="rounded-2xl p-6 text-center border border-[#FDE68A] bg-gradient-to-br from-[#FFFBEB] via-[#FEF3C7] to-[#FDE68A]">
