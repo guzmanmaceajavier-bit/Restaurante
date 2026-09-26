@@ -2,39 +2,26 @@ import { useState, useMemo, useEffect } from 'react'
 import { toast } from 'sonner'
 import { FaCashRegister, FaPlus, FaArrowUp, FaArrowDown, FaLock, FaUnlock } from 'react-icons/fa'
 import { SEO } from '../../lib/seo'
-import { storage } from '../../lib/storage'
-import type { Order } from '../../features/orders/types'
-
-interface Movimiento { id:string; tipo:'ingreso'|'egreso'; concepto:string; monto:number; metodo:string; fecha:string }
+import { cashService } from '../../features/cash/cash.service'
+import type { Gasto, Movimiento, NuevoMovimiento } from '../../features/cash/cash.service'
 
 export default function AdminCaja() {
   const [tab, setTab] = useState<'caja'|'gastos'>('caja')
-  const [movs, setMovs] = useState<Movimiento[]>(()=>{ try{ return JSON.parse(localStorage.getItem('caja_movs')||'[]')} catch{ return []}})
-  const [gastos, setGastos] = useState<any[]>(()=>{ try{ return JSON.parse(localStorage.getItem('gastos')||'[]')} catch{ return []}})
-  useEffect(()=>{ const id=setInterval(()=>{ try{ const g=JSON.parse(localStorage.getItem('gastos')||'[]'); setGastos(g)} catch{} }, 3000); return ()=> clearInterval(id)}, [])
-  const [abierta, setAbierta] = useState(()=> localStorage.getItem('caja_abierta')==='true')
-  const [apertura, setApertura] = useState(()=> Number(localStorage.getItem('caja_apertura')||0))
+  const [movs, setMovs] = useState<Movimiento[]>(() => cashService.getMovements())
+  const [gastos, setGastos] = useState<Gasto[]>(() => cashService.getGastos())
+  useEffect(()=>{ const id=setInterval(()=>{ setGastos(cashService.getGastos()) }, 3000); return ()=> clearInterval(id)}, [])
+  const [abierta, setAbierta] = useState(() => cashService.isOpen())
+  const [apertura, setApertura] = useState(() => cashService.getOpeningAmount())
   const [montoApertura, setMontoApertura] = useState('50000')
   const [showMov, setShowMov] = useState(false)
-  const [form, setForm] = useState<Omit<Movimiento,'id'>>({ tipo:'ingreso', concepto:'', monto:0, metodo:'Efectivo', fecha: new Date().toISOString().split('T')[0] })
-  const ordenes = useMemo(()=> storage.getOrdenes<Order>(), [movs, abierta, gastos])
-  const hoy = new Date().toISOString().split('T')[0]
-  const ventasHoy = ordenes.filter(o=> o.createdAt?.startsWith(hoy)).reduce((s,o)=> s+(o.total||0),0)
-  const ingresos = movs.filter(m=> m.tipo==='ingreso').reduce((s,m)=> s+m.monto,0) + ventasHoy
-  const egresosMovs = movs.filter(m=> m.tipo==='egreso').reduce((s,m)=> s+m.monto,0)
-  // Evitar doble conteo: gastos que ya tienen movimiento en caja no se cuentan de nuevo
-  const egresosManuales = egresosMovs
-  const gastosNoDuplicados = gastos.filter((g:any)=>{
-    return !movs.some(m=> m.tipo==='egreso' && m.concepto===g.descripcion && m.monto===g.monto)
-  }).reduce((s,g:any)=> s+(g.monto||0),0)
-  const egresos = egresosManuales + gastosNoDuplicados
-  const balance = apertura + ingresos - egresos
-  const saveMovs = (d:Movimiento[])=>{ setMovs(d); localStorage.setItem('caja_movs', JSON.stringify(d))}
-  const abrir = () => { const v=Number(montoApertura)||0; setAbierta(true); setApertura(v); localStorage.setItem('caja_abierta','true'); localStorage.setItem('caja_apertura', String(v)); toast.success(`Caja abierta con $${v.toLocaleString('es-CO')}`)}
-  const cerrar = () => { setAbierta(false); localStorage.setItem('caja_abierta','false'); toast.success(`Caja cerrada — Balance $${balance.toLocaleString('es-CO')}`)}
+  const [form, setForm] = useState<NuevoMovimiento>({ tipo:'ingreso', concepto:'', monto:0, metodo:'Efectivo', fecha: new Date().toISOString().split('T')[0] })
+  const { ventasHoy, ingresos, egresos, balance } = useMemo(() => cashService.getResumen(apertura), [movs, abierta, gastos, apertura])
+  const abrir = () => { const v=Number(montoApertura)||0; cashService.abrirCaja(v); setAbierta(true); setApertura(v); toast.success(`Caja abierta con $${v.toLocaleString('es-CO')}`)}
+  const cerrar = () => { cashService.cerrarCaja(); setAbierta(false); toast.success(`Caja cerrada — Balance $${balance.toLocaleString('es-CO')}`)}
   const agregar = () => {
-    if(!form.concepto.trim()||!form.monto) { toast.error('Concepto y monto requeridos'); return }
-    saveMovs([...movs, {id:'mov_'+Date.now(), ...form}])
+    const result = cashService.registrarMovimiento(form)
+    if (!result.ok) { toast.error(result.error); return }
+    setMovs(cashService.getMovements())
     toast.success('Movimiento registrado'); setShowMov(false)
   }
   return (

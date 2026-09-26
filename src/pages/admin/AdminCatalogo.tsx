@@ -8,15 +8,16 @@ import ConfirmModal from '../../components/feedback/ConfirmModal'
 import { ExportButton } from '../../components/admin/ExportButton'
 import { PageHeader } from '../../components/admin/PageHeader'
 import type { IProduct } from '../../features/products/types'
+import { productService } from '../../features/products/product.service'
+import { inventoryService } from '../../features/inventory/inventory.service'
+import { ITEMS_PER_PAGE } from '../../constants'
 import { SEO } from '../../lib/seo'
 
 type Tab = 'productos' | 'inventario' | 'categorias'
 
 export default function AdminCatalogo() {
   const [tab, setTab] = useState<Tab>('productos')
-  const [productos, setProductos] = useState<IProduct[]>(() => {
-    try { return JSON.parse(localStorage.getItem('productos') || '[]') } catch { return [] }
-  })
+  const [productos, setProductos] = useState<IProduct[]>(() => productService.getAll())
   const [busqueda, setBusqueda] = useState('')
   const [filtroCat, setFiltroCat] = useState('')
   const [page, setPage] = useState(1)
@@ -25,79 +26,57 @@ export default function AdminCatalogo() {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   // categorias
-  const [categorias, setCategorias] = useState<string[]>(() => {
-    try {
-      const s = localStorage.getItem('categorias')
-      if (s) return JSON.parse(s)
-      const fromProds = [...new Set(productos.map(p=> (p as any)['categoría']).filter(Boolean))] as string[]
-      localStorage.setItem('categorias', JSON.stringify(fromProds))
-      return fromProds
-    } catch { return [] }
-  })
+  const [categorias, setCategorias] = useState<string[]>(() => productService.getOrSeedCategories())
   const [catBusqueda, setCatBusqueda] = useState('')
   const [catForm, setCatForm] = useState('')
   const [catEditing, setCatEditing] = useState<string | null>(null)
   const [showCatForm, setShowCatForm] = useState(false)
   useEffect(()=>{ const h=window.location.hash.replace('#',''); if(h==='inventario'||h==='stock') setTab('inventario'); else if(h==='categorias') setTab('categorias'); else if(h==='productos') setTab('productos') },[])
 
-  const categoriasList = useMemo(() => [...new Set(productos.map(p=> (p as any)['categoría']).filter(Boolean))] as string[], [productos])
-  const filtrados = useMemo(() => productos.filter(p=>{
-    if(filtroCat && (p as any)['categoría']!==filtroCat) return false
-    if(busqueda){ const b=busqueda.toLowerCase(); return p.nombre?.toLowerCase().includes(b) || p.descripcion?.toLowerCase().includes(b)}
-    return true
-  }), [productos, filtroCat, busqueda])
-  const totalPages = Math.ceil(filtrados.length / 8)
-  const pagina = filtrados.slice((page-1)*8, page*8)
+  const categoriasList = useMemo(() => productService.extractCategories(productos), [productos])
+  const filtrados = useMemo(() => productService.filterProductos(productos, { busqueda, categoria: filtroCat }), [productos, filtroCat, busqueda])
+  const totalPages = Math.ceil(filtrados.length / ITEMS_PER_PAGE)
+  const pagina = useMemo(() => productService.paginate(filtrados, page, ITEMS_PER_PAGE), [filtrados, page])
 
   const saveProducto = (data: Omit<IProduct,'id'>) => {
     if(editing){
-      const u = productos.map(p=> p.id===editing.id ? {...data, id: editing.id} as IProduct : p)
-      setProductos(u); localStorage.setItem('productos', JSON.stringify(u)); toast.success('Producto actualizado')
+      setProductos(productService.updateProducto(editing.id, data)); toast.success('Producto actualizado')
     } else {
-      const np = {...data, id:`prod-${Date.now().toString(36)}`} as IProduct
-      const u = [...productos, np]
-      setProductos(u); localStorage.setItem('productos', JSON.stringify(u)); toast.success('Producto creado')
+      productService.createProducto(data)
+      setProductos(productService.getAll()); toast.success('Producto creado')
     }
     setShowForm(false); setEditing(null)
   }
   const eliminarProducto = (id:string) => {
-    const u = productos.filter(p=> p.id!==id)
-    setProductos(u); localStorage.setItem('productos', JSON.stringify(u)); toast.success('Producto eliminado'); setSelectedIds(s=>{ const n=new Set(s); n.delete(id); return n})
+    setProductos(productService.deleteProducto(id)); toast.success('Producto eliminado'); setSelectedIds(s=>{ const n=new Set(s); n.delete(id); return n})
   }
   const toggleSelect = (id:string) => setSelectedIds(s=>{ const n=new Set(s); if(n.has(id)) n.delete(id); else n.add(id); return n})
   const bulkDelete = () => {
-    const u = productos.filter(p=> !selectedIds.has(p.id))
-    setProductos(u); localStorage.setItem('productos', JSON.stringify(u)); toast.success(`${selectedIds.size} eliminados`); setSelectedIds(new Set())
+    setProductos(productService.deleteMany([...selectedIds])); toast.success(`${selectedIds.size} eliminados`); setSelectedIds(new Set())
   }
 
   // categorias helpers
   const saveCat = () => {
-    const v=catForm.trim(); if(!v) return toast.error('Nombre requerido')
-    if(catEditing){
-      if(v!==catEditing && categorias.includes(v)) return toast.error('Ya existe')
-      const u=categorias.map(c=> c===catEditing? v:c)
-      setCategorias(u); localStorage.setItem('categorias', JSON.stringify(u)); toast.success('Categoría actualizada')
-    } else {
-      if(categorias.includes(v)) return toast.error('Ya existe')
-      const u=[...categorias, v]; setCategorias(u); localStorage.setItem('categorias', JSON.stringify(u)); toast.success('Categoría creada')
-    }
+    const result = catEditing
+      ? productService.updateCategoria(catEditing, catForm, categorias)
+      : productService.createCategoria(catForm, categorias)
+    if(!result.ok) return toast.error(result.error)
+    setCategorias(result.categorias ?? categorias); toast.success(catEditing ? 'Categoría actualizada' : 'Categoría creada')
     setShowCatForm(false); setCatEditing(null); setCatForm('')
   }
   const deleteCat = (cat:string) => {
-    const count=productos.filter(p=> (p as any)['categoría']===cat).length
-    if(count>0) return toast.error(`No se puede: ${count} productos usan esta categoría`)
-    const u=categorias.filter(c=> c!==cat); setCategorias(u); localStorage.setItem('categorias', JSON.stringify(u)); toast.success('Categoría eliminada')
+    const result = productService.deleteCategoria(cat)
+    if(!result.ok) return toast.error(result.error)
+    setCategorias(result.categorias ?? categorias); toast.success('Categoría eliminada')
   }
 
-  const catFiltradas = useMemo(()=> !catBusqueda ? categorias : categorias.filter(c=> c.toLowerCase().includes(catBusqueda.toLowerCase())), [categorias, catBusqueda])
+  const catFiltradas = useMemo(()=> productService.filterCategorias(categorias, catBusqueda), [categorias, catBusqueda])
 
-  // Stock inline editing — single source of truth ('productos' key)
+  // Stock inline editing — single source of truth (inventory.service)
   const [editingStockId, setEditingStockId] = useState<string | null>(null)
   const [editStockValue, setEditStockValue] = useState('')
   const saveStock = (id: string, n: number) => {
-    const v = Math.max(0, Math.floor(n))
-    const u = productos.map(p=> p.id===id ? {...p, stock: v} as IProduct : p)
-    setProductos(u); localStorage.setItem('productos', JSON.stringify(u)); toast.success('Stock actualizado')
+    setProductos(inventoryService.updateStock(id, n)); toast.success('Stock actualizado')
   }
 
   return (
@@ -153,7 +132,7 @@ export default function AdminCatalogo() {
               <thead className="bg-[#F8FAFC] border-b border-[#E5E7EB]"><tr><th className="px-3 py-2 text-left text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">Producto</th><th className="px-3 py-2 text-left text-[11px] font-semibold tracking-widest uppercase text-[#64748B] hidden sm:table-cell">Categoría</th><th className="px-3 py-2 text-center text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">Stock</th><th className="px-3 py-2 text-center text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">Estado</th></tr></thead>
               <tbody>
                 {filtrados.slice(0,20).map(p=> {
-                  const s=p.stock||0; const st = s<=0? 'Agotado': s<=5? 'Bajo':'OK'; const cls = s<=0? 'bg-[#FEF2F2] text-[#991B1B] border-[#FECACA]': s<=5? 'bg-[#FFFBEB] text-[#92400E] border-[#FDE68A]':'bg-[#ECFDF5] text-[#065F46] border-[#A7F3D0]'
+                  const s=p.stock||0; const st = inventoryService.getStockStatus(s); const cls = s<=0? 'bg-[#FEF2F2] text-[#991B1B] border-[#FECACA]': s<=5? 'bg-[#FFFBEB] text-[#92400E] border-[#FDE68A]':'bg-[#ECFDF5] text-[#065F46] border-[#A7F3D0]'
                   const isEd = editingStockId===p.id
                   return <tr key={p.id} className="border-t border-[#F1F5F9] hover:bg-[#F8FAFC]"><td className="px-3 py-2.5 text-[13px] text-[#0F172A] flex items-center gap-2"><img src={p.imagen} alt="" className="w-7 h-7 rounded-md object-cover border border-[#E5E7EB]"/>{p.nombre}</td><td className="px-3 py-2.5 text-xs text-[#64748B] hidden sm:table-cell">{(p as any)['categoría']||'—'}</td><td className="px-3 py-2.5 text-center">
                     {isEd ? <input autoFocus type="number" min={0} value={editStockValue} onChange={e=> setEditStockValue(e.target.value)} onBlur={()=>{ const n=parseInt(editStockValue,10); if(!isNaN(n)) saveStock(p.id, n); setEditingStockId(null)}} onKeyDown={e=>{ if(e.key==='Enter'){ const n=parseInt(editStockValue,10); if(!isNaN(n)) saveStock(p.id, n); setEditingStockId(null)} else if(e.key==='Escape') setEditingStockId(null)}} className="w-20 text-center text-sm font-bold border border-[#0F172A] rounded-md px-2 py-1 focus:outline-none" />
@@ -174,7 +153,7 @@ export default function AdminCatalogo() {
             <table className="w-full"><thead className="bg-[#F8FAFC] border-b border-[#E5E7EB]"><tr><th className="px-3 py-2 text-left text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">Categoría</th><th className="px-3 py-2 text-center text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">Productos</th><th className="px-3 py-2 text-right text-[11px] font-semibold tracking-widest uppercase text-[#64748B]">Acciones</th></tr></thead>
               <tbody>
                 {catFiltradas.map(cat=> {
-                  const count=productos.filter(p=> (p as any)['categoría']===cat).length
+                  const count=productService.countByCategoria(productos, cat)
                   return <tr key={cat} className="border-t border-[#F1F5F9] hover:bg-[#F8FAFC]"><td className="px-3 py-2.5 text-[13px] text-[#0F172A] flex items-center gap-2"><span className="w-7 h-7 rounded-md bg-[#F8FAFC] border border-[#E5E7EB] flex items-center justify-center"><FaFolder size={12} className="text-[#94A3B8]"/></span>{cat}</td><td className="px-3 py-2.5 text-center text-xs font-medium">{count}</td><td className="px-3 py-2.5 text-right"><div className="inline-flex gap-1"><button onClick={()=>{setCatEditing(cat); setCatForm(cat); setShowCatForm(true)}} className="w-7 h-7 rounded-md border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F8FAFC]"><FaEdit size={11}/></button><button onClick={()=> {if(confirm(`Eliminar "${cat}"?`)) deleteCat(cat)}} className="w-7 h-7 rounded-md border border-[#E5E7EB] flex items-center justify-center hover:bg-[#FEF2F2]"><FaTrash size={11} className="text-[#DC2626]"/></button></div></td></tr>
                 })}
                 {catFiltradas.length===0 && <tr><td colSpan={3} className="px-3 py-8 text-center text-sm text-[#94A3B8]">Sin categorías</td></tr>}

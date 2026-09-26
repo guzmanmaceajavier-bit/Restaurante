@@ -1,12 +1,27 @@
 import type { IProduct } from '../products/types';
 import { productStorage } from '../../services/storage/productStorage';
 
-/** Fachada de inventario/stock. Hoy lee localStorage; mañana: /api/inventory. */
+export type EstadoStock = 'Agotado' | 'Bajo' | 'OK';
+
+export const UMBRAL_STOCK_BAJO = 5;
+
+/**
+ * Dominio de inventario/stock. Fuente única: productos::stock.
+ * Hoy persiste en localStorage vía adapters; mañana: /api/inventory.
+ */
 export const inventoryService = {
-  getLowStock: (threshold = 5): IProduct[] =>
+  getLowStock: (threshold = UMBRAL_STOCK_BAJO): IProduct[] =>
     productStorage.getAll().filter((p) => (p.stock ?? 0) <= threshold),
+
+  getStockStatus: (stock: number): EstadoStock => {
+    if (stock <= 0) return 'Agotado';
+    if (stock <= UMBRAL_STOCK_BAJO) return 'Bajo';
+    return 'OK';
+  },
+
   updateStock: (productId: string, stock: number): IProduct[] => {
-    const updated = productStorage.getAll().map((p) => (p.id === productId ? { ...p, stock } : p));
+    const value = Math.max(0, Math.floor(stock));
+    const updated = productStorage.getAll().map((p) => (p.id === productId ? { ...p, stock: value } : p));
     productStorage.saveAll(updated);
     return updated;
   },
