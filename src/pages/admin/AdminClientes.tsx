@@ -6,26 +6,10 @@ import ConfirmModal from '../../components/feedback/ConfirmModal'
 import { ExportButton } from '../../components/admin/ExportButton'
 import { Pagination } from '../../components/admin/Pagination'
 import { SEO } from '../../lib/seo'
-import { storage } from '../../lib/storage'
+import { customerService } from '../../features/customers/customer.service'
+import type { ClienteAdmin as ClientData, ClienteForm } from '../../features/customers/customer.service'
 
 const ITEMS_PER_PAGE = 10
-
-interface ClientData {
-  id: string
-  nombre: string
-  email: string
-  telefono: string
-  password?: string
-  puntos: number
-  nivel: 'bronce' | 'plata' | 'oro'
-  activo: boolean
-  historialPedidos: string[]
-  historialReservas: string[]
-  createdAt: string
-  totalOrders?: number
-  totalSpent?: number
-  lastOrder?: string
-}
 
 export default function AdminClientes() {
   const [clientes, setClientes] = useState<ClientData[]>([])
@@ -48,74 +32,10 @@ export default function AdminClientes() {
   })
 
   useEffect(() => {
-    const stored: ClientData[] = JSON.parse(localStorage.getItem('clientes') || '[]')
-    // Unificar con auth-client-storage (portal cliente) — fuente única portal
-    try{
-      const authRaw = localStorage.getItem('auth-client-storage')
-      if(authRaw){
-        const auth = JSON.parse(authRaw)
-        const authClientes: ClientData[] = (auth?.state?.clientes || auth?.clientes || []) as any[]
-        const byTel = new Map(stored.map(c=> [c.telefono, c]))
-        const byEmail = new Map(stored.map(c=> [c.email, c]))
-        authClientes.forEach(ac=>{
-          const exists = byTel.get(ac.telefono) || byEmail.get(ac.email)
-          if(!exists){
-            stored.push({ ...ac, activo: (ac as any).activo ?? true, historialPedidos: (ac as any).historialPedidos || [], historialReservas: (ac as any).historialReservas || [] } as any)
-          } else {
-            // sincronizar puntos/nivel/historial desde portal
-            exists.puntos = (ac as any).puntos ?? exists.puntos
-            exists.nivel = (ac as any).nivel ?? exists.nivel
-            if((ac as any).historialPedidos) exists.historialPedidos = (ac as any).historialPedidos
-            if((ac as any).historialReservas) exists.historialReservas = (ac as any).historialReservas
-          }
-        })
-      }
-    } catch{}
-    const ordenes: any[] = storage.getOrdenes<any>()
-    const enriched = stored.map((c) => {
-      const clientOrders = ordenes.filter(
-        (o) => o.phone === c.telefono || o.email === c.email
-      )
-      return {
-        ...c,
-        totalOrders: clientOrders.length,
-        totalSpent: clientOrders.reduce(
-          (sum, o) => sum + (o.total || 0),
-          0
-        ),
-        lastOrder:
-          clientOrders.length > 0
-            ? clientOrders.sort(
-                (a, b) =>
-                  new Date(b.createdAt || 0).getTime() -
-                  new Date(a.createdAt || 0).getTime()
-              )[0].createdAt
-            : undefined,
-        historialPedidos: clientOrders.map((o) => o.id || ''),
-        historialReservas: [],
-      }
-    })
-    setClientes(enriched)
+    setClientes(customerService.getVistaAdmin())
   }, [])
 
-  const filtrados = useMemo(() => {
-    let result = clientes
-    if (filtroStatus === 'activos') {
-      result = result.filter((c) => c.activo)
-    } else if (filtroStatus === 'inactivos') {
-      result = result.filter((c) => !c.activo)
-    }
-    if (busqueda) {
-      const b = busqueda.toLowerCase()
-      result = result.filter(
-        (c) =>
-          c.nombre?.toLowerCase().includes(b) ||
-          c.email?.toLowerCase().includes(b) ||
-          c.telefono?.includes(b)
-      )
-    }
-    return result
-  }, [clientes, busqueda, filtroStatus])
+  const filtrados = useMemo(() => customerService.filterClientes(clientes, { busqueda, estado: filtroStatus }), [clientes, busqueda, filtroStatus])
 
   const totalPages = Math.ceil(filtrados.length / ITEMS_PER_PAGE)
   const pagina = filtrados.slice(
@@ -175,24 +95,9 @@ export default function AdminClientes() {
   }
 
   const validateForm = (): boolean => {
-    if (!form.nombre.trim()) {
-      toast.error('El nombre es requerido')
-      return false
-    }
-    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) {
-      toast.error('Email inválido')
-      return false
-    }
-    if (!form.telefono.trim()) {
-      toast.error('El teléfono es requerido')
-      return false
-    }
-    if (!editing && (!form.password || form.password.length < 6)) {
-      toast.error('La contraseña debe tener al menos 6 caracteres')
-      return false
-    }
-    if (editing && form.password && form.password.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres')
+    const error = customerService.validarCliente(form as ClienteForm, !!editing)
+    if (error) {
+      toast.error(error)
       return false
     }
     return true
@@ -201,66 +106,19 @@ export default function AdminClientes() {
   const save = () => {
     if (!validateForm()) return
 
-    if (editing) {
-      const updated = clientes.map((c) =>
-        c.id === editing.id
-          ? {
-              ...c,
-              nombre: form.nombre.trim(),
-              email: form.email.trim(),
-              telefono: form.telefono.trim(),
-              ...(form.password ? { password: form.password } : {}),
-              puntos: form.puntos,
-              nivel: form.nivel,
-              activo: form.activo,
-            }
-          : c
-      )
-      setClientes(updated)
-      localStorage.setItem('clientes', JSON.stringify(updated))
-      try{
-        const raw=localStorage.getItem('auth-client-storage'); if(raw){ const j=JSON.parse(raw); const state=j.state||j; if(state.clientes){ state.clientes = state.clientes.map((c:any)=> c.telefono===form.telefono || c.email===form.email ? {...c, nombre:form.nombre.trim(), email:form.email.trim(), telefono:form.telefono.trim(), puntos:form.puntos, nivel:form.nivel} : c); localStorage.setItem('auth-client-storage', JSON.stringify(j.state? {...j, state}: j))}}
-      } catch{}
-      toast.success('Cliente actualizado')
-    } else {
-      const newClient: ClientData = {
-        id: 'cli_' + Date.now(),
-        nombre: form.nombre.trim(),
-        email: form.email.trim(),
-        telefono: form.telefono.trim(),
-        password: form.password,
-        puntos: form.puntos,
-        nivel: form.nivel,
-        activo: form.activo,
-        historialPedidos: [],
-        historialReservas: [],
-        createdAt: new Date().toISOString(),
-      }
-      const updated = [...clientes, newClient]
-      setClientes(updated)
-      localStorage.setItem('clientes', JSON.stringify(updated))
-      try{
-        const raw=localStorage.getItem('auth-client-storage'); if(raw){ const j=JSON.parse(raw); const state=j.state||j; if(state.clientes){ if(!state.clientes.some((c:any)=> c.telefono===newClient.telefono || c.email===newClient.email)){ state.clientes.push({...newClient, password: newClient.password || '123456'}); localStorage.setItem('auth-client-storage', JSON.stringify(j.state? {...j, state}: j)) } } }
-      } catch{}
-      toast.success('Cliente creado')
-    }
+    setClientes(customerService.guardarCliente(form as ClienteForm, editing, clientes))
+    toast.success(editing ? 'Cliente actualizado' : 'Cliente creado')
     resetForm()
   }
 
   const eliminar = (client: ClientData) => {
-    const updated = clientes.filter((c) => c.id !== client.id)
-    setClientes(updated)
-    localStorage.setItem('clientes', JSON.stringify(updated))
+    setClientes(customerService.eliminarCliente(client.id, clientes))
     toast.success('Cliente eliminado')
     setConfirmDelete(null)
   }
 
   const toggleActivo = (client: ClientData) => {
-    const updated = clientes.map((c) =>
-      c.id === client.id ? { ...c, activo: !c.activo } : c
-    )
-    setClientes(updated)
-    localStorage.setItem('clientes', JSON.stringify(updated))
+    setClientes(customerService.toggleActivo(client.id, clientes))
     toast.success(`Cliente ${client.activo ? 'desactivado' : 'activado'}`)
   }
 

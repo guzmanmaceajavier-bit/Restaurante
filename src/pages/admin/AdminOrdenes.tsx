@@ -54,7 +54,7 @@ export default function AdminOrdenes() {
   const pagina=ordenesFiltradas.slice((page-1)*ITEMS_PER_PAGE, page*ITEMS_PER_PAGE)
   const hasActiveFilters = !!(filtroEstado||filtroMetodo||filtroTipo||filtroFecha||busqueda)
   const cambiarEstado=(id:string, s:string)=>{
-    const result = orderService.cambiarEstado(id, s)
+    const result = orderService.cambiarEstado(id, s, ordenes)
     if(!result.ok || !result.entry){ toast.error(result.error ?? 'No se pudo actualizar'); return }
     setOrdenes(result.ordenes)
     if(selected?.id===id) setSelected(prevSel=> prevSel ? ({...prevSel, estado:s, historial: [...buildHistory(prevSel), result.entry!]} as any) : null)

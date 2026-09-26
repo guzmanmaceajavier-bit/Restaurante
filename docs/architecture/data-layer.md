@@ -63,10 +63,15 @@ Todas viven en `services/storage/storageKeys.ts` (los valores no deben cambiar).
   (nuevo dominio finanzas: filtros por rango, stats, ventas 7 días,
   métodos de pago, top productos, pedidos por estado).
 
-## Pendiente (acceso directo en componentes, migrar a features/*.service)
+## Pendiente (Grupo 7 sin migrar)
 
-`Reserve`, `ClientPanel`, `CheckOutView`, `AdminWhatsApp`, `AdminUsuarios`,
-`AdminReservas`, `AdminProveedores`, `AdminPromociones`, `AdminOrdenes`,
-`AdminMesas`, `AdminFinanzas`, `AdminFidelizacion`, `AdminDashboard`,
-`AdminConfig`, `AdminCompras`, `AdminClientes`,
-`Contact`, `Testimonials`, `FAQ`, `useFavorites`, `AdminLayout` (`admin_collapsed`).
+Ninguno pendiente de este documento: ver reporte del commit del Grupo 7.
+
+## Regla de normalización (mutadores reciben `actuales`)
+
+Los métodos que mutan listas reciben la lista actual del caller y la
+persisten (`product/order/reservation/cash/tables/purchase/supplier`).
+Excepciones justificadas (leen storage porque el caller solo tiene una
+vista filtrada y persistirla borraría datos ajenos):
+`order.cancelarPedido`, `reservation.cancelarReservaCliente`,
+`reservation.actualizarReservaCliente`, `customer.linkReserva`.

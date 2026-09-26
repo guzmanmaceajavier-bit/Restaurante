@@ -5,36 +5,32 @@ import EmptyState from '../../components/feedback/EmptyState'
 import ConfirmModal from '../../components/feedback/ConfirmModal'
 import { SEO } from '../../lib/seo'
 import { Pagination } from '../../components/admin/Pagination'
+import { usersService } from '../../features/auth/users.service'
+import type { RolUsuario as Rol, Usuario } from '../../features/auth/users.service'
 
-type Rol = 'Administrador'|'Gerente'|'Cajero'|'Cocina'|'Mesero'|'Marketing'
 const ROLES: Rol[] = ['Administrador','Gerente','Cajero','Cocina','Mesero','Marketing']
 const PERMS = ['Ver','Crear','Editar','Eliminar'] as const
-interface Usuario { id:string; nombre:string; email:string; rol:Rol; permisos: string[]; activo:boolean }
-
-const initial: Usuario[] = [
-  { id:'u1', nombre:'Javier (Admin)', email:'admin@sabor.com', rol:'Administrador', permisos:[...PERMS], activo:true },
-  { id:'u2', nombre:'Ana Cajera', email:'ana@sabor.com', rol:'Cajero', permisos:['Ver','Crear'], activo:true },
-]
+const ITEMS_PER_PAGE = 10
 
 export default function AdminUsuarios() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>(()=>{ try{ const s=JSON.parse(localStorage.getItem('usuarios_roles')||'[]'); return s.length? s: initial } catch{ return initial}})
+  const [usuarios, setUsuarios] = useState<Usuario[]>(()=> usersService.getOrSeed())
   const [busqueda,setBusqueda]=useState('')
   const [page,setPage]=useState(1)
   const [showForm,setShowForm]=useState(false)
   const [editing,setEditing]=useState<Usuario|null>(null)
   const [form,setForm]=useState<Omit<Usuario,'id'>>({ nombre:'', email:'', rol:'Cajero', permisos:['Ver'], activo:true })
   const [confirmDelete,setConfirmDelete]=useState<string|null>(null)
-  const save=(d:Usuario[])=>{ setUsuarios(d); localStorage.setItem('usuarios_roles', JSON.stringify(d)); try{ const log=JSON.parse(localStorage.getItem('activity_log')||'[]'); log.unshift({id:'act_'+Date.now(), accion: 'Usuarios', detalle: 'Actualización de usuarios y roles', fecha: new Date().toISOString(), usuario: 'Admin'}); localStorage.setItem('activity_log', JSON.stringify(log.slice(0,100)))} catch{} }
-  const filtrados=useMemo(()=> usuarios.filter(u=> !busqueda || u.nombre.toLowerCase().includes(busqueda.toLowerCase()) || u.email.toLowerCase().includes(busqueda.toLowerCase())), [usuarios, busqueda])
-  const totalPages=Math.ceil(filtrados.length/10)
-  const pagina=filtrados.slice((page-1)*10, page*10)
+  const save=(d:Usuario[])=>{ setUsuarios(d); usersService.saveAll(d) }
+  const filtrados=useMemo(()=> usersService.filterUsuarios(usuarios, busqueda), [usuarios, busqueda])
+  const totalPages=Math.ceil(filtrados.length/ITEMS_PER_PAGE)
+  const pagina=filtrados.slice((page-1)*ITEMS_PER_PAGE, page*ITEMS_PER_PAGE)
   const openCreate=()=>{ setEditing(null); setForm({ nombre:'', email:'', rol:'Cajero', permisos:['Ver'], activo:true}); setShowForm(true)}
   const openEdit=(u:Usuario)=>{ setEditing(u); setForm({ nombre:u.nombre, email:u.email, rol:u.rol, permisos:[...u.permisos], activo:u.activo}); setShowForm(true)}
   const togglePerm=(p:string)=> setForm(f=> ({...f, permisos: f.permisos.includes(p) ? f.permisos.filter(x=>x!==p) : [...f.permisos, p]}))
   const submit=()=>{
-    if(!form.nombre.trim()||!form.email.trim()){ toast.error('Nombre y email requeridos'); return }
-    if(editing) save(usuarios.map(u=> u.id===editing.id ? {...u, ...form} : u))
-    else save([...usuarios, {id:'usr_'+Date.now(), ...form}])
+    const result = usersService.guardarUsuario({ id: editing?.id, ...form }, usuarios)
+    if(!result.ok){ toast.error(result.error); return }
+    save(result.usuarios)
     toast.success(editing?'Usuario actualizado':'Usuario creado'); setShowForm(false)
   }
   return (

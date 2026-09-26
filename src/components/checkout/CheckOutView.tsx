@@ -6,7 +6,7 @@ import { useAuthStore } from '../../store/useAuthStore'
 import { ProductsList } from '../cart/ProductsList'
 import { CheckOutForm, type OrderData } from './CheckOutForm'
 import { Summary } from './Summary'
-import { storage } from '../../lib/storage'
+import { orderService } from '../../features/orders/order.service'
 import { getRestaurantConfig, CONFIG } from '../../lib/config'
 import { calcularPuntos, puntosParaSiguienteNivel, FIDELIDAD_CONFIG } from '../../features/loyalty/fidelidad'
 import { toast } from 'sonner'
@@ -65,20 +65,8 @@ export function CheckOutView() {
       estado: 'recibido', createdAt: new Date().toISOString(),
     }
 
-    const ordenes = storage.getOrdenes()
-    ordenes.push(newOrder)
-    storage.setOrdenes(ordenes)
-
-    // Descontar stock real — ERP: pedido descuenta inventario
-    try {
-      const productos = JSON.parse(localStorage.getItem('productos') || '[]')
-      let changed=false
-      cart.forEach((item:any)=>{
-        const idx=productos.findIndex((p:any)=> p.nombre===item.nombre || p.id===item.id)
-        if(idx!==-1){ productos[idx].stock = Math.max(0, (productos[idx].stock||0) - item.quantity); changed=true }
-      })
-      if(changed) localStorage.setItem('productos', JSON.stringify(productos))
-    } catch {}
+    // Persistir pedido y descontar stock real — ERP: pedido descuenta inventario
+    orderService.crearPedido(newOrder)
 
     let message = `🍽️ *Nuevo pedido* #${orderId}%0A%0A`
     message += `👤 *Cliente:* ${data.fullName}%0A`

@@ -1,7 +1,11 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaSearch, FaBox, FaUsers, FaCalendarAlt, FaUtensils, FaFileInvoiceDollar, FaTruck } from 'react-icons/fa'
-import { storage } from '../../lib/storage'
+import { orderService } from '../../features/orders/order.service'
+import { reservationService } from '../../features/reservations/reservation.service'
+import { productService } from '../../features/products/product.service'
+import { customerService } from '../../features/customers/customer.service'
+import { purchaseService } from '../../features/inventory/purchase.service'
 
 type Hit = { label: string; sublabel: string; icon: any; to: string; group: string }
 
@@ -17,13 +21,13 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
       arr.forEach((x:any)=> { const label=getLabel(x); const sub=getSub(x); if(label.toLowerCase().includes(v) || sub.toLowerCase().includes(v)) all.push({label, sublabel:sub, icon, to: to(x), group})})
     }
     try {
-      const prods = JSON.parse(localStorage.getItem('productos')||'[]')
+      const prods = productService.getAll()
       push(prods.slice(0,50), 'Productos', FaUtensils, (_p:any)=> '/admin-productos', (p:any)=> p.nombre, (p:any)=> p.categoría||'')
-      const ordenes = storage.getOrdenes<any>(); push(ordenes.slice(0,50),'Pedidos',FaBox, (_o:any)=> '/admin-ordenes', (o:any)=> o.id||'', (o:any)=> o.fullName||o.phone||'')
-      const reservas = storage.getReservas<any>(); push(reservas.slice(0,50),'Reservas',FaCalendarAlt,(_r:any)=> '/admin-reservas',(r:any)=> r.nombre, (r:any)=> `${r.fecha} ${r.hora}`)
-      const clientes = JSON.parse(localStorage.getItem('clientes')||'[]'); push(clientes.slice(0,50),'Clientes',FaUsers,(_c:any)=> '/admin-clientes',(c:any)=> c.nombre,(c:any)=> c.telefono||c.email||'')
-      const provs = JSON.parse(localStorage.getItem('proveedores')||'[]'); push(provs.slice(0,30),'Proveedores',FaTruck,(_p:any)=> '/admin-proveedores',(p:any)=> p.nombre,(p:any)=> p.categoria||'')
-      const compras = JSON.parse(localStorage.getItem('compras')||'[]'); push(compras.slice(0,30),'Compras',FaFileInvoiceDollar,(_c:any)=> '/admin-compras',(c:any)=> c.proveedor,(c:any)=> c.productos||'')
+      const ordenes = orderService.getAll(); push(ordenes.slice(0,50),'Pedidos',FaBox, (_o:any)=> '/admin-ordenes', (o:any)=> o.id||'', (o:any)=> o.fullName||o.phone||'')
+      const reservas = reservationService.getAll(); push(reservas.slice(0,50),'Reservas',FaCalendarAlt,(_r:any)=> '/admin-reservas',(r:any)=> r.nombre, (r:any)=> `${r.fecha} ${r.hora}`)
+      const clientes = customerService.getAll(); push(clientes.slice(0,50),'Clientes',FaUsers,(_c:any)=> '/admin-clientes',(c:any)=> c.nombre,(c:any)=> c.telefono||c.email||'')
+      const provs = purchaseService.getSuppliers(); push(provs.slice(0,30),'Proveedores',FaTruck,(_p:any)=> '/admin-proveedores',(p:any)=> p.nombre,(p:any)=> p.categoria||'')
+      const compras = purchaseService.getPurchases(); push(compras.slice(0,30),'Compras',FaFileInvoiceDollar,(_c:any)=> '/admin-compras',(c:any)=> c.proveedor,(c:any)=> c.productos||'')
     } catch {}
     return all.slice(0, 20)
   }, [q])

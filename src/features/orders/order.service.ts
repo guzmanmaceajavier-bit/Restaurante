@@ -49,8 +49,8 @@ export const orderService = {
    * Avance rápido de cocina: solo cambia el estado (sin historial ni
    * auditoría, igual que el flujo KDS original).
    */
-  avanzarPedido: (id: string, next: string): { ok: boolean; ordenes: Order[] } => {
-    const ordenes = orderStorage.getAll<Order>();
+  avanzarPedido: (id: string, next: string, actuales: Order[]): { ok: boolean; ordenes: Order[] } => {
+    const ordenes = actuales;
     if (!ordenes.some((o) => o.id === id)) return { ok: false, ordenes };
     const updated = ordenes.map((x) => (x.id === id ? { ...x, estado: next } : x));
     orderStorage.saveAll(updated);
@@ -96,8 +96,8 @@ export const orderService = {
    * Cambia el estado de un pedido: actualiza historial, compensa stock
    * (cancelar devuelve, reactivar descuenta) y registra auditoría.
    */
-  cambiarEstado: (id: string, nuevoEstado: string): ResultadoCambioEstado => {
-    const ordenes = orderStorage.getAll<Order>();
+  cambiarEstado: (id: string, nuevoEstado: string, actuales: Order[]): ResultadoCambioEstado => {
+    const ordenes = actuales;
     const prev = ordenes.find((o) => o.id === id);
     if (!prev) return { ok: false, error: 'Pedido no encontrado', ordenes };
     const nowIso = new Date().toISOString();
@@ -142,6 +142,8 @@ export const orderService = {
   /**
    * Cancelación desde el portal del cliente: marca cancelado directamente
    * (sin compensar stock ni auditar, igual que el flujo original).
+   * Lee storage porque el portal solo tiene una vista filtrada; persistir
+   * esa vista borraría pedidos ajenos.
    */
   cancelarPedido: (id: string): Order[] => {
     const updated = orderStorage
@@ -149,6 +151,26 @@ export const orderService = {
       .map((x) => (x.id === id ? { ...x, estado: 'cancelado' } : x));
     orderStorage.saveAll(updated);
     return updated;
+  },
+
+  /**
+   * Registro desde el checkout: persiste el pedido y descuenta stock
+   * (igual que el flujo original del checkout; no agrega `historial`
+   * para no alterar la reconstrucción del timeline).
+   */
+  crearPedido: (nuevo: unknown): void => {
+    orderStorage.saveAll([...orderStorage.getAll<unknown>(), nuevo]);
+    const items = (nuevo as { items?: { nombre?: string; id?: string; quantity: number }[] }).items ?? [];
+    const productos = productStorage.getAll();
+    let changed = false;
+    items.forEach((item) => {
+      const idx = productos.findIndex((p) => p.nombre === item.nombre || p.id === item.id);
+      if (idx !== -1) {
+        productos[idx].stock = Math.max(0, (productos[idx].stock || 0) - item.quantity);
+        changed = true;
+      }
+    });
+    if (changed) productStorage.saveAll(productos);
   },
 
   /** Búsqueda por código exacto insensible a mayúsculas (portal público). */

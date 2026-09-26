@@ -6,18 +6,10 @@ import EmptyState from '../../components/feedback/EmptyState'
 import ConfirmModal from '../../components/feedback/ConfirmModal'
 import { ExportButton } from '../../components/admin/ExportButton'
 import { Pagination } from '../../components/admin/Pagination'
+import { activityService } from '../../features/activity/activity.service'
+import type { RegistroActividad as ActivityEntry } from '../../features/activity/activity.service'
 
 const ITEMS_PER_PAGE = 15
-
-interface ActivityEntry {
-  id: string
-  action: string
-  entity: string
-  entityId?: string
-  details?: string
-  timestamp: string
-  admin?: string
-}
 
 const entityIcons: Record<string, { icon: typeof FaShoppingBag; color: string; bg: string }> = {
   pedido: { icon: FaShoppingBag, color: 'text-blue-600', bg: 'bg-blue-100' },
@@ -53,33 +45,20 @@ const entityFilters = [
 ]
 
 export default function AdminActividad() {
-  const [activities, setActivities] = useState<ActivityEntry[]>(() => {
-    return JSON.parse(localStorage.getItem('activity_log') || '[]')
-  })
+  const [activities, setActivities] = useState<ActivityEntry[]>(() => activityService.getAll())
   const [busqueda, setBusqueda] = useState('')
   const [filtroEntity, setFiltroEntity] = useState('')
   const [page, setPage] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
   const [confirmClear, setConfirmClear] = useState(false)
 
-  const filtradas = useMemo(() => {
-    return activities
-      .filter((a) => {
-        if (filtroEntity && a.entity !== filtroEntity) return false
-        if (busqueda) {
-          const b = busqueda.toLowerCase()
-          return a.action?.toLowerCase().includes(b) || a.details?.toLowerCase().includes(b)
-        }
-        return true
-      })
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-  }, [activities, filtroEntity, busqueda])
+  const filtradas = useMemo(() => activityService.filterActividades(activities, { busqueda, entidad: filtroEntity }), [activities, filtroEntity, busqueda])
 
   const totalPages = Math.ceil(filtradas.length / ITEMS_PER_PAGE)
   const pagina = filtradas.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
 
   const limpiarRegistro = () => {
-    localStorage.setItem('activity_log', '[]')
+    activityService.clear()
     setActivities([])
     toast.success('Registro limpiado')
   }
@@ -139,7 +118,7 @@ export default function AdminActividad() {
             <div className="absolute left-[11px] top-0 bottom-0 w-0.5 bg-cream-200" />
             <div className="space-y-3">
               {pagina.map((entry) => {
-                const entityConfig = entityIcons[entry.entity] || { icon: FaBox, color: 'text-steel', bg: 'bg-cream-100' }
+                const entityConfig = entityIcons[entry.entity ?? ''] || { icon: FaBox, color: 'text-steel', bg: 'bg-cream-100' }
                 const Icon = entityConfig.icon
                 return (
                   <div key={entry.id} className="relative bg-white rounded-2xl border border-cream-200 p-4 hover:shadow-lift transition-all">
@@ -154,7 +133,7 @@ export default function AdminActividad() {
                             <p className="text-sm font-semibold text-espresso-800 truncate">{entry.action}</p>
                             {entry.details && <p className="text-xs text-steel mt-0.5 truncate">{entry.details}</p>}
                           </div>
-                          <span className="text-[10px] text-steel shrink-0 whitespace-nowrap">{timeAgo(entry.timestamp)}</span>
+                          <span className="text-[10px] text-steel shrink-0 whitespace-nowrap">{timeAgo(entry.timestamp ?? '')}</span>
                         </div>
                         <div className="flex items-center gap-2 mt-1.5">
                           <span className="text-[10px] font-medium text-espresso-500 uppercase tracking-wide bg-cream-100 px-2 py-0.5 rounded-full">{entry.entity}</span>

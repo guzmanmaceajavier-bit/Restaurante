@@ -1,10 +1,9 @@
 import { useEffect, useState, useMemo } from 'react'
-import { storage } from '../../lib/storage'
+import { customerService } from '../../features/customers/customer.service'
+import type { ContactoWhatsApp as Customer } from '../../features/customers/customer.service'
+import type { MensajeEnviado } from '../../services/storage/whatsappStorage'
 import { CONFIG } from '../../lib/config'
 import { FaWhatsapp, FaSearch, FaRegSquare, FaCheckSquare, FaExternalLinkAlt } from 'react-icons/fa'
-
-interface Customer { name: string; phone: string; source: 'pedido' | 'reserva'; lastDate: string }
-interface MensajeEnviado { id: string; mensaje: string; destinatarios: number; fecha: string }
 
 const plantillas = [
   { id: 'bienvenida', titulo: 'Bienvenida', mensaje: `¡Hola {nombre}! 👋 Bienvenido a {restaurante}. Estamos felices de tenerte como cliente. Disfruta de nuestro menú y no dudes en escribirnos si necesitas algo.` },
@@ -13,8 +12,6 @@ const plantillas = [
   { id: 'cumpleanos', titulo: 'Cumpleaños', mensaje: `¡Feliz cumpleaños, {nombre}! 🎂 En {restaurante} queremos celebrar contigo. Visítanos y te obsequiamos algo especial.` },
   { id: 'seguimiento', titulo: 'Seguimiento', mensaje: `¡Hola {nombre}! 😊 Queríamos saber cómo fue tu experiencia en {restaurante}. Tu opinión nos ayuda a mejorar. ¡Gracias por preferirnos!` },
 ]
-
-function normalizePhone(phone: string): string { return phone.replace(/[\s\-\(\)]/g, '') }
 
 export default function AdminWhatsApp() {
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -27,22 +24,8 @@ export default function AdminWhatsApp() {
   const [historial, setHistorial] = useState<MensajeEnviado[]>([])
 
   useEffect(() => {
-    const map = new Map<string, Customer>()
-    storage.getOrdenes<any>().forEach((o) => {
-      const phone = normalizePhone(o.phone || '')
-      if (!phone) return
-      const existing = map.get(phone)
-      if (!existing || o.createdAt > existing.lastDate) map.set(phone, { name: o.fullName || '', phone, source: 'pedido', lastDate: o.createdAt || '' })
-    })
-    storage.getReservas<any>().forEach((r) => {
-      const phone = normalizePhone(r.telefono || '')
-      if (!phone) return
-      const existing = map.get(phone)
-      if (!existing || r.createdAt > existing.lastDate) map.set(phone, { name: r.nombre || '', phone, source: 'reserva', lastDate: r.createdAt || '' })
-    })
-    setCustomers(Array.from(map.values()).sort((a, b) => b.lastDate.localeCompare(a.lastDate)))
-    const hist = localStorage.getItem('whatsapp-historial')
-    if (hist) { try { setHistorial(JSON.parse(hist)) } catch {} }
+    setCustomers(customerService.getContactosWhatsApp())
+    setHistorial(customerService.getHistorialWhatsApp())
   }, [])
 
   const filtered = useMemo(() => customers.filter((c) => {
@@ -60,8 +43,7 @@ export default function AdminWhatsApp() {
     const selectedCustomers = customers.filter((c) => selected.has(c.phone))
     if (!selectedCustomers.length || !message.trim()) return
     setSending(true)
-    const newHistorial: MensajeEnviado = { id: `MSG-${Date.now().toString(36).toUpperCase()}`, mensaje: message, destinatarios: selectedCustomers.length, fecha: new Date().toISOString() }
-    const updated = [newHistorial, ...historial]; setHistorial(updated); localStorage.setItem('whatsapp-historial', JSON.stringify(updated))
+    setHistorial(customerService.registrarEnvioWhatsApp(message, selectedCustomers.length))
     selectedCustomers.forEach((c, i) => { setTimeout(() => { window.open(`https://wa.me/${c.phone}?text=${encodeURIComponent(reemplazarVariables(message, c.name))}`, '_blank') }, i * 800) })
     setTimeout(() => { setSending(false); setMessage(''); setPlantillaActiva('') }, selectedCustomers.length * 800 + 500)
   }

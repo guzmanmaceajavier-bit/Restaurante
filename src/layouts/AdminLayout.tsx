@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom'
 import { storage } from '../lib/storage'
+import { settingsStorage } from '../services/storage/settingsStorage'
 import { getRestaurantConfig } from '../lib/config'
 import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog, FaTag, FaClipboardList, FaChartBar, FaHistory, FaCashRegister, FaFileInvoiceDollar, FaShoppingCart, FaTrophy, FaChevronDown, FaChevronRight, FaSearch, FaBell, FaQuestionCircle, FaAngleDoubleLeft, FaAngleDoubleRight, FaGlassCheers, FaWhatsapp, FaPhone, FaEnvelope } from 'react-icons/fa'
 import { AdminSkeleton } from '../components/feedback/LoadingSkeleton'
@@ -68,7 +69,7 @@ export default function AdminLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [collapsed, setCollapsed] = useState(()=> localStorage.getItem('admin_collapsed')==='1')
+  const [collapsed, setCollapsed] = useState(()=> settingsStorage.isSidebarCollapsed())
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(()=> {
     const init: Record<string, boolean> = {}
     sections.forEach(s=> { if(s.title) init[s.title]=true })
@@ -83,7 +84,7 @@ export default function AdminLayout() {
   const config = getRestaurantConfig()
 
   useEffect(() => { if (!storage.isAdmin()) navigate('/admin-login') }, [navigate])
-  useEffect(()=> localStorage.setItem('admin_collapsed', collapsed ? '1':'0'), [collapsed])
+  useEffect(()=> settingsStorage.setSidebarCollapsed(collapsed), [collapsed])
   useEffect(()=> {
     const onKey = (e: KeyboardEvent) => { if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); setPaletteOpen(v=>!v)}}
     window.addEventListener('keydown', onKey); return ()=> window.removeEventListener('keydown', onKey)

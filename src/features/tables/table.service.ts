@@ -90,16 +90,16 @@ export const tableService = {
     return { ok: true, mesas };
   },
 
-  cambiarEstado: (id: string, estado: string): Mesa[] => {
-    const mesas = tableStorage.getAll<Mesa>().map((m) =>
+  cambiarEstado: (id: string, estado: string, actuales: Mesa[]): Mesa[] => {
+    const mesas = actuales.map((m) =>
       m.id === id ? { ...m, estado, occupiedSince: stampOcupacion(estado, m.occupiedSince) } : m,
     );
     tableStorage.saveAll(mesas);
     return mesas;
   },
 
-  eliminarMesa: (id: string): Mesa[] => {
-    const mesas = tableStorage.getAll<Mesa>().filter((m) => m.id !== id);
+  eliminarMesa: (id: string, actuales: Mesa[]): Mesa[] => {
+    const mesas = actuales.filter((m) => m.id !== id);
     tableStorage.saveAll(mesas);
     return mesas;
   },

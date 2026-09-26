@@ -15,6 +15,8 @@ export { tableStorage } from './tableStorage';
 export type { StoredTable } from './tableStorage';
 export { activityStorage } from './activityStorage';
 export type { ActivityEntry } from './activityStorage';
+export { whatsappStorage } from './whatsappStorage';
+export type { MensajeEnviado } from './whatsappStorage';
 export { settingsStorage } from './settingsStorage';
 export { loyaltyStorage } from './loyaltyStorage';
 export type { LoyaltyConfig, LoyaltyHistoryEntry } from './loyaltyStorage';

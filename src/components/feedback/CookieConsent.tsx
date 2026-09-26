@@ -1,22 +1,21 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaCookieBite, FaTimes } from 'react-icons/fa'
-
-const COOKIE_KEY = 'cookie-consent-accepted'
+import { settingsStorage } from '../../services/storage/settingsStorage'
 
 export default function CookieConsent() {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
-    const accepted = localStorage.getItem(COOKIE_KEY)
+    const accepted = settingsStorage.getCookieConsent()
     if (!accepted) {
       const t = setTimeout(() => setShow(true), 1500)
       return () => clearTimeout(t)
     }
   }, [])
 
-  const accept = () => { localStorage.setItem(COOKIE_KEY, 'true'); setShow(false) }
-  const reject = () => { localStorage.setItem(COOKIE_KEY, 'rejected'); setShow(false) }
+  const accept = () => { settingsStorage.setCookieConsent('true'); setShow(false) }
+  const reject = () => { settingsStorage.setCookieConsent('rejected'); setShow(false) }
 
   return (
     <AnimatePresence>

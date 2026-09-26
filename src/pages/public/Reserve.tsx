@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
-import { CONFIG } from '../../lib/config'
-import { storage } from '../../lib/storage'
+import { CONFIG, getRestaurantConfig } from '../../lib/config'
+import { reservationService } from '../../features/reservations/reservation.service'
+import { customerService } from '../../features/customers/customer.service'
 import { toast } from 'sonner'
 import { SEO } from '../../lib/seo'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -37,19 +38,12 @@ function getCalendarDays(year: number, month: number) {
 }
 
 function getAvailability(fecha: string, hora: string): 'available' | 'limited' | 'full' {
-  if (!hora) return 'available'
-  const reservas = storage.getReservas()
-  const same = reservas.filter((r: any) => r.fecha === fecha && r.hora === hora && r.estado !== 'Cancelada')
-  if (same.length >= 3) return 'full'
-  if (same.length >= 1) return 'limited'
-  return 'available'
+  return reservationService.getDisponibilidad(fecha, hora)
 }
 
 function getHorarioMinMax() {
-  try {
-    const cfg = JSON.parse(localStorage.getItem('restaurant-config') || '{}')
-    return { min: cfg.horarioApertura || CONFIG.horarios.apertura, max: cfg.horarioCierre || CONFIG.horarios.cierre }
-  } catch { return { min: CONFIG.horarios.apertura, max: CONFIG.horarios.cierre } }
+  const cfg = getRestaurantConfig()
+  return { min: cfg.horarioApertura || CONFIG.horarios.apertura, max: cfg.horarioCierre || CONFIG.horarios.cierre }
 }
 
 export default function Reserve() {
@@ -140,12 +134,8 @@ export default function Reserve() {
           validationSchema={fullSchema}
           validateOnMount={false}
           onSubmit={(values) => {
-            const reservas = storage.getReservas()
-            const id = `RES-${Date.now().toString(36).toUpperCase()}`
             const ocasionFinal = values.ocasion === 'Otra' ? values.ocasionOtra : values.ocasion
-            const nueva = { ...values, ocasion: ocasionFinal, id, estado: 'Pendiente', createdAt: new Date().toISOString() }
-            reservas.push(nueva)
-            storage.setReservas(reservas)
+            const nueva = reservationService.crearReservaPublica({ ...values, ocasion: ocasionFinal, estado: 'Pendiente' })
             // Vincular al historial del cliente logueado si coincide teléfono/email
             try {
               const addReserva = useAuthStore.getState().addReservaToHistory
@@ -154,11 +144,9 @@ export default function Reserve() {
                 addReserva(nueva.id)
               }
               // También actualizar lista general clientes por teléfono
-              const clientes = JSON.parse(localStorage.getItem('clientes')||'[]')
-              const idx = clientes.findIndex((c:any)=> c.telefono===values.telefono || c.email===values.email)
-              if(idx!==-1){ clientes[idx].historialReservas = [...(clientes[idx].historialReservas||[]), nueva.id]; localStorage.setItem('clientes', JSON.stringify(clientes)) }
+              customerService.linkReserva({ telefono: values.telefono, email: values.email }, nueva.id)
             } catch {}
-            setConfirmed({ ...values, ocasion: ocasionFinal, id })
+            setConfirmed({ ...values, ocasion: ocasionFinal, id: nueva.id })
             toast.success('¡Reserva enviada!')
           }}
         >

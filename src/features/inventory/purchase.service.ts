@@ -1,5 +1,6 @@
 import { productStorage } from '../../services/storage/productStorage';
 import { purchaseStorage } from '../../services/storage/purchaseStorage';
+import type { StoredSupplier } from '../../services/storage/purchaseStorage';
 
 export interface Compra {
   id: string;
@@ -25,6 +26,8 @@ export type ResultadoCompra =
 export const purchaseService = {
   getAll: (): Compra[] => purchaseStorage.getPurchases<Compra>(),
   saveAll: (compras: Compra[]): void => purchaseStorage.savePurchases(compras),
+  getPurchases: (): Compra[] => purchaseStorage.getPurchases<Compra>(),
+  getSuppliers: (): StoredSupplier[] => purchaseStorage.getSuppliers<StoredSupplier>(),
 
   filterCompras: (compras: Compra[], busqueda: string): Compra[] =>
     compras.filter(

@@ -50,23 +50,21 @@ export const cashService = {
   saveMovements: (movements: Movimiento[]): void => cashStorage.saveMovements(movements),
   getGastos: (): Gasto[] => cashStorage.getExpenses<Gasto>(),
 
-  registrarMovimiento: (data: NuevoMovimiento): ResultadoMovimiento => {
+  registrarMovimiento: (data: NuevoMovimiento, actuales: Movimiento[]): ResultadoMovimiento => {
     if (!data.concepto.trim() || !data.monto) return { ok: false, error: 'Concepto y monto requeridos' };
     const movimiento: Movimiento = { ...data, id: `mov_${Date.now()}` };
-    cashStorage.saveMovements([...cashStorage.getMovements<Movimiento>(), movimiento]);
+    cashStorage.saveMovements([...actuales, movimiento]);
     return { ok: true, movimiento };
   },
 
-  actualizarMovimiento: (id: string, data: Partial<NuevoMovimiento>): Movimiento[] => {
-    const updated = cashStorage
-      .getMovements<Movimiento>()
-      .map((m) => (m.id === id ? { ...m, ...data } : m));
+  actualizarMovimiento: (id: string, data: Partial<NuevoMovimiento>, actuales: Movimiento[]): Movimiento[] => {
+    const updated = actuales.map((m) => (m.id === id ? { ...m, ...data } : m));
     cashStorage.saveMovements(updated);
     return updated;
   },
 
-  eliminarMovimiento: (id: string): Movimiento[] => {
-    const updated = cashStorage.getMovements<Movimiento>().filter((m) => m.id !== id);
+  eliminarMovimiento: (id: string, actuales: Movimiento[]): Movimiento[] => {
+    const updated = actuales.filter((m) => m.id !== id);
     cashStorage.saveMovements(updated);
     return updated;
   },

@@ -24,27 +24,27 @@ export const productService = {
   getById: (id: string): IProduct | undefined =>
     productStorage.getAll().find((p) => p.id === id || p.nombre === id),
 
-  createProducto: (data: Omit<IProduct, 'id'>): IProduct => {
+  createProducto: (data: Omit<IProduct, 'id'>, actuales: IProduct[]): IProduct => {
     const nuevo = { ...data, id: `prod-${Date.now().toString(36)}` } as IProduct;
-    productStorage.saveAll([...productStorage.getAll(), nuevo]);
+    productStorage.saveAll([...actuales, nuevo]);
     return nuevo;
   },
 
-  updateProducto: (id: string, data: Partial<IProduct>): IProduct[] => {
-    const updated = productStorage.getAll().map((p) => (p.id === id ? { ...p, ...data } : p));
+  updateProducto: (id: string, data: Partial<IProduct>, actuales: IProduct[]): IProduct[] => {
+    const updated = actuales.map((p) => (p.id === id ? { ...p, ...data } : p));
     productStorage.saveAll(updated);
     return updated;
   },
 
-  deleteProducto: (id: string): IProduct[] => {
-    const updated = productStorage.getAll().filter((p) => p.id !== id);
+  deleteProducto: (id: string, actuales: IProduct[]): IProduct[] => {
+    const updated = actuales.filter((p) => p.id !== id);
     productStorage.saveAll(updated);
     return updated;
   },
 
-  deleteMany: (ids: string[]): IProduct[] => {
+  deleteMany: (ids: string[], actuales: IProduct[]): IProduct[] => {
     const set = new Set(ids);
-    const updated = productStorage.getAll().filter((p) => !set.has(p.id));
+    const updated = actuales.filter((p) => !set.has(p.id));
     productStorage.saveAll(updated);
     return updated;
   },

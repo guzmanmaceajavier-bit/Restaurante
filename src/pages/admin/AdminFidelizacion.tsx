@@ -4,24 +4,21 @@ import { FaTrophy, FaGift, FaStar, FaPlus, FaEdit, FaTrash } from 'react-icons/f
 import { SEO } from '../../lib/seo'
 import { CONFIG } from '../../lib/config'
 import ConfirmModal from '../../components/feedback/ConfirmModal'
-
-interface Recompensa { id:string; nombre:string; puntos:number; descripcion:string; activa:boolean }
+import { loyaltyService } from '../../features/loyalty/loyalty.service'
+import type { RecompensaAdmin as Recompensa } from '../../features/loyalty/loyalty.service'
+import { customerService } from '../../features/customers/customer.service'
 
 export default function AdminFidelizacion() {
-  const [recompensas, setRecompensas] = useState<Recompensa[]>(()=>{ try{ const s=JSON.parse(localStorage.getItem('fidelizacion_recompensas')||'[]'); if(s.length) return s; return [
-    { id:'r1', nombre:'Plato gratis', puntos:100, descripcion:'Canjea 100 puntos por un plato a elección', activa:true },
-    { id:'r2', nombre:'Postre gratis', puntos:50, descripcion:'50 puntos = postre', activa:true },
-    { id:'r3', nombre:'Descuento 20%', puntos:80, descripcion:'20% en tu próxima compra', activa:true },
-  ]} catch{ return []}})
-  const [cfg, setCfg]=useState(()=>{ try{ const s=JSON.parse(localStorage.getItem('fidelizacion_cfg')||'null'); return s || { pesosPorPunto: CONFIG.puntos.pesosPorPunto, puntosCanje: CONFIG.puntos.puntosCanje, descripcion: CONFIG.puntos.descripcion }} catch{ return {pesosPorPunto:10000, puntosCanje:100, descripcion:''}}})
+  const [recompensas, setRecompensas] = useState<Recompensa[]>(()=> loyaltyService.getAdminRewardsOrDefaults())
+  const [cfg, setCfg]=useState(()=> loyaltyService.getConfig({ pesosPorPunto: CONFIG.puntos.pesosPorPunto, puntosCanje: CONFIG.puntos.puntosCanje, descripcion: CONFIG.puntos.descripcion }))
   const [showForm,setShowForm]=useState(false)
   const [editing,setEditing]=useState<Recompensa|null>(null)
   const [form,setForm]=useState<Omit<Recompensa,'id'>>({ nombre:'', puntos:100, descripcion:'', activa:true})
   const [confirmDelete,setConfirmDelete]=useState<string|null>(null)
-  const clientes = useMemo(()=>{ try{ return JSON.parse(localStorage.getItem('clientes')||'[]')} catch{ return []}}, [recompensas])
+  const clientes = useMemo(()=> customerService.getAll(), [recompensas])
   const totalPuntos = clientes.reduce((s:any,c:any)=> s+(c.puntos||0),0)
-  const saveRecomp=(d:Recompensa[])=>{ setRecompensas(d); localStorage.setItem('fidelizacion_recompensas', JSON.stringify(d))}
-  const saveCfg=()=>{ localStorage.setItem('fidelizacion_cfg', JSON.stringify(cfg)); toast.success('Configuración guardada')}
+  const saveRecomp=(d:Recompensa[])=>{ setRecompensas(d); loyaltyService.saveRewards(d)}
+  const saveCfg=()=>{ loyaltyService.saveConfig(cfg); toast.success('Configuración guardada')}
   const openCreate=()=>{ setEditing(null); setForm({ nombre:'', puntos:100, descripcion:'', activa:true}); setShowForm(true)}
   const openEdit=(r:Recompensa)=>{ setEditing(r); setForm({ nombre:r.nombre, puntos:r.puntos, descripcion:r.descripcion, activa:r.activa}); setShowForm(true)}
   const submit=()=>{

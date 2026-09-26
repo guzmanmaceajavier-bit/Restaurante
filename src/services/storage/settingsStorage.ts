@@ -13,6 +13,11 @@ export const settingsStorage = {
     readString(key),
   setLegalText: (key: typeof STORAGE_KEYS.LEGAL_PRIVACY | typeof STORAGE_KEYS.LEGAL_TERMS, text: string): void =>
     writeString(key, text),
+  getCookieConsent: (): string => readString(STORAGE_KEYS.COOKIE_CONSENT),
+  setCookieConsent: (value: 'true' | 'rejected'): void => writeString(STORAGE_KEYS.COOKIE_CONSENT, value),
+  isSidebarCollapsed: (): boolean => readString(STORAGE_KEYS.ADMIN_COLLAPSED) === '1',
+  setSidebarCollapsed: (collapsed: boolean): void =>
+    writeString(STORAGE_KEYS.ADMIN_COLLAPSED, collapsed ? '1' : '0'),
   getHomeFaqs: <T>(): T | null => readJson<T | null>(STORAGE_KEYS.HOME_FAQS, null),
   setHomeFaqs: <T>(faqs: T): void => writeJson(STORAGE_KEYS.HOME_FAQS, faqs),
   getHomeTestimonials: <T>(): T | null => readJson<T | null>(STORAGE_KEYS.HOME_TESTIMONIALS, null),

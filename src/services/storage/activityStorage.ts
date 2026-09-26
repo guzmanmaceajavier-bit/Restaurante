@@ -12,7 +12,8 @@ export interface ActivityEntry {
 const MAX_ENTRIES = 120;
 
 export const activityStorage = {
-  getLog: (): ActivityEntry[] => readJson<ActivityEntry[]>(STORAGE_KEYS.ACTIVITY_LOG, []),
+  getLog: <T = ActivityEntry>(): T[] => readJson<T[]>(STORAGE_KEYS.ACTIVITY_LOG, []),
+  clear: (): void => writeJson(STORAGE_KEYS.ACTIVITY_LOG, []),
   push: (accion: string, detalle: string): void => {
     const log = readJson<ActivityEntry[]>(STORAGE_KEYS.ACTIVITY_LOG, []);
     log.unshift({ id: `act_${Date.now()}`, accion, detalle, fecha: new Date().toISOString(), usuario: 'Admin' });

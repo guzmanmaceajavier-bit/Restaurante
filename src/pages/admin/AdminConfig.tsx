@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { getRestaurantConfig, saveRestaurantConfig, type RestaurantConfig } from '../../lib/config'
+import { settingsStorage } from '../../services/storage/settingsStorage'
+import { STORAGE_KEYS } from '../../services/storage/storageKeys'
 import { FaSave, FaStore, FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaGlobe, FaTruck, FaCalendarAlt, FaImage, FaUpload, FaTimes, FaPalette, FaUser, FaCreditCard, FaFileAlt, FaClock, FaDatabase, FaShieldAlt } from 'react-icons/fa'
 
 import AdminUsuarios from './AdminUsuarios'
@@ -15,14 +17,14 @@ export default function AdminConfig() {
 
   useEffect(() => {
     setConfig(getRestaurantConfig())
-    setPoliticaPrivacidad(localStorage.getItem('politica-privacidad-text') || '')
-    setTerminosCondiciones(localStorage.getItem('terminos-condiciones-text') || '')
+    setPoliticaPrivacidad(settingsStorage.getLegalText(STORAGE_KEYS.LEGAL_PRIVACY))
+    setTerminosCondiciones(settingsStorage.getLegalText(STORAGE_KEYS.LEGAL_TERMS))
   }, [])
 
   const save = () => {
     saveRestaurantConfig(config)
-    localStorage.setItem('politica-privacidad-text', politicaPrivacidad)
-    localStorage.setItem('terminos-condiciones-text', terminosCondiciones)
+    settingsStorage.setLegalText(STORAGE_KEYS.LEGAL_PRIVACY, politicaPrivacidad)
+    settingsStorage.setLegalText(STORAGE_KEYS.LEGAL_TERMS, terminosCondiciones)
     toast.success('Configuración guardada')
   }
 

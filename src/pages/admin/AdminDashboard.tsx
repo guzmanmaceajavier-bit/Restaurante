@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { storage } from '../../lib/storage'
+import { dashboardService } from '../../features/dashboard/dashboard.service'
 import { SEO } from '../../lib/seo'
 import type { Order } from '../../features/orders/types'
 import type { ReservaData } from '../../features/reservations/types'
@@ -18,10 +18,10 @@ export default function AdminDashboard() {
   const [productos, setProductos] = useState<any[]>([])
   useEffect(() => {
     const load = () => {
-      setOrdenes(storage.getOrdenes<Order>())
-      setReservas(storage.getReservas<ReservaData>())
-      try { setMesas(JSON.parse(localStorage.getItem('mesas')||'[]')) } catch {}
-      try { setProductos(JSON.parse(localStorage.getItem('productos')||'[]')) } catch {}
+      setOrdenes(dashboardService.getOrdenes())
+      setReservas(dashboardService.getReservas())
+      setMesas(dashboardService.getMesas())
+      setProductos(dashboardService.getProductos())
     }
     load(); const id=setInterval(load, 4000); return ()=> clearInterval(id)
   }, [])
@@ -31,47 +31,14 @@ export default function AdminDashboard() {
   const servicio = hour < 12 ? 'Desayuno' : hour < 17 ? 'Almuerzo' : 'Cena'
   const ServicioIcon = hour < 12 ? FaGlassCheers : hour < 17 ? FaUtensils : FaConciergeBell
 
-  const s = useMemo(() => {
-    const ayer = new Date(Date.now()-86400000).toISOString().split('T')[0]
-    const ordenesHoy = ordenes.filter(o=> o.createdAt?.startsWith(today))
-    const ordenesAyer = ordenes.filter(o=> o.createdAt?.startsWith(ayer))
-    const ventasHoy = ordenesHoy.reduce((a,o)=> a+(o.total||0),0)
-    const ventasAyer = ordenesAyer.reduce((a,o)=> a+(o.total||0),0)
-    const byEstado = (e:string)=> ordenes.filter(o=> o.estado===e).length
-    const pendientes = byEstado('recibido'); const preparando = byEstado('preparando'); const listos = byEstado('listo')
-    const cubiertos = ordenesHoy.reduce((a,o)=> a + (o.items?.reduce((s:any,i:any)=> s+i.quantity,0) || 0),0)
-    const ticket = ordenesHoy.length ? Math.round(ventasHoy/ordenesHoy.length) : 0
-    const dVentas = ventasAyer ? Math.round(((ventasHoy-ventasAyer)/ventasAyer)*100) : ventasHoy>0?100:0
-    const dPedidos = ordenesAyer.length ? Math.round(((ordenesHoy.length-ordenesAyer.length)/ordenesAyer.length)*100) : ordenesHoy.length?100:0
-    const reservasHoy = reservas.filter(r=> r.fecha===today)
-    const ocupadas = mesas.filter((m:any)=> m.estado==='ocupada').length
-    const libres = mesas.filter((m:any)=> m.estado==='disponible').length
-    const totalMesas = mesas.length || 8
-    const ocupacion = totalMesas ? Math.round((ocupadas/totalMesas)*100) : 0
-    const stockBajo = productos.filter((p:any)=> (p.stock||0)>0 && (p.stock||0)<=5)
-    const agotados = productos.filter((p:any)=> (p.stock||0)<=0)
-    return { ventasHoy, dVentas, dPedidos, totalHoy: ordenesHoy.length, ticket, cubiertos, pendientes, preparando, listos, reservasHoy, ocupadas, libres, totalMesas, ocupacion, stockBajo, agotados }
-  }, [ordenes, reservas, mesas, productos])
+  const s = useMemo(() => dashboardService.getResumen(ordenes, reservas, mesas, productos, today), [ordenes, reservas, mesas, productos, today])
 
-  const ventasHora = useMemo(()=>{
-    const hours = Array.from({length:12}, (_,i)=> 10+i) // 10-21
-    return hours.map(h=>{
-      const label=`${String(h).padStart(2,'0')}:00`
-      const total=ordenes.filter(o=> {
-        if(!o.createdAt?.startsWith(today)) return false
-        const hr=new Date(o.createdAt).getHours()
-        return hr===h
-      }).reduce((a,o)=> a+(o.total||0),0)
-      return {label, total}
-    })
-  }, [ordenes, today])
+  const ventasHora = useMemo(()=> dashboardService.getVentasPorHora(ordenes, today), [ordenes, today])
   const maxHora = Math.max(...ventasHora.map(v=> v.total), 1)
 
-  const topProductos = useMemo(()=>{
-    const m: Record<string, number>={}; ordenes.forEach(o=> o.items?.forEach((it:any)=> m[it.nombre]=(m[it.nombre]||0)+it.quantity)); return Object.entries(m).sort((a,b)=> b[1]-a[1]).slice(0,4)
-  }, [ordenes])
+  const topProductos = useMemo(()=> dashboardService.getTopProductos(ordenes), [ordenes])
 
-  const reservasHoyLista = useMemo(()=> reservas.filter(r=> r.fecha===today).sort((a,b)=> a.hora.localeCompare(b.hora)).slice(0,5), [reservas, today])
+  const reservasHoyLista = useMemo(()=> dashboardService.getReservasHoy(reservas, today), [reservas, today])
 
   return (
     <div className="space-y-5">

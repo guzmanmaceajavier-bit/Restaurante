@@ -41,7 +41,6 @@ export default function AdminReservas(){
   const [formCreate,setFormCreate]=useState(emptyForm)
   const [formEdit,setFormEdit]=useState(emptyForm)
   useEffect(()=> setReservas(reservationService.getAll()), [])
-  const guardar=(d:Reserva[])=>{ setReservas(d); reservationService.saveAll(d)}
   const filtered=useMemo(()=> reservationService.filterReservas(reservas, { busqueda, estado: filtroEstado }), [reservas,filtroEstado,busqueda])
   const byDate=useMemo(()=>{ const m=new Map<string, Reserva[]>(); filtered.forEach(r=>{ if(!m.has(r.fecha)) m.set(r.fecha,[]); m.get(r.fecha)!.push(r) }); return m}, [filtered])
   const agendaList = useMemo(()=>{
@@ -56,7 +55,7 @@ export default function AdminReservas(){
   const monthLabel=cursor.toLocaleDateString('es-CO',{month:'long', year:'numeric'})
 
   const crear=()=>{
-    const result = reservationService.crearReserva(formCreate)
+    const result = reservationService.crearReserva(formCreate, reservas)
     if(!result.ok){ toast.error(result.error); return }
     setReservas(result.reservas)
     // Vincular al historial del cliente si existe (para que cliente lo vea en /mi-cuenta)
@@ -65,12 +64,12 @@ export default function AdminReservas(){
   }
   const guardarEdit=()=>{
     if(!showEdit) return
-    const result = reservationService.actualizarReserva(showEdit.id, formEdit)
+    const result = reservationService.actualizarReserva(showEdit.id, formEdit, reservas)
     if(!result.ok){ toast.error(result.error); return }
     setReservas(result.reservas); setShowEdit(null); toast.success('Reserva actualizada')
   }
-  const confirmar=(id:string)=>{ const r=reservas.find(x=>x.id===id); if(!r) return; setReservas(reservationService.cambiarEstado(id, 'confirmada')); setMsgTarget(r); setMensaje(`Hola ${r.nombre}, tu reserva del ${r.fecha} a las ${r.hora} ha sido confirmada. ¡Te esperamos!`); toast.success('Confirmada')}
-  const rechazar=(id:string)=>{ const r=reservas.find(x=>x.id===id); if(!r) return; setReservas(reservationService.cambiarEstado(id, 'rechazada')); setMsgTarget(r); setMensaje(`Hola ${r.nombre}, lamentamos informarte que no hay disponibilidad para el ${r.fecha} a las ${r.hora}.`); toast.message('Rechazada')}
+  const confirmar=(id:string)=>{ const r=reservas.find(x=>x.id===id); if(!r) return; setReservas(reservationService.cambiarEstado(id, 'confirmada', reservas)); setMsgTarget(r); setMensaje(`Hola ${r.nombre}, tu reserva del ${r.fecha} a las ${r.hora} ha sido confirmada. ¡Te esperamos!`); toast.success('Confirmada')}
+  const rechazar=(id:string)=>{ const r=reservas.find(x=>x.id===id); if(!r) return; setReservas(reservationService.cambiarEstado(id, 'rechazada', reservas)); setMsgTarget(r); setMensaje(`Hola ${r.nombre}, lamentamos informarte que no hay disponibilidad para el ${r.fecha} a las ${r.hora}.`); toast.message('Rechazada')}
 
   return (
     <div>
@@ -234,7 +233,7 @@ export default function AdminReservas(){
           </div>
         </div>
       )}
-      <ConfirmModal open={!!confirmDelete} onClose={()=> setConfirmDelete(null)} onConfirm={()=> { if(confirmDelete){ guardar(reservas.filter(r=> r.id!==confirmDelete)); setConfirmDelete(null); toast.success('Eliminada')}}} title="Eliminar reserva" message="¿Eliminar esta reserva?" confirmText="Eliminar" variant="danger" />
+      <ConfirmModal open={!!confirmDelete} onClose={()=> setConfirmDelete(null)} onConfirm={()=> { if(confirmDelete){ setReservas(reservationService.eliminarReserva(confirmDelete, reservas)); setConfirmDelete(null); toast.success('Eliminada')}}} title="Eliminar reserva" message="¿Eliminar esta reserva?" confirmText="Eliminar" variant="danger" />
     </div>
   )
 }

@@ -40,7 +40,7 @@ export default function AdminCocina() {
   const avanzar=(id:string)=>{
     const o=ordenes.find(x=> x.id===id); if(!o) return
     const next=cfg[o.estado]?.next; if(!next) return
-    const result=orderService.avanzarPedido(id, next); if(!result.ok) return
+    const result=orderService.avanzarPedido(id, next, ordenes); if(!result.ok) return
     setOrdenes(result.ordenes); toast.success(`Pedido → ${cfg[next]?.label}`)
   }
 

@@ -44,44 +44,41 @@ export const reservationService = {
       return true;
     }),
 
-  crearReserva: (data: NuevaReserva): ResultadoReserva => {
+  crearReserva: (data: NuevaReserva, actuales: ReservaData[]): ResultadoReserva => {
     const error = validarObligatorios(data);
     if (error) return { ok: false, error };
     const reserva: ReservaData = { ...data, id: `res_${Date.now()}`, createdAt: new Date().toISOString() };
-    const reservas = [...reservationStorage.getAll<ReservaData>(), reserva];
+    const reservas = [...actuales, reserva];
     reservationStorage.saveAll(reservas);
     return { ok: true, reserva, reservas };
   },
 
-  actualizarReserva: (id: string, data: NuevaReserva): ResultadoReserva => {
+  actualizarReserva: (id: string, data: NuevaReserva, actuales: ReservaData[]): ResultadoReserva => {
     const error = validarObligatorios(data);
     if (error) return { ok: false, error };
-    const reservas = reservationStorage
-      .getAll<ReservaData>()
-      .map((r) => (r.id === id ? { ...r, ...data } : r));
+    const reservas = actuales.map((r) => (r.id === id ? { ...r, ...data } : r));
     reservationStorage.saveAll(reservas);
     const reserva = reservas.find((r) => r.id === id);
     if (!reserva) return { ok: false, error: 'Reserva no encontrada' };
     return { ok: true, reserva, reservas };
   },
 
-  cambiarEstado: (id: string, estado: ReservaData['estado']): ReservaData[] => {
-    const reservas = reservationStorage
-      .getAll<ReservaData>()
-      .map((r) => (r.id === id ? { ...r, estado } : r));
+  cambiarEstado: (id: string, estado: ReservaData['estado'], actuales: ReservaData[]): ReservaData[] => {
+    const reservas = actuales.map((r) => (r.id === id ? { ...r, estado } : r));
     reservationStorage.saveAll(reservas);
     return reservas;
   },
 
-  eliminarReserva: (id: string): ReservaData[] => {
-    const reservas = reservationStorage.getAll<ReservaData>().filter((r) => r.id !== id);
+  eliminarReserva: (id: string, actuales: ReservaData[]): ReservaData[] => {
+    const reservas = actuales.filter((r) => r.id !== id);
     reservationStorage.saveAll(reservas);
     return reservas;
   },
 
   /**
    * Cancelación desde el portal del cliente (estado 'Cancelada',
-   * igual que el flujo original del portal).
+   * igual que el flujo original del portal). Lee storage porque el
+   * portal solo tiene una vista filtrada.
    */
   cancelarReservaCliente: (id: string): ReservaData[] => {
     const reservas = reservationStorage
@@ -91,7 +88,37 @@ export const reservationService = {
     return reservas;
   },
 
-  /** Edición desde el portal: fecha/hora/personas, vuelve a 'Pendiente'. */
+  /** Disponibilidad de un slot: 3+ reservas = lleno, 1+ = limitado. */
+  getDisponibilidad: (fecha: string, hora: string): 'available' | 'limited' | 'full' => {
+    if (!hora) return 'available';
+    const same = reservationStorage
+      .getAll<ReservaData>()
+      .filter((r) => r.fecha === fecha && r.hora === hora && r.estado !== 'Cancelada');
+    if (same.length >= 3) return 'full';
+    if (same.length >= 1) return 'limited';
+    return 'available';
+  },
+
+  /**
+   * Creación desde el flujo público (id RES-*, sin validación extra: la hace
+   * Yup). `zona` es opcional aquí porque el formulario público no la pide
+   * (igual que el flujo original).
+   */
+  crearReservaPublica: (data: Omit<NuevaReserva, 'zona'> & { zona?: string }): ReservaData => {
+    const reserva = {
+      ...data,
+      id: `RES-${Date.now().toString(36).toUpperCase()}`,
+      createdAt: new Date().toISOString(),
+    } as ReservaData;
+    const reservas = [...reservationStorage.getAll<ReservaData>(), reserva];
+    reservationStorage.saveAll(reservas);
+    return reserva;
+  },
+
+  /**
+   * Edición desde el portal: fecha/hora/personas, vuelve a 'Pendiente'.
+   * Lee storage porque el portal solo tiene una vista filtrada.
+   */
   actualizarReservaCliente: (
     id: string,
     cambios: Pick<ReservaData, 'fecha' | 'hora' | 'personas'>,

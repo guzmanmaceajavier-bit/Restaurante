@@ -19,7 +19,7 @@ export default function AdminCaja() {
   const abrir = () => { const v=Number(montoApertura)||0; cashService.abrirCaja(v); setAbierta(true); setApertura(v); toast.success(`Caja abierta con $${v.toLocaleString('es-CO')}`)}
   const cerrar = () => { cashService.cerrarCaja(); setAbierta(false); toast.success(`Caja cerrada — Balance $${balance.toLocaleString('es-CO')}`)}
   const agregar = () => {
-    const result = cashService.registrarMovimiento(form)
+    const result = cashService.registrarMovimiento(form, movs)
     if (!result.ok) { toast.error(result.error); return }
     setMovs(cashService.getMovements())
     toast.success('Movimiento registrado'); setShowMov(false)

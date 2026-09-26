@@ -47,7 +47,7 @@ export default function AdminMesas(){
     setMesas(result.mesas); toast.success(editing ? 'Mesa actualizada' : 'Mesa creada')
     setShowForm(false); reset()
   }
-  const cambiarEstado=(id:string, estado:string)=>{ setMesas(tableService.cambiarEstado(id, estado)); toast.success(`Mesa → ${estadoCfg[estado]?.label}`); setSelected(null)}
+  const cambiarEstado=(id:string, estado:string)=>{ setMesas(tableService.cambiarEstado(id, estado, mesas)); toast.success(`Mesa → ${estadoCfg[estado]?.label}`); setSelected(null)}
   return (
     <div>
       <PageHeader title="Mesas — Mapa del salón" description={`${stats.total} mesas · ${stats.libres} libres · ${stats.ocupadas} ocupadas · ${stats.reservadas} reservadas · Toca una mesa para gestionar`} actions={<><ExportButton data={filtradas} filename="mesas" columns={[{key:'numero',label:'Número'},{key:'ubicacion',label:'Ubicación'},{key:'estado',label:'Estado'}]} /><button onClick={openCreate} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0F172A] text-white text-sm font-medium hover:bg-[#1E293B]"><FaPlus size={11}/> Nueva mesa</button></>} />
@@ -130,7 +130,7 @@ export default function AdminMesas(){
         </>}
       </DetailDrawer>
 
-      <ConfirmModal open={!!confirmDelete} onClose={()=> setConfirmDelete(null)} onConfirm={()=> { if(confirmDelete){ setMesas(tableService.eliminarMesa(confirmDelete)); setConfirmDelete(null); toast.success('Mesa eliminada')}}} title="Eliminar mesa" message="¿Eliminar esta mesa?" confirmText="Eliminar" variant="danger" />
+      <ConfirmModal open={!!confirmDelete} onClose={()=> setConfirmDelete(null)} onConfirm={()=> { if(confirmDelete){ setMesas(tableService.eliminarMesa(confirmDelete, mesas)); setConfirmDelete(null); toast.success('Mesa eliminada')}}} title="Eliminar mesa" message="¿Eliminar esta mesa?" confirmText="Eliminar" variant="danger" />
     </div>
   )
 }

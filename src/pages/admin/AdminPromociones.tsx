@@ -6,6 +6,8 @@ import ConfirmModal from '../../components/feedback/ConfirmModal'
 import { ExportButton } from '../../components/admin/ExportButton'
 import { SEO } from '../../lib/seo'
 import type { Promocion } from '../../lib/config'
+import { promotionService } from '../../features/promotions/promotion.service'
+import type { PromocionForm } from '../../features/promotions/promotion.service'
 
 const initialForm = {
   titulo: '',
@@ -17,60 +19,32 @@ const initialForm = {
 }
 
 export default function AdminPromociones() {
-  const [promociones, setPromociones] = useState<Promocion[]>(() => {
-    try {
-      return JSON.parse(localStorage.getItem('promociones_admin') || '[]')
-    } catch {
-      return []
-    }
-  })
+  const [promociones, setPromociones] = useState<Promocion[]>(() => promotionService.getAdmin())
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Promocion | null>(null)
   const [form, setForm] = useState(initialForm)
   const [busqueda, setBusqueda] = useState('')
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
-  const filtradas = useMemo(() => {
-    if (!busqueda) return promociones
-    const b = busqueda.toLowerCase()
-    return promociones.filter(p =>
-      p.titulo.toLowerCase().includes(b) || p.codigo?.toLowerCase().includes(b)
-    )
-  }, [promociones, busqueda])
+  const filtradas = useMemo(() => promotionService.filterPromociones(promociones, busqueda), [promociones, busqueda])
 
   const save = () => {
-    if (!form.titulo.trim()) { toast.error('El título es requerido'); return }
-    if (!form.descripcion.trim()) { toast.error('La descripción es requerida'); return }
-    if (form.descuento < 0 || form.descuento > 100) { toast.error('El descuento debe ser entre 0 y 100'); return }
-
-    if (editing) {
-      const updated = promociones.map(p => p.id === editing.id ? { ...p, ...form } : p)
-      setPromociones(updated)
-      localStorage.setItem('promociones_admin', JSON.stringify(updated))
-      toast.success('Promoción actualizada')
-    } else {
-      const newPromo: Promocion = { ...form, id: `promo_${Date.now()}` }
-      const updated = [...promociones, newPromo]
-      setPromociones(updated)
-      localStorage.setItem('promociones_admin', JSON.stringify(updated))
-      toast.success('Promoción creada')
-    }
+    const result = promotionService.guardarPromocion(form as PromocionForm, editing, promociones)
+    if (!result.ok) { toast.error(result.error); return }
+    setPromociones(result.promociones)
+    toast.success(editing ? 'Promoción actualizada' : 'Promoción creada')
     setShowForm(false)
     setEditing(null)
     setForm(initialForm)
   }
 
   const toggleVigente = (promo: Promocion) => {
-    const updated = promociones.map(p => p.id === promo.id ? { ...p, vigente: !p.vigente } : p)
-    setPromociones(updated)
-    localStorage.setItem('promociones_admin', JSON.stringify(updated))
+    setPromociones(promotionService.toggleVigente(promo.id, promociones))
     toast.success(promo.vigente ? 'Promoción desactivada' : 'Promoción activada')
   }
 
   const eliminar = (id: string) => {
-    const updated = promociones.filter(p => p.id !== id)
-    setPromociones(updated)
-    localStorage.setItem('promociones_admin', JSON.stringify(updated))
+    setPromociones(promotionService.eliminarPromocion(id, promociones))
     toast.success('Promoción eliminada')
   }
 

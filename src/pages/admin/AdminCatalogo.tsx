@@ -40,19 +40,19 @@ export default function AdminCatalogo() {
 
   const saveProducto = (data: Omit<IProduct,'id'>) => {
     if(editing){
-      setProductos(productService.updateProducto(editing.id, data)); toast.success('Producto actualizado')
+      setProductos(productService.updateProducto(editing.id, data, productos)); toast.success('Producto actualizado')
     } else {
-      productService.createProducto(data)
+      productService.createProducto(data, productos)
       setProductos(productService.getAll()); toast.success('Producto creado')
     }
     setShowForm(false); setEditing(null)
   }
   const eliminarProducto = (id:string) => {
-    setProductos(productService.deleteProducto(id)); toast.success('Producto eliminado'); setSelectedIds(s=>{ const n=new Set(s); n.delete(id); return n})
+    setProductos(productService.deleteProducto(id, productos)); toast.success('Producto eliminado'); setSelectedIds(s=>{ const n=new Set(s); n.delete(id); return n})
   }
   const toggleSelect = (id:string) => setSelectedIds(s=>{ const n=new Set(s); if(n.has(id)) n.delete(id); else n.add(id); return n})
   const bulkDelete = () => {
-    setProductos(productService.deleteMany([...selectedIds])); toast.success(`${selectedIds.size} eliminados`); setSelectedIds(new Set())
+    setProductos(productService.deleteMany([...selectedIds], productos)); toast.success(`${selectedIds.size} eliminados`); setSelectedIds(new Set())
   }
 
   // categorias helpers

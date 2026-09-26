@@ -4,6 +4,8 @@ import { getRestaurantConfig, CONFIG } from '../../lib/config'
 import { SEO } from '../../lib/seo'
 import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaStar, FaInstagram, FaFacebook, FaWhatsapp, FaInfoCircle, FaPaperPlane, FaUtensils, FaHeart, FaLeaf, FaUsers } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
+import { reviewService } from '../../features/reviews/review.service'
+import type { ContactReview } from '../../features/reviews/review.service'
 
 const config = getRestaurantConfig()
 
@@ -54,14 +56,7 @@ export default function Contact() {
   const [reviewRating, setReviewRating] = useState(0)
   const [reviewComment, setReviewComment] = useState('')
 
-  const [allReviews, setAllReviews] = useState<{ name: string; rating: number; text: string }[]>(() => {
-    try {
-      const stored = localStorage.getItem('contact-reviews')
-      return stored ? JSON.parse(stored) : defaultReviews
-    } catch {
-      return defaultReviews
-    }
-  })
+  const [allReviews, setAllReviews] = useState<ContactReview[]>(() => reviewService.getContactReviewsOrDefaults(defaultReviews))
 
   const handleSubmitReview = () => {
     if (!reviewName.trim() || !reviewComment.trim()) {
@@ -77,15 +72,10 @@ export default function Contact() {
       text: reviewComment.trim(),
       rating: reviewRating,
     }
-    const updated = [newReview, ...allReviews]
+    const updated = reviewService.guardarContactReview(newReview, allReviews)
     setAllReviews(updated)
-    localStorage.setItem('contact-reviews', JSON.stringify(updated))
     // Unificar con reseñas admin: mismo formato que Resenas.tsx / AdminResenas
-    try {
-      const existing = JSON.parse(localStorage.getItem('resenas') || '[]')
-      existing.unshift({ id: Date.now(), nombre: reviewName.trim(), estrellas: reviewRating, comentario: reviewComment.trim(), fecha: new Date().toISOString().split('T')[0] })
-      localStorage.setItem('resenas', JSON.stringify(existing))
-    } catch {}
+    reviewService.publicarResena(reviewName, reviewRating, reviewComment)
     setReviewName('')
     setReviewEmail('')
     setReviewRating(0)
