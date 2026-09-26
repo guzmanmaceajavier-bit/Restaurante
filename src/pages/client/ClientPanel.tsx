@@ -2,7 +2,11 @@ import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/useAuthStore'
 import { useCartStore } from '../../store/useCartStore'
-import { storage } from '../../lib/storage'
+import { orderService } from '../../features/orders/order.service'
+import { reservationService } from '../../features/reservations/reservation.service'
+import { customerService } from '../../features/customers/customer.service'
+import { loyaltyService } from '../../features/loyalty/loyalty.service'
+import { productService } from '../../features/products/product.service'
 import { getRestaurantConfig } from '../../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../../lib/seo'
@@ -10,7 +14,6 @@ import { FaShoppingBag, FaCalendarAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart,
 import EmptyState from '../../components/feedback/EmptyState'
 import ConfirmModal from '../../components/feedback/ConfirmModal'
 import { useFavorites } from '../../hooks/useFavorites'
-import { dataService } from '../../lib/dataService'
 import type { Order } from '../../features/orders/types'
 import { numberFormatter } from '../../utils/numberFormatter'
 import clsx from 'clsx'
@@ -57,14 +60,12 @@ export default function ClientPanel() {
   const [dirDireccion, setDirDireccion] = useState('')
   const [dirIndicaciones, setDirIndicaciones] = useState('')
   const [showDirForm, setShowDirForm] = useState(false)
-  const [prefs, setPrefs] = useState(()=> {
-    try{ const k=clienteActual? `prefs_${clienteActual.id}`: 'prefs_guest'; return JSON.parse(localStorage.getItem(k)||'{"whatsapp":true,"email":true,"promos":true}') } catch{ return {whatsapp:true,email:true,promos:true}}
-  })
-  useEffect(()=>{ if(clienteActual){ const k=`prefs_${clienteActual.id}`; localStorage.setItem(k, JSON.stringify(prefs)) }}, [prefs, clienteActual])
+  const [prefs, setPrefs] = useState(()=> customerService.getPreferencias(clienteActual?.id ?? null))
+  useEffect(()=>{ if(clienteActual){ customerService.guardarPreferencias(clienteActual.id, prefs) }}, [prefs, clienteActual])
   const { favorites, toggleFavorite } = useFavorites(clienteActual?.telefono)
 
   const favoriteProducts = useMemo(() => {
-    const all = dataService.getProductos()
+    const all = productService.getAll()
     return all.filter(p => favorites.includes(p.id || p.nombre))
   }, [favorites])
 
@@ -80,14 +81,10 @@ export default function ClientPanel() {
     setLoading(true); setStorageError(null)
     const load = () => {
       try{
-        const allOrdenes = storage.getOrdenes<Order>()
-        const allReservas = storage.getReservas() as any[]
-        setOrdenes(allOrdenes.filter((o) => clienteActual.historialPedidos.includes(o.id)).reverse())
-        setReservas(allReservas.filter((r: any) => clienteActual.historialReservas.includes(r.id)).reverse())
-        const matchPhone = (a:string,b:string)=> a && b && a.replace(/\D/g,'')===b.replace(/\D/g,'')
-        const huérfanosOrdenes = allOrdenes.filter(o=> !clienteActual.historialPedidos.includes(o.id) && (matchPhone((o as any).phone, clienteActual.telefono) || (o as any).email===clienteActual.email)).length
-        const huérfanosReservas = allReservas.filter((r:any)=> !clienteActual.historialReservas.includes(r.id) && (matchPhone(r.telefono, clienteActual.telefono) || r.email===clienteActual.email)).length
-        setShowVincular(huérfanosOrdenes>0 || huérfanosReservas>0)
+        setOrdenes(customerService.getMisPedidos(clienteActual))
+        setReservas(customerService.getMisReservas(clienteActual))
+        const huerfanos = customerService.findHuerfanos(clienteActual)
+        setShowVincular(huerfanos.ordenes.length>0 || huerfanos.reservas.length>0)
         setStorageError(null)
       }catch(e:any){ setStorageError(e?.message || 'Error al leer datos locales')}
     }
@@ -133,22 +130,20 @@ export default function ClientPanel() {
     navigate('/menu')
   }
   const handleCancelReserva = (r: any) => {
-    storage.setReservas((storage.getReservas() as any[]).map((x:any)=> x.id===r.id?{...x, estado:'Cancelada'}:x))
+    setReservas(reservationService.cancelarReservaCliente(r.id))
     setConfirmCancel(null); toast.success('Reserva cancelada')
   }
   const handleEditReserva = (r: any) => { setEditingReserva(r); setEditFecha(r.fecha); setEditHora(r.hora); setEditPersonas(r.personas)}
   const handleSaveEditReserva = () => {
     if (!editingReserva) return
-    storage.setReservas((storage.getReservas() as any[]).map((x:any)=> x.id===editingReserva.id?{...x, fecha:editFecha, hora:editHora, personas:editPersonas, estado:'Pendiente'}:x))
+    setReservas(reservationService.actualizarReservaCliente(editingReserva.id, { fecha: editFecha, hora: editHora, personas: editPersonas }))
     setEditingReserva(null); toast.success('Reserva modificada — pendiente de confirmación')
   }
   const vincularPasados = () => {
-    const allOrdenes = storage.getOrdenes<Order>()
-    const allReservas = storage.getReservas() as any[]
-    const matchPhone = (a:string,b:string)=> a && b && a.replace(/\D/g,'')===b.replace(/\D/g,'')
-    let c=0
-    allOrdenes.forEach((o:any)=> { if(!clienteActual.historialPedidos.includes(o.id) && (matchPhone(o.phone, clienteActual.telefono) || o.email===clienteActual.email)){ useAuthStore.getState().addOrderToHistory(o.id); c++ } })
-    allReservas.forEach((r:any)=> { if(!clienteActual.historialReservas.includes(r.id) && (matchPhone(r.telefono, clienteActual.telefono) || r.email===clienteActual.email)){ useAuthStore.getState().addReservaToHistory(r.id); c++ } })
+    const huerfanos = customerService.findHuerfanos(clienteActual)
+    huerfanos.ordenes.forEach((id)=> useAuthStore.getState().addOrderToHistory(id))
+    huerfanos.reservas.forEach((id)=> useAuthStore.getState().addReservaToHistory(id))
+    const c = huerfanos.ordenes.length + huerfanos.reservas.length
     toast.success(c? `${c} registros vinculados a tu cuenta (aislamiento por historial)` : 'Nada para vincular')
     setShowVincular(false)
   }
@@ -419,19 +414,18 @@ export default function ClientPanel() {
               <span className="text-xs font-medium text-[#F59E0B]">{clienteActual.puntos||0} pts</span>
             </div>
             {(() => {
-              const stored = (()=>{ try{ const s=JSON.parse(localStorage.getItem('fidelizacion_recompensas')||'[]'); return s.length? s : null } catch{ return null }})()
-              const recompensas = stored || [{ name: 'Descuento $10.000', cost: 100, icon: '🏷️', desc: '$10.000' }, { name: 'Bebida gratis', cost: 50, icon: '🥤', desc: 'Bebida' }, { name: 'Postre gratis', cost: 75, icon: '🍰', desc: 'Postre' }, { name: 'Envío gratis', cost: 30, icon: '🚴', desc: 'Envío' }]
+              const recompensas = loyaltyService.getRewardsOrDefaults()
               return <div className="space-y-2">{recompensas.map((r:any) => (
               <div key={r.name||r.nombre} className="flex items-center gap-3 p-3 rounded-xl border border-[#F1E9D8] hover:border-[#FDE68A] transition-colors">
                 <span className="w-9 h-9 rounded-xl bg-[#FFFBF5] border border-[#F1E9D8] flex items-center justify-center text-lg">{r.icon||'🎁'}</span>
                 <div className="flex-1 min-w-0"><h4 className="text-sm font-semibold text-[#1C2A0F]">{r.name||r.nombre}</h4><p className="text-xs text-[#64748B]">{r.desc||r.descripcion} · <span className="text-[#F59E0B] font-medium">{r.cost||r.puntos} pts</span></p></div>
-                <button onClick={()=>{ const c=r.cost||r.puntos; const res=canjearPuntos(c); if(res.ok){ try{ const k=`fidelidad_historial_${clienteActual.id}`; const h=JSON.parse(localStorage.getItem(k)||'[]'); h.unshift({id:`canje-${Date.now()}`, nombre:r.name||r.nombre, costo:c, fecha:new Date().toISOString()}); localStorage.setItem(k, JSON.stringify(h.slice(0,20)))}catch{}; toast.success(`¡${r.name||r.nombre} canjeado!`)} else toast.error(res.error||'Puntos insuficientes')}} disabled={(clienteActual.puntos||0) < (r.cost||r.puntos)} className="px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium disabled:bg-[#F1F5F9] disabled:text-[#94A3B8] disabled:border">Canjear</button>
+                <button onClick={()=>{ const c=r.cost||r.puntos; const res=canjearPuntos(c); if(res.ok){ loyaltyService.registrarCanje(clienteActual.id, r.name||r.nombre, c); toast.success(`¡${r.name||r.nombre} canjeado!`)} else toast.error(res.error||'Puntos insuficientes')}} disabled={(clienteActual.puntos||0) < (r.cost||r.puntos)} className="px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium disabled:bg-[#F1F5F9] disabled:text-[#94A3B8] disabled:border">Canjear</button>
               </div>
             ))}</div>})()}
           </div>
           <div className="bg-white rounded-2xl border border-[#F1E9D8] p-4">
             <h3 className="text-sm font-semibold text-[#1C2A0F] mb-3">Historial de canjes</h3>
-            {(() => { try{ const k=`fidelidad_historial_${clienteActual.id}`; const h=JSON.parse(localStorage.getItem(k)||'[]') as any[]; if(!h.length) return <p className="text-xs text-[#94A3B8] text-center py-4">Aún no has canjeado recompensas</p>; return <div className="space-y-2">{h.map((e:any)=> <div key={e.id} className="flex justify-between items-center p-2.5 rounded-xl bg-[#FFFBF5] border border-[#F1E9D8]"><div><p className="text-xs font-medium text-[#1C2A0F]">{e.nombre}</p><p className="text-[11px] text-[#94A3B8]">{new Date(e.fecha).toLocaleDateString('es-CO')} {new Date(e.fecha).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}</p></div><span className="text-xs font-bold text-[#92400E]">-{e.costo} pts</span></div>)}</div> } catch{ return <p className="text-xs text-[#94A3B8]">Error al cargar historial</p> } })()}
+            {(() => { const h=loyaltyService.getHistory(clienteActual.id) as any[]; if(!h.length) return <p className="text-xs text-[#94A3B8] text-center py-4">Aún no has canjeado recompensas</p>; return <div className="space-y-2">{h.map((e:any)=> <div key={e.id} className="flex justify-between items-center p-2.5 rounded-xl bg-[#FFFBF5] border border-[#F1E9D8]"><div><p className="text-xs font-medium text-[#1C2A0F]">{e.nombre}</p><p className="text-[11px] text-[#94A3B8]">{new Date(e.fecha).toLocaleDateString('es-CO')} {new Date(e.fecha).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}</p></div><span className="text-xs font-bold text-[#92400E]">-{e.costo} pts</span></div>)}</div> })()}
           </div>
         </div>
       )}
@@ -494,7 +488,7 @@ export default function ClientPanel() {
                   pedidos: ordenes,
                   reservas,
                   favoritos: favoriteProducts.map(p=> ({id:p.id, nombre:p.nombre, precio:p.precio})),
-                  historialCanjes: JSON.parse(localStorage.getItem(`fidelidad_historial_${clienteActual.id}`)||'[]'),
+                  historialCanjes: loyaltyService.getHistory(clienteActual.id),
                   preferencias: prefs,
                   exportado: new Date().toISOString()
                 }
@@ -517,7 +511,7 @@ export default function ClientPanel() {
         </div>
       )}
 
-      <ConfirmModal open={!!confirmCancelPedido} onClose={()=> setConfirmCancelPedido(null)} onConfirm={()=>{ if(confirmCancelPedido){ const all=storage.getOrdenes<Order>(); storage.setOrdenes(all.map(x=> x.id===confirmCancelPedido?{...x, estado:'cancelado'}:x) as Order[]); toast.success('Pedido cancelado'); setConfirmCancelPedido(null)} }} title="Cancelar pedido" message="¿Cancelar este pedido? Solo pedidos en estado recibido pueden cancelarse." confirmText="Sí, cancelar" cancelText="Mantener" />
+      <ConfirmModal open={!!confirmCancelPedido} onClose={()=> setConfirmCancelPedido(null)} onConfirm={()=>{ if(confirmCancelPedido){ setOrdenes(orderService.cancelarPedido(confirmCancelPedido)); toast.success('Pedido cancelado'); setConfirmCancelPedido(null)} }} title="Cancelar pedido" message="¿Cancelar este pedido? Solo pedidos en estado recibido pueden cancelarse." confirmText="Sí, cancelar" cancelText="Mantener" />
       <ConfirmModal open={!!confirmFav} onClose={()=> setConfirmFav(null)} onConfirm={()=>{ if(confirmFav){ toggleFavorite(confirmFav); toast.success('Eliminado de favoritos'); setConfirmFav(null)} }} title="Quitar favorito" message="¿Quitar este plato de tus favoritos?" confirmText="Quitar" cancelText="Mantener" />
       <ConfirmModal open={!!confirmCancel} onClose={()=> setConfirmCancel(null)} onConfirm={()=>{ const r=reservas.find((x:any)=> x.id===confirmCancel); if(r) handleCancelReserva(r)}} title="Cancelar reserva" message="¿Cancelar esta reserva?" confirmText="Sí, cancelar" cancelText="Mantener" />
       <ConfirmModal open={!!confirmDeleteDir} onClose={()=> setConfirmDeleteDir(null)} onConfirm={()=>{ if(confirmDeleteDir) deleteDireccion(confirmDeleteDir); setConfirmDeleteDir(null); toast.success('Dirección eliminada')}} title="Eliminar dirección" message="¿Eliminar esta dirección? No se puede deshacer." confirmText="Eliminar" cancelText="Cancelar" />

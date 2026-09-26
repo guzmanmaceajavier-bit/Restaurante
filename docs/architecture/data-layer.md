@@ -43,6 +43,15 @@ Todas viven en `services/storage/storageKeys.ts` (los valores no deben cambiar).
   estado con `occupiedSince`, eliminar).
 - `pages/admin/AdminCocina.tsx` → `features/orders/order.service.ts`
   (`filterCocina`, `avanzarPedido` sin historial, igual que el KDS original).
+- `pages/client/ClientPanel.tsx` → `features/customers/customer.service.ts`
+  (mis pedidos/reservas, huérfanos, vincular, preferencias),
+  `features/reservations/` (cancelar/modificar del portal),
+  `features/orders/order.service.ts#cancelarPedido`,
+  `features/loyalty/loyalty.service.ts` (recompensas, canjes, historial),
+  `features/products/product.service.ts` (favoritos).
+- `pages/client/ClientLogin.tsx` (demo vía `authStorage`),
+  `pages/public/{MiPerfil,OrderHistory,OrderTracking}.tsx`,
+  `hooks/useFavorites.ts` (vía `authStorage`).
 
 ## Pendiente (acceso directo en componentes, migrar a features/*.service)
 

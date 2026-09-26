@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { SEO } from '../../lib/seo'
-import { storage } from '../../lib/storage'
+import { orderService } from '../../features/orders/order.service'
 import { numberFormatter } from '../../utils/numberFormatter'
 import { FaSearch, FaBox, FaCheckCircle, FaUtensils, FaMotorcycle, FaWhatsapp, FaArrowLeft } from 'react-icons/fa'
 import { CONFIG } from '../../lib/config'
@@ -21,16 +21,14 @@ export default function OrderTracking() {
 
   useEffect(() => {
     if (id) {
-      const orders = storage.getOrdenes<Order>()
-      setOrder(orders.find(o => o.id === id) || null)
+      setOrder(orderService.findById(id) || null)
     }
   }, [id])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchId.trim()) return
-    const orders = storage.getOrdenes<Order>()
-    setOrder(orders.find(o => o.id === searchId.trim()) || null)
+    setOrder(orderService.findById(searchId.trim()) || null)
   }
 
   const currentStep = useMemo(() => {

@@ -1,16 +1,22 @@
 import { useState, useEffect, useCallback } from 'react'
+import { authStorage } from '../services/storage/authStorage'
+import { STORAGE_KEYS } from '../services/storage/storageKeys'
+import { readJson, writeJson } from '../services/storage/jsonStore'
 
-const FAV_KEY = 'sabor-favorites'
+const baseKey = (clientId?: string) =>
+  clientId ? `${STORAGE_KEYS.FAVORITES_PREFIX}-${clientId}` : STORAGE_KEYS.FAVORITES_PREFIX
 
 export function useFavorites(clientId?: string) {
-  const key = clientId ? `${FAV_KEY}-${clientId}` : FAV_KEY
+  const key = baseKey(clientId)
   const [favorites, setFavorites] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem(key) || '[]') } catch { return [] }
+    // Compatibilidad: useAuthStore migra `sabor-favorites-<telefono>` al cambiar teléfono
+    return clientId ? authStorage.getFavorites(clientId) : readJson<string[]>(key, [])
   })
 
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(favorites))
-  }, [favorites, key])
+    if (clientId) authStorage.setFavorites(clientId, favorites)
+    else writeJson(key, favorites)
+  }, [favorites, clientId, key])
 
   const toggleFavorite = useCallback((productId: string) => {
     setFavorites(prev =>

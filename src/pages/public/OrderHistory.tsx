@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { storage } from '../../lib/storage'
+import { orderService } from '../../features/orders/order.service'
+import { customerService } from '../../features/customers/customer.service'
 import { useCartStore } from '../../store/useCartStore'
 import { useAuthStore } from '../../store/useAuthStore'
 import { CONFIG } from '../../lib/config'
@@ -25,15 +26,11 @@ export default function OrderHistory() {
   const [ordenEncontrada, setOrdenEncontrada] = useState<Order | null>(null)
   const [errorBusqueda, setErrorBusqueda] = useState('')
 
-  const allOrders = storage.getOrdenes<Order>()
-  const misOrdenes = clienteActual
-    ? allOrders.filter((o) => clienteActual.historialPedidos.includes(o.id)).reverse()
-    : []
+  const misOrdenes = clienteActual ? customerService.getMisPedidos(clienteActual) : []
 
   const buscarOrden = () => {
     if (!busqueda.trim()) { toast.error('Ingresa un número de orden'); return }
-    const q = busqueda.trim().toUpperCase()
-    const found = allOrders.find((o) => o.id.toUpperCase() === q)
+    const found = orderService.buscarOrdenPorId(busqueda)
     if (found) { setOrdenEncontrada(found); setErrorBusqueda('') }
     else { setOrdenEncontrada(null); setErrorBusqueda('No se encontró esa orden') }
   }

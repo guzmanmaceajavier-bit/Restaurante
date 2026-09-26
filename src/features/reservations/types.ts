@@ -9,7 +9,7 @@ export interface ReservaData {
   zona: string
   ocasion: string
   comentarios: string
-  estado: 'Pendiente' | 'confirmada' | 'rechazada'
+  estado: 'Pendiente' | 'confirmada' | 'rechazada' | 'Cancelada'
   createdAt: string
 }
 

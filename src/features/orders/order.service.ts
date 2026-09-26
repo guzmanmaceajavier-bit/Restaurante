@@ -138,4 +138,23 @@ export const orderService = {
     }
     return { ok: true, ordenes: updated, entry };
   },
+
+  /**
+   * Cancelación desde el portal del cliente: marca cancelado directamente
+   * (sin compensar stock ni auditar, igual que el flujo original).
+   */
+  cancelarPedido: (id: string): Order[] => {
+    const updated = orderStorage
+      .getAll<Order>()
+      .map((x) => (x.id === id ? { ...x, estado: 'cancelado' } : x));
+    orderStorage.saveAll(updated);
+    return updated;
+  },
+
+  /** Búsqueda por código exacto insensible a mayúsculas (portal público). */
+  buscarOrdenPorId: (codigo: string): Order | undefined => {
+    const q = codigo.trim().toUpperCase();
+    if (!q) return undefined;
+    return orderStorage.getAll<Order>().find((o) => o.id.toUpperCase() === q);
+  },
 };

@@ -78,4 +78,28 @@ export const reservationService = {
     reservationStorage.saveAll(reservas);
     return reservas;
   },
+
+  /**
+   * Cancelación desde el portal del cliente (estado 'Cancelada',
+   * igual que el flujo original del portal).
+   */
+  cancelarReservaCliente: (id: string): ReservaData[] => {
+    const reservas = reservationStorage
+      .getAll<ReservaData>()
+      .map((r) => (r.id === id ? { ...r, estado: 'Cancelada' as const } : r));
+    reservationStorage.saveAll(reservas);
+    return reservas;
+  },
+
+  /** Edición desde el portal: fecha/hora/personas, vuelve a 'Pendiente'. */
+  actualizarReservaCliente: (
+    id: string,
+    cambios: Pick<ReservaData, 'fecha' | 'hora' | 'personas'>,
+  ): ReservaData[] => {
+    const reservas = reservationStorage
+      .getAll<ReservaData>()
+      .map((r) => (r.id === id ? { ...r, ...cambios, estado: 'Pendiente' as const } : r));
+    reservationStorage.saveAll(reservas);
+    return reservas;
+  },
 };

@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { SEO } from '../../lib/seo'
 import { useClientStore } from '../../store/useClientStore'
 import { puntosParaSiguienteNivel, FIDELIDAD_CONFIG } from '../../features/loyalty/fidelidad'
-import { storage } from '../../lib/storage'
-import type { Order } from '../../features/orders/types'
+import { customerService } from '../../features/customers/customer.service'
 import { Link } from 'react-router-dom'
 import { FaStar, FaArrowRight } from 'react-icons/fa'
 
@@ -19,9 +18,7 @@ export default function MiPerfil() {
     setBuscado(true)
   }
 
-  const ordenes = clienteActual
-    ? storage.getOrdenes<Order>().filter((o) => clienteActual.historialPedidos.includes(o.id))
-    : []
+  const ordenes = clienteActual ? customerService.getMisPedidos(clienteActual) : []
 
   const siguienteNivel = clienteActual ? puntosParaSiguienteNivel(clienteActual.puntos) : null
 
