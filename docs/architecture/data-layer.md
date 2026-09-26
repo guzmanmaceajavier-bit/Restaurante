@@ -52,6 +52,16 @@ Todas viven en `services/storage/storageKeys.ts` (los valores no deben cambiar).
 - `pages/client/ClientLogin.tsx` (demo vía `authStorage`),
   `pages/public/{MiPerfil,OrderHistory,OrderTracking}.tsx`,
   `hooks/useFavorites.ts` (vía `authStorage`).
+- `pages/admin/AdminFacturacion.tsx` → `features/billing/billing.service.ts`
+  (facturas no canceladas ordenadas, total facturado).
+- `pages/admin/AdminCompras.tsx` → `features/inventory/purchase.service.ts`
+  (filtros, registro con validación + suma de stock si recibida,
+  cambio de estado, eliminar) + `supplier.service` (lectura).
+- `pages/admin/AdminProveedores.tsx` → `features/inventory/supplier.service.ts`
+  (seed, filtros, guardar con validación, eliminar).
+- `pages/admin/AdminFinanzas.tsx` → `features/finance/analytics.service.ts`
+  (nuevo dominio finanzas: filtros por rango, stats, ventas 7 días,
+  métodos de pago, top productos, pedidos por estado).
 
 ## Pendiente (acceso directo en componentes, migrar a features/*.service)
 

@@ -1,14 +1,13 @@
 import { useMemo } from 'react'
 import { FaFileInvoiceDollar, FaPrint } from 'react-icons/fa'
 import { SEO } from '../../lib/seo'
-import { storage } from '../../lib/storage'
+import { billingService } from '../../features/billing/billing.service'
 import { imprimirPedido } from '../../components/admin/PrintTicket'
 import { ExportButton } from '../../components/admin/ExportButton'
-import type { Order } from '../../features/orders/types'
 
 export default function AdminFacturacion() {
-  const ordenes = useMemo(()=> storage.getOrdenes<Order>().filter(o=> o.estado!=='cancelado').sort((a,b)=> new Date(b.createdAt||0).getTime()-new Date(a.createdAt||0).getTime()), [])
-  const total = ordenes.reduce((s,o)=> s+(o.total||0),0)
+  const ordenes = useMemo(()=> billingService.getFacturas(), [])
+  const total = billingService.getTotalFacturado(ordenes)
   return (
     <div>
       <SEO title="Facturación" />

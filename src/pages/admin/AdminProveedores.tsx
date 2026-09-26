@@ -6,37 +6,31 @@ import ConfirmModal from '../../components/feedback/ConfirmModal'
 import { SEO } from '../../lib/seo'
 import { Pagination } from '../../components/admin/Pagination'
 import { ExportButton } from '../../components/admin/ExportButton'
+import { supplierService } from '../../features/inventory/supplier.service'
+import type { Proveedor } from '../../features/inventory/supplier.service'
 
-interface Proveedor { id: string; nombre: string; contacto: string; telefono: string; email: string; categoria: string; estado: 'activo' | 'inactivo' }
-
-const initial: Proveedor[] = [
-  { id: 'p1', nombre: 'Distribuciones La Sabana', contacto: 'Carlos Ruiz', telefono: '3101234567', email: 'ventas@sabana.com', categoria: 'Carnes', estado: 'activo' },
-  { id: 'p2', nombre: 'Frutas del Valle', contacto: 'María López', telefono: '3129876543', email: 'info@frutasvalle.com', categoria: 'Frutas/Verduras', estado: 'activo' },
-  { id: 'p3', nombre: 'Lácteos Córdoba', contacto: 'Jorge Díaz', telefono: '3005551234', email: 'pedidos@lacteoscordoba.com', categoria: 'Lácteos', estado: 'activo' },
-]
 const ITEMS_PER_PAGE = 10
 
 export default function AdminProveedores() {
-  const [proveedores, setProveedores] = useState<Proveedor[]>(() => { try { const s = JSON.parse(localStorage.getItem('proveedores') || '[]'); return s.length ? s : initial } catch { return initial } })
+  const [proveedores, setProveedores] = useState<Proveedor[]>(() => supplierService.getOrSeed())
   const [busqueda, setBusqueda] = useState('')
   const [page, setPage] = useState(1)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Proveedor | null>(null)
   const [form, setForm] = useState<Omit<Proveedor,'id'>>({ nombre:'', contacto:'', telefono:'', email:'', categoria:'', estado:'activo' })
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
-  const save = (d: Proveedor[]) => { setProveedores(d); localStorage.setItem('proveedores', JSON.stringify(d)) }
-  const filtrados = useMemo(() => proveedores.filter(p => !busqueda || p.nombre.toLowerCase().includes(busqueda.toLowerCase()) || p.categoria.toLowerCase().includes(busqueda.toLowerCase())), [proveedores, busqueda])
+  const filtrados = useMemo(() => supplierService.filterProveedores(proveedores, busqueda), [proveedores, busqueda])
   const totalPages = Math.ceil(filtrados.length / ITEMS_PER_PAGE)
   const pagina = filtrados.slice((page-1)*ITEMS_PER_PAGE, page*ITEMS_PER_PAGE)
   const openCreate = () => { setEditing(null); setForm({ nombre:'', contacto:'', telefono:'', email:'', categoria:'', estado:'activo' }); setShowForm(true) }
   const openEdit = (p: Proveedor) => { setEditing(p); setForm({ nombre:p.nombre, contacto:p.contacto, telefono:p.telefono, email:p.email, categoria:p.categoria, estado:p.estado }); setShowForm(true) }
   const submit = () => {
-    if (!form.nombre.trim()) { toast.error('Nombre requerido'); return }
-    if (editing) { save(proveedores.map(p => p.id===editing.id ? { ...p, ...form } : p)); toast.success('Proveedor actualizado') }
-    else { save([...proveedores, { id:'prov_'+Date.now(), ...form }]); toast.success('Proveedor creado') }
+    const result = supplierService.guardarProveedor({ id: editing?.id, ...form }, proveedores)
+    if (!result.ok) { toast.error(result.error); return }
+    setProveedores(result.proveedores); toast.success(editing ? 'Proveedor actualizado' : 'Proveedor creado')
     setShowForm(false)
   }
-  const eliminar = (id: string) => { save(proveedores.filter(p => p.id!==id)); toast.success('Proveedor eliminado') }
+  const eliminar = (id: string) => { setProveedores(supplierService.eliminarProveedor(id, proveedores)); toast.success('Proveedor eliminado') }
   return (
     <div>
       <SEO title="Proveedores" />

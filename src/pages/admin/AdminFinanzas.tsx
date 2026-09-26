@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { storage } from '../../lib/storage'
+import { analyticsService } from '../../features/finance/analytics.service'
 import { SEO } from '../../lib/seo'
 import type { Order } from '../../features/orders/types'
 import { FaDollarSign, FaShoppingBag, FaChartBar, FaCreditCard, FaWallet } from 'react-icons/fa'
@@ -15,114 +15,30 @@ const dateRangeLabels: Record<DateRange, string> = {
 
 export default function AdminFinanzas() {
   const [ordenes, setOrdenes] = useState<Order[]>([])
-  const [gastos, setGastos] = useState<any[]>(()=>{ try{ return JSON.parse(localStorage.getItem('gastos')||'[]')} catch{ return []}})
+  const [gastos, setGastos] = useState<ReturnType<typeof analyticsService.getGastos>>(() => analyticsService.getGastos())
   const [dateRange, setDateRange] = useState<DateRange>('todos')
-  useEffect(()=>{ const id=setInterval(()=>{ try{ setGastos(JSON.parse(localStorage.getItem('gastos')||'[]'))} catch{} }, 3000); return ()=> clearInterval(id)}, [])
+  useEffect(()=>{ const id=setInterval(()=>{ setGastos(analyticsService.getGastos()) }, 3000); return ()=> clearInterval(id)}, [])
 
   useEffect(() => {
-    setOrdenes(storage.getOrdenes<Order>())
+    setOrdenes(analyticsService.getOrdenes())
   }, [])
 
-  const filteredOrders = useMemo(() => {
-    const now = new Date()
-    const today = now.toISOString().split('T')[0]
+  const filteredOrders = useMemo(() => analyticsService.filterOrdenesPorRango(ordenes, dateRange), [ordenes, dateRange])
 
-    return ordenes.filter((o) => {
-      if (dateRange === 'hoy') {
-        return o.createdAt?.startsWith(today)
-      }
-      if (dateRange === 'semana') {
-        const weekAgo = new Date(now.getTime() - 7 * 86400000)
-        return o.createdAt && new Date(o.createdAt) >= weekAgo
-      }
-      if (dateRange === 'mes') {
-        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-        return o.createdAt?.startsWith(currentMonth)
-      }
-      return true
-    })
-  }, [ordenes, dateRange])
+  const gastosFiltrados = useMemo(()=> analyticsService.filterGastosPorRango(gastos, dateRange), [gastos, dateRange])
+  const stats = useMemo(() => analyticsService.getStats(filteredOrders, gastosFiltrados), [filteredOrders, gastosFiltrados])
 
-  const gastosFiltrados = useMemo(()=>{
-    const now=new Date(); const today=now.toISOString().split('T')[0]
-    return gastos.filter((g:any)=>{
-      if(dateRange==='hoy') return g.fecha===today
-      if(dateRange==='semana'){ const w=new Date(now.getTime()-7*86400000); return g.fecha && new Date(g.fecha) >= w }
-      if(dateRange==='mes'){ const m=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`; return g.fecha?.startsWith(m) }
-      return true
-    })
-  }, [gastos, dateRange])
-  const stats = useMemo(() => {
-    const activas = filteredOrders.filter((o) => o.estado !== 'cancelado')
-    const hoy = new Date().toISOString().split('T')[0]
-    const ordersHoy = activas.filter((o) => o.createdAt?.startsWith(hoy))
-    const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
-    const ordersMes = activas.filter((o) => o.createdAt?.startsWith(currentMonth))
-    const totalGastos = gastosFiltrados.reduce((s:any,g:any)=> s+(g.monto||0),0)
-    const totalIngresos = activas.reduce((sum, o) => sum + (o.total || 0), 0)
-    return {
-      totalIngresos,
-      totalGastos,
-      neto: totalIngresos - totalGastos,
-      pedidosHoy: ordersHoy.length,
-      ticketPromedio: activas.length > 0 ? Math.round(totalIngresos / activas.length) : 0,
-      ingresosMes: ordersMes.reduce((sum, o) => sum + (o.total || 0), 0),
-    }
-  }, [filteredOrders, gastosFiltrados])
-
-  const ventasPorDia = useMemo(() => {
-    const dias: Record<string, { total: number; label: string }> = {}
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date()
-      d.setDate(d.getDate() - i)
-      const key = d.toISOString().split('T')[0]
-      const label = d.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric' })
-      const total = ordenes
-        .filter((o) => o.estado !== 'cancelado' && o.createdAt?.startsWith(key))
-        .reduce((sum, o) => sum + (o.total || 0), 0)
-      dias[key] = { total, label }
-    }
-    return Object.entries(dias).map(([key, { total, label }]) => ({ key, label, total }))
-  }, [ordenes])
+  const ventasPorDia = useMemo(() => analyticsService.getVentasPorDia(ordenes), [ordenes])
 
   const maxVenta = Math.max(...ventasPorDia.map((d) => d.total), 1)
 
-  const metodosPago = useMemo(() => {
-    const counts: Record<string, number> = {}
-    filteredOrders.forEach((o) => {
-      const method = o.paymentMethod || 'Otro'
-      counts[method] = (counts[method] || 0) + (o.total || 0)
-    })
-    return Object.entries(counts)
-      .map(([metodo, total]) => ({ metodo, total }))
-      .sort((a, b) => b.total - a.total)
-  }, [filteredOrders])
+  const metodosPago = useMemo(() => analyticsService.getMetodosPago(filteredOrders), [filteredOrders])
 
   const totalPago = metodosPago.reduce((sum, m) => sum + m.total, 0)
 
-  const topProductos = useMemo(() => {
-    const counts: Record<string, number> = {}
-    filteredOrders.forEach((o) => {
-      o.items?.forEach((item) => {
-        counts[item.nombre] = (counts[item.nombre] || 0) + item.quantity
-      })
-    })
-    return Object.entries(counts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 5)
-      .map(([nombre, cantidad]) => ({ nombre, cantidad }))
-  }, [filteredOrders])
+  const topProductos = useMemo(() => analyticsService.getTopProductos(filteredOrders), [filteredOrders])
 
-  const pedidosPorEstado = useMemo(() => {
-    const counts: Record<string, number> = {}
-    filteredOrders.forEach((o) => {
-      const estado = o.estado || 'desconocido'
-      counts[estado] = (counts[estado] || 0) + 1
-    })
-    return Object.entries(counts)
-      .map(([estado, cantidad]) => ({ estado, cantidad }))
-      .sort((a, b) => b.cantidad - a.cantidad)
-  }, [filteredOrders])
+  const pedidosPorEstado = useMemo(() => analyticsService.getPedidosPorEstado(filteredOrders), [filteredOrders])
 
   const totalPedidos = pedidosPorEstado.reduce((sum, e) => sum + e.cantidad, 0)
 

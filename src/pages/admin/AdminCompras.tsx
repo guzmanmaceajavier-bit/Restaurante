@@ -5,39 +5,32 @@ import EmptyState from '../../components/feedback/EmptyState'
 import ConfirmModal from '../../components/feedback/ConfirmModal'
 import { SEO } from '../../lib/seo'
 import { Pagination } from '../../components/admin/Pagination'
+import { purchaseService } from '../../features/inventory/purchase.service'
+import type { Compra } from '../../features/inventory/purchase.service'
+import { supplierService } from '../../features/inventory/supplier.service'
+import type { Proveedor } from '../../features/inventory/supplier.service'
 
-interface Compra { id: string; proveedor: string; productos: string; cantidad: number; total: number; fecha: string; estado: 'pendiente' | 'recibida' | 'cancelada' }
 const ITEMS_PER_PAGE = 10
 
 export default function AdminCompras() {
   const [tab, setTab] = useState<'compras'|'proveedores'>('compras')
-  const [compras, setCompras] = useState<Compra[]>(() => { try { const s = JSON.parse(localStorage.getItem('compras')||'[]'); return s } catch { return [] } })
-  const [proveedores] = useState<any[]>(() => { try { const s=JSON.parse(localStorage.getItem('proveedores')||'[]'); return s } catch{ return [] } })
+  const [compras, setCompras] = useState<Compra[]>(() => purchaseService.getAll())
+  const [proveedores] = useState<Proveedor[]>(() => supplierService.getAll())
   const [busqueda, setBusqueda] = useState('')
   const [page, setPage] = useState(1)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<Omit<Compra,'id'>>({ proveedor:'', productos:'', cantidad:1, total:0, fecha: new Date().toISOString().split('T')[0], estado:'pendiente' })
   const [confirmDelete, setConfirmDelete] = useState<string|null>(null)
-  const save = (d: Compra[]) => { setCompras(d); localStorage.setItem('compras', JSON.stringify(d)) }
-  const filtradas = useMemo(()=> compras.filter(c=> !busqueda || c.proveedor.toLowerCase().includes(busqueda.toLowerCase()) || c.productos.toLowerCase().includes(busqueda.toLowerCase())), [compras, busqueda])
+  const filtradas = useMemo(()=> purchaseService.filterCompras(compras, busqueda), [compras, busqueda])
   const totalPages = Math.ceil(filtradas.length/ITEMS_PER_PAGE)
   const pagina = filtradas.slice((page-1)*ITEMS_PER_PAGE, page*ITEMS_PER_PAGE)
   const submit = () => {
-    if (!form.proveedor.trim() || !form.productos.trim()) { toast.error('Proveedor y productos requeridos'); return }
-    const nueva: Compra = { id:'comp_'+Date.now(), ...form }
-    save([...compras, nueva])
-    // actualizar inventario si recibida
-    if (form.estado==='recibida') {
-      try {
-        const prods = JSON.parse(localStorage.getItem('productos')||'[]')
-        // suma stock simple si coincide nombre
-        const updated = prods.map((p:any)=> form.productos.toLowerCase().includes(p.nombre?.toLowerCase()) ? {...p, stock: (p.stock||0)+form.cantidad} : p)
-        localStorage.setItem('productos', JSON.stringify(updated))
-      } catch {}
-    }
+    const result = purchaseService.registrarCompra(form, compras)
+    if (!result.ok) { toast.error(result.error); return }
+    setCompras(result.compras)
     toast.success('Compra registrada'); setShowForm(false)
   }
-  const cambiarEstado = (id:string, estado: Compra['estado']) => { save(compras.map(c=> c.id===id ? {...c, estado} : c)); toast.success(`Compra ${estado}`) }
+  const cambiarEstado = (id:string, estado: Compra['estado']) => { setCompras(purchaseService.cambiarEstado(id, estado, compras)); toast.success(`Compra ${estado}`) }
   return (
     <div>
       <SEO title="Compras" />
@@ -139,7 +132,7 @@ export default function AdminCompras() {
           </div>
         </div>
       )}
-      <ConfirmModal open={!!confirmDelete} onClose={()=>setConfirmDelete(null)} onConfirm={()=>{ if(confirmDelete){ save(compras.filter(c=>c.id!==confirmDelete)); setConfirmDelete(null); toast.success('Compra eliminada')}}} title="Eliminar compra" message="¿Eliminar esta compra?" confirmText="Eliminar" variant="danger" />
+      <ConfirmModal open={!!confirmDelete} onClose={()=>setConfirmDelete(null)} onConfirm={()=>{ if(confirmDelete){ setCompras(purchaseService.eliminarCompra(confirmDelete, compras)); setConfirmDelete(null); toast.success('Compra eliminada')}}} title="Eliminar compra" message="¿Eliminar esta compra?" confirmText="Eliminar" variant="danger" />
     </div>
   )
 }
