@@ -1,4 +1,4 @@
-import type { Promocion } from '../../lib/config';
+import { CONFIG, type Promocion } from '../../lib/config';
 import { STORAGE_KEYS } from '../../services/storage/storageKeys';
 import { readJson, writeJson } from '../../services/storage/jsonStore';
 
@@ -14,6 +14,13 @@ export type ResultadoPromocion =
 export const promotionService = {
   getAdmin: (): Promocion[] => readJson<Promocion[]>(STORAGE_KEYS.PROMOTIONS_ADMIN, []),
   saveAdmin: (promotions: Promocion[]): void => writeJson(STORAGE_KEYS.PROMOTIONS_ADMIN, promotions),
+
+  /** Vigentes: override guardado o catálogo base de CONFIG. */
+  getVigentes: (): Promocion[] => {
+    const stored = readJson<Promocion[]>(STORAGE_KEYS.PROMOTIONS_ADMIN, []);
+    if (stored.length) return stored.filter((p) => p.vigente);
+    return CONFIG.promociones.filter((p) => p.vigente);
+  },
 
   filterPromociones: (promociones: Promocion[], busqueda: string): Promocion[] => {
     if (!busqueda) return promociones;

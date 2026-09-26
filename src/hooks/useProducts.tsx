@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { IProduct } from '../features/products/types'
-import { dataService } from '../lib/dataService'
+import { productService } from '../features/products/product.service'
 
 interface IProps {
   productId?: string
@@ -22,7 +22,7 @@ export function useProducts({ productId }: IProps) {
         return
       }
 
-      const product = dataService.getProductoById(productId)
+      const product = productService.getById(productId)
 
       if (!product) {
         setError(`No se encontró el producto: ${productId}`)
@@ -38,7 +38,7 @@ export function useProducts({ productId }: IProps) {
   }, [productId])
 
   const filterProducts = (category: string) => {
-    return dataService.getProductos().filter((product) => product.categoría === category && product.nombre !== productId)
+    return productService.getAll().filter((product) => product.categoría === category && product.nombre !== productId)
   }
 
   return {

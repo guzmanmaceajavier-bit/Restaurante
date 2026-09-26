@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
-import { storage } from '../../lib/storage'
+import { reviewService } from '../../features/reviews/review.service'
+import type { ResenaAdmin as Resena } from '../../features/reviews/review.service'
 import { toast } from 'sonner'
 import { FaSearch, FaStar, FaReply, FaTrash } from 'react-icons/fa'
 import EmptyState from '../../components/feedback/EmptyState'
@@ -8,8 +9,6 @@ import { ExportButton } from '../../components/admin/ExportButton'
 import ConfirmModal from '../../components/feedback/ConfirmModal'
 
 const ITEMS_PER_PAGE = 8
-
-interface Resena { id: number; nombre: string; estrellas: number; comentario: string; fecha: string; respuestaAdmin?: string; respondedAt?: string }
 
 export default function AdminResenas() {
   const [resenas, setResenas] = useState<Resena[]>([])
@@ -20,43 +19,25 @@ export default function AdminResenas() {
   const [page, setPage] = useState(1)
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
 
-  useEffect(() => { setResenas(storage.getResenas()) }, [])
+  useEffect(() => { setResenas(reviewService.getAll<Resena>()) }, [])
 
-  const filtradas = useMemo(() => {
-    return resenas.filter((r) => {
-      if (filtroEstrellas > 0 && r.estrellas !== filtroEstrellas) return false
-      if (busqueda) {
-        const b = busqueda.toLowerCase()
-        return r.nombre?.toLowerCase().includes(b) || r.comentario?.toLowerCase().includes(b)
-      }
-      return true
-    }).sort((a, b) => new Date(b.fecha || 0).getTime() - new Date(a.fecha || 0).getTime())
-  }, [resenas, filtroEstrellas, busqueda])
+  const filtradas = useMemo(() => reviewService.filterResenas(resenas, { busqueda, estrellas: filtroEstrellas }), [resenas, filtroEstrellas, busqueda])
 
   const totalPages = Math.ceil(filtradas.length / ITEMS_PER_PAGE)
   const pagina = filtradas.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
 
-  const promedio = useMemo(() => {
-    if (resenas.length === 0) return 0
-    return (resenas.reduce((sum, r) => sum + r.estrellas, 0) / resenas.length).toFixed(1)
-  }, [resenas])
+  const promedio = useMemo(() => reviewService.getPromedio(resenas), [resenas])
 
-  const distribution = useMemo(() => {
-    const dist: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
-    resenas.forEach((r) => { if (dist[r.estrellas] !== undefined) dist[r.estrellas]++ })
-    return dist
-  }, [resenas])
+  const distribution = useMemo(() => reviewService.getDistribucion(resenas), [resenas])
 
   const responder = () => {
     if (!respondiendo || !respuesta.trim()) return
-    const updated = resenas.map((r) => r.id === respondiendo.id ? { ...r, respuestaAdmin: respuesta.trim(), respondedAt: new Date().toISOString() } : r)
-    setResenas(updated); storage.setResenas(updated); setRespondiendo(null); setRespuesta('')
+    setResenas(reviewService.responderResena(respondiendo.id, respuesta, resenas)); setRespondiendo(null); setRespuesta('')
     toast.success('Respuesta enviada')
   }
 
   const eliminar = (id: number) => {
-    const updated = resenas.filter((r) => r.id !== id)
-    setResenas(updated); storage.setResenas(updated); toast.success('Reseña eliminada')
+    setResenas(reviewService.eliminarResena(id, resenas)); toast.success('Reseña eliminada')
   }
 
   return (

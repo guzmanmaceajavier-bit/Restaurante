@@ -5,7 +5,7 @@ import { ProductsList } from './ProductsList'
 import { FiShoppingBag, FiX } from 'react-icons/fi'
 import { FaTag } from 'react-icons/fa'
 import { useEffect, useState } from 'react'
-import { dataService } from '../../lib/dataService'
+import { promotionService } from '../../features/promotions/promotion.service'
 import { toast } from 'sonner'
 import clsx from 'clsx'
 
@@ -32,7 +32,7 @@ export function CartModal({ open, setOpen }: IProps) {
 
   const applyPromo = () => {
     const code = promoCode.trim().toUpperCase()
-    const validPromo = dataService.getPromociones()?.find(p => p.codigo?.toUpperCase() === code)
+    const validPromo = promotionService.getVigentes().find(p => p.codigo?.toUpperCase() === code)
     if (validPromo) {
       setAppliedPromo(validPromo)
       toast.success(`Cupón "${code}" aplicado: ${validPromo.descuento}% de descuento`)

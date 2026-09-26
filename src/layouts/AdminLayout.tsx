@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom'
-import { storage } from '../lib/storage'
+import { authService } from '../features/auth/auth.service'
+import { orderService } from '../features/orders/order.service'
 import { settingsStorage } from '../services/storage/settingsStorage'
 import { getRestaurantConfig } from '../lib/config'
 import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog, FaTag, FaClipboardList, FaChartBar, FaHistory, FaCashRegister, FaFileInvoiceDollar, FaShoppingCart, FaTrophy, FaChevronDown, FaChevronRight, FaSearch, FaBell, FaQuestionCircle, FaAngleDoubleLeft, FaAngleDoubleRight, FaGlassCheers, FaWhatsapp, FaPhone, FaEnvelope } from 'react-icons/fa'
@@ -52,13 +53,11 @@ function useBadges() {
   const [badges, setBadges] = useState<Record<string, number>>({})
   useEffect(() => {
     const load = () => {
-      try {
-        const ordenes = storage.getOrdenes<any>()
-        setBadges({
-          pendientes: ordenes.filter((o:any)=> o.estado==='recibido').length,
-          cocina: ordenes.filter((o:any)=> o.estado==='preparando').length,
-        })
-      } catch {}
+      const ordenes = orderService.getAll()
+      setBadges({
+        pendientes: ordenes.filter((o)=> o.estado==='recibido').length,
+        cocina: ordenes.filter((o)=> o.estado==='preparando').length,
+      })
     }
     load(); const id=setInterval(load, 4000); return ()=> clearInterval(id)
   }, [])
@@ -83,7 +82,7 @@ export default function AdminLayout() {
   const badges = useBadges()
   const config = getRestaurantConfig()
 
-  useEffect(() => { if (!storage.isAdmin()) navigate('/admin-login') }, [navigate])
+  useEffect(() => { if (!authService.isAdmin()) navigate('/admin-login') }, [navigate])
   useEffect(()=> settingsStorage.setSidebarCollapsed(collapsed), [collapsed])
   useEffect(()=> {
     const onKey = (e: KeyboardEvent) => { if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); setPaletteOpen(v=>!v)}}
@@ -98,7 +97,7 @@ export default function AdminLayout() {
   }, [location.pathname, current])
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
-  const handleLogout = () => { storage.clearAdmin(); navigate('/admin-login') }
+  const handleLogout = () => { authService.logoutAdmin(); navigate('/admin-login') }
   if (loading) return <AdminSkeleton />
 
   const sidebarWidth = collapsed ? 'w-[76px]' : 'w-[260px]'

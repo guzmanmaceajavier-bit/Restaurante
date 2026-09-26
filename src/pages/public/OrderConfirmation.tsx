@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { storage } from '../../lib/storage'
+import { orderService } from '../../features/orders/order.service'
 import { CONFIG } from '../../lib/config'
 import { FaCheckCircle, FaWhatsapp, FaHome, FaUtensils, FaStar, FaMotorcycle, FaShoppingBag, FaClock, FaPrint } from 'react-icons/fa'
 import { SEO } from '../../lib/seo'
@@ -41,8 +41,7 @@ export default function OrderConfirmation() {
 
   useEffect(() => {
     if (!id) { navigate('/'); return }
-    const ordenes = storage.getOrdenes<Order>()
-    const found = ordenes.find((o) => o.id === id)
+    const found = orderService.findById(id)
     if (found) setOrder(found)
   }, [id, navigate])
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { dataService } from '../../lib/dataService'
+import { productService } from '../../features/products/product.service'
+import type { IProduct } from '../../features/products/types'
 import { ProductCard } from '../ui/ProductCard'
 import { FaSearch, FaSlidersH, FaTimes, FaSortAmountDown } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
@@ -38,11 +39,11 @@ export function ProductsSection() {
   const buscarUrl = searchParams.get('buscar')
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(true)
-  const [allProducts, setAllProducts] = useState<ReturnType<typeof dataService.getProductos>>([])
+  const [allProducts, setAllProducts] = useState<IProduct[]>([])
   useEffect(() => {
     let attempts = 0
     const check = () => {
-      const data = dataService.getProductos()
+      const data = productService.getAll()
       if (data.length > 0 || attempts > 30) { setAllProducts(data); setLoading(false); return }
       attempts++
       setTimeout(check, 150)

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { storage } from '../../lib/storage'
+import { reservationService } from '../../features/reservations/reservation.service'
 import { toast } from 'sonner'
 import { CONFIG } from '../../lib/config'
 import { FaWhatsapp, FaSearch } from 'react-icons/fa'
@@ -10,7 +10,7 @@ export default function GestionReserva() {
   const [busqueda, setBusqueda] = useState('')
   const [filtro, setFiltro] = useState<ReservaData | null>(null)
 
-  useEffect(() => { setReservas(storage.getReservas()) }, [])
+  useEffect(() => { setReservas(reservationService.getAll()) }, [])
 
   const buscarReserva = () => {
     if (!busqueda.trim()) { toast.error('Ingresa un ID o correo para buscar'); return }
@@ -21,14 +21,14 @@ export default function GestionReserva() {
   }
 
   const actualizarReserva = (actualizada: ReservaData) => {
-    const nuevas = reservas.map((r) => (r.id === actualizada.id ? actualizada : r))
-    setReservas(nuevas); storage.setReservas(nuevas); setFiltro(null)
+    const result = reservationService.actualizarReserva(actualizada.id, actualizada, reservas)
+    if (!result.ok) { toast.error(result.error); return }
+    setReservas(result.reservas); setFiltro(null)
     toast.success('Reserva actualizada correctamente')
   }
 
   const eliminarReserva = (id: string) => {
-    const nuevas = reservas.filter((r) => r.id !== id)
-    setReservas(nuevas); storage.setReservas(nuevas); setFiltro(null)
+    setReservas(reservationService.eliminarReserva(id, reservas)); setFiltro(null)
     toast.success('Reserva eliminada')
   }
 

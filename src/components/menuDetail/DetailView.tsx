@@ -14,10 +14,8 @@ import type { IProduct, Adicional } from '../../features/products/types'
 import { FaClock, FaFire, FaLeaf, FaArrowLeft, FaCheck, FaHeart, FaShareAlt, FaStar } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 import { useFavorites } from '@/hooks/useFavorites'
-import { storage } from '../../lib/storage'
+import { reviewService } from '../../features/reviews/review.service'
 import { toast } from 'sonner'
-
-interface ResenaLocal { id: number; nombre: string; estrellas: number; comentario: string; fecha: string }
 
 const picanteLabels = ['', '🌶️ Poco picante', '🌶️🌶️ Picante', '🌶️🌶️🌶️ Muy picante']
 
@@ -36,8 +34,7 @@ export function DetailView() {
   const { isFavorite, toggleFavorite } = useFavorites()
 
   const reviews = useMemo(() => {
-    const all = storage.getResenas<ResenaLocal>()
-    return all.filter((r) => r.nombre?.toLowerCase().includes(productById?.nombre?.toLowerCase() || ''))
+    return reviewService.getResenasPorProducto(productById?.nombre ?? '')
   }, [productById])
 
   const avgRating = useMemo(() => {

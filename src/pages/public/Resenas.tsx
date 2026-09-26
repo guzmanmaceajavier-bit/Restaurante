@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { SEO } from '../../lib/seo'
-import { storage } from '../../lib/storage'
+import { reviewService } from '../../features/reviews/review.service'
 
 interface Reseña {
   id: number
@@ -26,11 +26,10 @@ export default function Reseñas() {
   const [estrellasHover, setEstrellasHover] = useState(0)
 
   useEffect(() => {
-    const stored = storage.getResenas<Reseña>()
-    if (stored.length) setReseñas(stored)
+    setReseñas(reviewService.getResenasOrDefaults<Reseña>(reseñasIniciales))
   }, [])
 
-  useEffect(() => { storage.setResenas(reseñas) }, [reseñas])
+  useEffect(() => { reviewService.savePublic(reseñas) }, [reseñas])
 
   const promedio = reseñas.length ? (reseñas.reduce((acc, r) => acc + r.estrellas, 0) / reseñas.length).toFixed(1) : '0.0'
 

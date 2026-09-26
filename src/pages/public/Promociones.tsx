@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
-import { dataService } from '../../lib/dataService'
+import { promotionService } from '../../features/promotions/promotion.service'
 import { CONFIG } from '../../lib/config'
 import { SEO } from '../../lib/seo'
 import { FaTag, FaPercent, FaBox, FaArrowRight, FaFire } from 'react-icons/fa'
 
 export default function Promociones() {
-  const promociones = dataService.getPromociones()
+  const promociones = promotionService.getVigentes()
   return (
     <>
       <SEO title="Promociones y Combos" description="Aprovecha nuestras promociones" />

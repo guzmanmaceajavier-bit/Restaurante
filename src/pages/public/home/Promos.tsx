@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
-import { dataService } from '@/lib/dataService'
+import { promotionService } from '@/features/promotions/promotion.service'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 import { FaTag, FaGift, FaPercent, FaArrowRight } from 'react-icons/fa'
 
 const promoIcons = [FaTag, FaGift, FaPercent]
 
 export default function Promos() {
-  const vigentes = dataService.getPromociones().slice(0, 3)
+  const vigentes = promotionService.getVigentes().slice(0, 3)
   const { ref, isVisible } = useScrollAnimate(0.1)
 
   if (!vigentes.length) return null

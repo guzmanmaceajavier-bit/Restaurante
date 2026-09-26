@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { CONFIG } from '../../lib/config'
-import { storage } from '../../lib/storage'
+import { authService } from '../../features/auth/auth.service'
 import { toast } from 'sonner'
 import { SEO } from '../../lib/seo'
 import { FaLock, FaUser, FaRocket } from 'react-icons/fa'
@@ -14,7 +14,7 @@ export default function AdminLogin() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     if (usuario === CONFIG.admin.usuario && clave === CONFIG.admin.clave) {
-      storage.setAdmin(true, CONFIG.admin.nombre)
+      authService.loginAdmin(CONFIG.admin.nombre)
       toast.success(`¡Bienvenido Admin ${CONFIG.admin.nombre}!`)
       navigate('/admin-dashboard')
     } else {
@@ -23,7 +23,7 @@ export default function AdminLogin() {
   }
 
   const handleDemoLogin = () => {
-    storage.setAdmin(true, CONFIG.admin.nombre)
+    authService.loginAdmin(CONFIG.admin.nombre)
     toast.success('¡Bienvenido Admin (Demo)!')
     navigate('/admin-dashboard')
   }

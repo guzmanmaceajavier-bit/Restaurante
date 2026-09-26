@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
-import { dataService } from '../../../lib/dataService'
+import { productService } from '../../../features/products/product.service'
 import { ProductCard } from '../../../components/ui/ProductCard'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 
 export default function FeaturedItems() {
-  const allProducts = dataService.getProductos()
+  const allProducts = productService.getAll()
   const items = allProducts.filter((p) => p.destacado || p.masVendido).slice(0, 6)
   const { ref, isVisible } = useScrollAnimate(0.1)
 

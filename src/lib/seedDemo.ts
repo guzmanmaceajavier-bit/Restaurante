@@ -1,3 +1,5 @@
+import type { IProduct } from '../features/products/types';
+import { productService } from '../features/products/product.service';
 import { authStorage } from '../services/storage/authStorage';
 import { cashStorage } from '../services/storage/cashStorage';
 import { customerStorage } from '../services/storage/customerStorage';
@@ -10,6 +12,18 @@ import { tableStorage } from '../services/storage/tableStorage';
 import { activityStorage } from '../services/storage/activityStorage';
 import { STORAGE_KEYS } from '../services/storage/storageKeys';
 import { writeString } from '../services/storage/jsonStore';
+
+export async function initDataService(): Promise<void> {
+  if (!productService.getAll().length) {
+    const data = await import('../mockData/mock_data.json');
+    const productos = (data.default as IProduct[]).map((p, i) => ({
+      ...p,
+      id: p.id || `prod-${i}`,
+    }));
+    productService.saveAll(productos);
+  }
+  seedDemoData();
+}
 
 export function seedDemoData(force = false) {
   const hasOrdenes = orderStorage.getAll().length > 0;
