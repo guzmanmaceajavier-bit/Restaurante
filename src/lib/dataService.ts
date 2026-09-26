@@ -1,5 +1,8 @@
-import type { IProduct } from '../types/product'
+import type { IProduct } from '../features/products/types'
 import { CONFIG, type Promocion, type Combo, type ProductoDestacado } from './config'
+import { productService } from '../features/products/product.service'
+import { STORAGE_KEYS } from '../services/storage/storageKeys'
+import { readJson } from '../services/storage/jsonStore'
 
 export interface IDataService {
   getProductos: () => IProduct[]
@@ -15,46 +18,24 @@ export interface IDataService {
 }
 
 export const dataService: IDataService = {
-  getProductos: () => {
-    const raw = localStorage.getItem('productos')
-    if (raw) {
-      return JSON.parse(raw) as IProduct[]
-    }
-    return []
-  },
+  getProductos: () => productService.getAll(),
 
-  getProductoById: (id: string) => {
-    const productos = dataService.getProductos()
-    return productos.find((p) => p.id === id || p.nombre === id)
-  },
+  getProductoById: (id: string) => productService.getById(id),
 
-  getCategorias: () => {
-    const productos = dataService.getProductos()
-    return [...new Set(productos.map((p) => p.categoría))]
-  },
+  getCategorias: () => productService.getCategories(),
 
-  getDestacados: () => {
-    return dataService.getProductos().filter((p) => p.destacado)
-  },
+  getDestacados: () => productService.getDestacados(),
 
-  getMasVendidos: () => {
-    return dataService.getProductos().filter((p) => p.masVendido)
-  },
+  getMasVendidos: () => productService.getMasVendidos(),
 
-  getRecomendados: () => {
-    return dataService.getProductos().filter((p) => p.recomendado)
-  },
+  getRecomendados: () => productService.getRecomendados(),
 
-  getNuevos: () => {
-    return dataService.getProductos().filter((p) => p.nuevo)
-  },
+  getNuevos: () => productService.getNuevos(),
 
   getPromociones: () => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('promociones_admin') || '[]') as Promocion[]
-      if (stored.length) return stored.filter((p) => p.vigente)
-    } catch {}
-    return CONFIG.promociones.filter((p) => p.vigente)
+    const stored = readJson<Promocion[]>(STORAGE_KEYS.PROMOTIONS_ADMIN, []);
+    if (stored.length) return stored.filter((p) => p.vigente);
+    return CONFIG.promociones.filter((p) => p.vigente);
   },
 
   getCombos: () => {
@@ -67,14 +48,13 @@ export const dataService: IDataService = {
 }
 
 export async function initDataService(): Promise<void> {
-  const existing = localStorage.getItem('productos')
-  if (!existing) {
+  if (!productService.getAll().length) {
     const data = await import('../mockData/mock_data.json')
     const productos = (data.default as IProduct[]).map((p, i) => ({
       ...p,
       id: p.id || `prod-${i}`,
     }))
-    localStorage.setItem('productos', JSON.stringify(productos))
+    productService.saveAll(productos)
   }
   const { seedDemoData } = await import('./seedDemo')
   seedDemoData()

@@ -1,6 +1,6 @@
 import { toast } from 'sonner'
 import { useCartStore } from '../store/useCartStore'
-import type { IProductCart } from '../types/product'
+import type { IProductCart } from '../features/products/types'
 
 export function useCart() {
   const { addToCart, decrementQuantity, removeItem, cart } = useCartStore()

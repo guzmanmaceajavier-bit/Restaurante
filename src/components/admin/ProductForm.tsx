@@ -1,6 +1,6 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import type { IProduct, Adicional } from '../../types/product'
+import type { IProduct, Adicional } from '../../features/products/types'
 import { useState } from 'react'
 
 interface IProps {

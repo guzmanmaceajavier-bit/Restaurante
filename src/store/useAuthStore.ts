@@ -1,5 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { STORAGE_KEYS } from '../services/storage/storageKeys'
+import { loyaltyStorage } from '../services/storage/loyaltyStorage'
+import { authStorage } from '../services/storage/authStorage'
+import { removeKeys } from '../services/storage/jsonStore'
 
 export interface DireccionCliente { id: string; alias: string; direccion: string; indicaciones?: string }
 export interface ClienteAuth {
@@ -34,8 +38,7 @@ interface AuthStore {
 }
 
 const getFidelizacionCfg = () => {
-  try { const c=JSON.parse(localStorage.getItem('fidelizacion_cfg')||'null'); if(c) return c } catch{}
-  return { pesosPorPunto: 10000, puntosCanje: 100 }
+  return loyaltyStorage.getConfig({ pesosPorPunto: 10000, puntosCanje: 100 })
 }
 const calcularNivel = (puntos: number): 'bronce' | 'plata' | 'oro' => {
   // umbrales únicos: bronce 0, plata 200, oro 500 (coherente con AdminFidelizacion default)
@@ -126,12 +129,10 @@ export const useAuthStore = create<AuthStore>()(
         if(data.telefono && data.telefono!==actual.telefono && get().clientes.some(c=> c.telefono===data.telefono)) return {ok:false, error:'Ese teléfono ya está en uso'}
         // Migrar favoritos si cambia teléfono
         if(data.telefono && data.telefono!==actual.telefono){
-          try{
-            const oldKey=`sabor-favorites-${actual.telefono}`
-            const newKey=`sabor-favorites-${data.telefono}`
-            const fav=localStorage.getItem(oldKey)
-            if(fav && !localStorage.getItem(newKey)) localStorage.setItem(newKey, fav)
-          } catch{}
+          const fav = authStorage.getFavorites(actual.telefono)
+          if (fav.length && !authStorage.getFavorites(data.telefono).length) {
+            authStorage.setFavorites(data.telefono, fav)
+          }
         }
         const updated={...actual, ...data}
         set({ clienteActual: updated, clientes: get().clientes.map(c=> c.id===actual.id ? updated : c)})
@@ -155,14 +156,14 @@ export const useAuthStore = create<AuthStore>()(
       },
       deleteAccount: () => {
         const actual=get().clienteActual; if(!actual) return
-        try{
-          localStorage.removeItem(`sabor-favorites-${actual.telefono}`)
-          localStorage.removeItem(`fidelidad_historial_${actual.id}`)
-          localStorage.removeItem(`prefs_${actual.id}`)
-        } catch{}
+        removeKeys([
+          `${STORAGE_KEYS.FAVORITES_PREFIX}-${actual.telefono}`,
+          loyaltyStorage.historyKey(actual.id),
+          loyaltyStorage.prefsKey(actual.id),
+        ])
         set({ clientes: get().clientes.filter(c=> c.id!==actual.id), clienteActual: null })
       },
     }),
-    { name: 'auth-client-storage' }
+    { name: STORAGE_KEYS.AUTH_CLIENT }
   )
 )

@@ -1,0 +1,48 @@
+/**
+ * Claves centralizadas de persistencia local (modo demo).
+ * Los valores NO deben cambiar: romperían los datos ya guardados en navegadores.
+ * Cuando exista backend, estos adaptadores se reemplazan por llamadas HTTP
+ * sin tocar los componentes (ver services/api/http.ts).
+ */
+export const STORAGE_KEYS = {
+  PRODUCTS: 'productos',
+  CATEGORIES: 'categorias',
+  ORDERS: 'ordenes',
+  PROMOTIONS_ADMIN: 'promociones_admin',
+  RESERVATIONS: 'reservas',
+  TABLES: 'mesas',
+  CUSTOMERS: 'clientes',
+  CUSTOMERS_ADMIN: 'clientes_admin',
+  AUTH_CLIENT: 'auth-client-storage',
+  CLIENT_STORE: 'client-storage',
+  LOYALTY_CONFIG: 'fidelizacion_cfg',
+  LOYALTY_REWARDS: 'fidelizacion_recompensas',
+  CASH_MOVEMENTS: 'caja_movs',
+  EXPENSES: 'gastos',
+  CASH_OPEN: 'caja_abierta',
+  CASH_OPENING_AMOUNT: 'caja_apertura',
+  PURCHASES: 'compras',
+  SUPPLIERS: 'proveedores',
+  REVIEWS: 'resenas',
+  REVIEWS_ADMIN: 'resenas_admin',
+  EVENTS_ADMIN: 'eventos_admin',
+  CONTACT_REVIEWS: 'contact-reviews',
+  HOME_FAQS: 'home_faq',
+  HOME_TESTIMONIALS: 'home_testimonials',
+  IS_ADMIN: 'isAdmin',
+  ADMIN_NAME: 'adminName',
+  ACTIVITY_LOG: 'activity_log',
+  RESTAURANT_CONFIG: 'restaurant-config',
+  USERS_ROLES: 'usuarios_roles',
+  WHATSAPP_HISTORY: 'whatsapp-historial',
+  ADMIN_COLLAPSED: 'admin_collapsed',
+  COOKIE_CONSENT: 'cookie-consent-accepted',
+  DEMO_SEEDED: 'demo_seeded',
+  PRODUCTS_STORE: 'products-storage',
+  CART_STORE: 'cart-storage',
+  LEGAL_PRIVACY: 'politica-privacidad-text',
+  LEGAL_TERMS: 'terminos-condiciones-text',
+  FAVORITES_PREFIX: 'sabor-favorites',
+  LOYALTY_HISTORY_PREFIX: 'fidelidad_historial_',
+  PREFS_PREFIX: 'prefs_',
+} as const;

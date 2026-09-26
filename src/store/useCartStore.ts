@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { IProductCart } from '../types/product'
+import type { IProductCart } from '../features/products/types'
 import type { Promocion } from '../lib/config'
+import { STORAGE_KEYS } from '../services/storage/storageKeys'
 
 interface CartStore {
   count: number
@@ -67,7 +68,7 @@ export const useCartStore = create<CartStore>()(
       setAppliedPromo: (promo) => set({ appliedPromo: promo }),
     }),
     {
-      name: 'cart-storage',
+      name: STORAGE_KEYS.CART_STORE,
     }
   )
 )

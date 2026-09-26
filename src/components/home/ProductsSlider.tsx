@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { LuChevronLeft, LuChevronRight } from 'react-icons/lu'
-import { ProductCard } from '../core/ProductCard'
-import type { IProduct } from '../../types/product'
+import { ProductCard } from '../ui/ProductCard'
+import type { IProduct } from '../../features/products/types'
 
 interface IProps {
   productsData: IProduct[]

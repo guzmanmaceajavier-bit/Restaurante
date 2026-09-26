@@ -3,10 +3,10 @@ import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom'
 import { storage } from '../lib/storage'
 import { getRestaurantConfig } from '../lib/config'
 import { FaHome, FaBox, FaUtensils, FaCalendarAlt, FaThLarge, FaUsers, FaStar, FaComments, FaSignOutAlt, FaBars, FaTimes, FaChevronLeft, FaCog, FaTag, FaClipboardList, FaChartBar, FaHistory, FaCashRegister, FaFileInvoiceDollar, FaShoppingCart, FaTrophy, FaChevronDown, FaChevronRight, FaSearch, FaBell, FaQuestionCircle, FaAngleDoubleLeft, FaAngleDoubleRight, FaGlassCheers, FaWhatsapp, FaPhone, FaEnvelope } from 'react-icons/fa'
-import { AdminSkeleton } from '../components/core/LoadingSkeleton'
+import { AdminSkeleton } from '../components/feedback/LoadingSkeleton'
 import { useLoading } from '../hooks/useLoading'
 import { CommandPalette } from '../components/admin/CommandPalette'
-import ConfirmModal from '../components/core/ConfirmModal'
+import ConfirmModal from '../components/feedback/ConfirmModal'
 
 type Item = { label: string; icon: any; link: string; badgeKey?: string }
 type Section = { title: string; items: Item[] }

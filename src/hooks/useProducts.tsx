@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { IProduct } from '../types/product'
+import type { IProduct } from '../features/products/types'
 import { dataService } from '../lib/dataService'
 
 interface IProps {

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { RoutesPath } from '@/routes/routes'
+import { RoutesPath } from '@/app/router/routes'
 import { getRestaurantConfig } from '@/lib/config'
 import { FaInstagram, FaWhatsapp, FaMapMarkerAlt, FaPhone, FaClock } from 'react-icons/fa'
 

@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { RoutesPath } from '@/routes/routes'
+import { RoutesPath } from '@/app/router/routes'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
 import { getRestaurantConfig } from '@/lib/config'
@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from 'react'
 import { FaShoppingBag, FaUser, FaSignOutAlt, FaSearch, FaRocket } from 'react-icons/fa'
 import { BiMenu, BiX } from 'react-icons/bi'
 import clsx from 'clsx'
-import ConfirmModal from '../components/core/ConfirmModal'
+import ConfirmModal from '../components/feedback/ConfirmModal'
 
 const navLinks = [
   { label: 'Inicio', path: RoutesPath.home },

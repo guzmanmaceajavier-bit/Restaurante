@@ -1,6 +1,6 @@
 import { FaPrint } from 'react-icons/fa'
 import { CONFIG } from '../../lib/config'
-import type { Order } from '../../types/order'
+import type { Order } from '../../features/orders/types'
 
 interface PrintTicketProps {
   order: Order

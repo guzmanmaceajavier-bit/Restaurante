@@ -1,3 +1,5 @@
+import { settingsStorage } from '../services/storage/settingsStorage'
+
 export interface MetodoPago {
   id: string
   nombre: string
@@ -221,17 +223,13 @@ const defaultRestaurantConfig: RestaurantConfig = {
 }
 
 export function getRestaurantConfig(): RestaurantConfig {
-  try {
-    const stored = JSON.parse(localStorage.getItem('restaurant-config') || '{}')
-    return { ...defaultRestaurantConfig, ...stored }
-  } catch {
-    return defaultRestaurantConfig
-  }
+  const stored = settingsStorage.readRestaurantOverride()
+  return stored ? { ...defaultRestaurantConfig, ...stored } : defaultRestaurantConfig
 }
 
 export function saveRestaurantConfig(config: Partial<RestaurantConfig>) {
   const current = getRestaurantConfig()
   const updated = { ...current, ...config }
-  localStorage.setItem('restaurant-config', JSON.stringify(updated))
+  settingsStorage.writeRestaurantConfig(updated)
   return updated
 }

@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { dataService } from '../../lib/dataService'
-import { ProductCard } from '../core/ProductCard'
+import { ProductCard } from '../ui/ProductCard'
 import { FaSearch, FaSlidersH, FaTimes, FaSortAmountDown } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 
-import { MenuSkeleton } from '../core/LoadingSkeleton'
+import { MenuSkeleton } from '../feedback/LoadingSkeleton'
 import clsx from 'clsx'
 
 const ITEMS_PER_PAGE = 8

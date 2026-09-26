@@ -97,36 +97,47 @@ Frontend SPA (Single Page Application)
 
 ```
 restaurante/
-├── public/
-│   ├── platos/          # 25 imagenes de platos colombianos
-│   ├── icons/           # PWA icons
-│   ├── manifest.json    # PWA manifest
-│   └── sw.js            # Service worker
+├── docs/
+│   ├── architecture/    # overview, data-layer (modo demo → real)
+│   ├── api/             # borrador REST (sin implementar)
+│   └── database/        # entidades objetivo
+├── public/              # platos/, icons/, manifest.json, sw.js
 ├── src/
-│   ├── assets/          # Logos, banners, imagenes
+│   ├── app/
+│   │   ├── providers/   # AppProviders (router, toasts, cookies, errores)
+│   │   └── router/      # rutas (antes src/routes)
+│   ├── assets/          # logos, banners, imagenes
 │   ├── components/
-│   │   ├── admin/       # Componentes admin (StatCard, PrintTicket, etc.)
-│   │   ├── cart/        # Carrito de compras
-│   │   ├── checkout/    # Formulario de pago
-│   │   ├── core/        # Componentes compartidos
-│   │   ├── home/        # Slider de productos
-│   │   ├── menu/        # Secciones del menu
-│   │   └── menuDetail/  # Detalle de producto
-│   ├── demo/            # Configuracion y datos de demostracion
-│   ├── hooks/           # Custom hooks (useCart, useFavorites, etc.)
-│   ├── layouts/         # AppLayout, AdminLayout, ClientLayout
-│   ├── lib/             # Utilidades (config, storage, fidelidad, etc.)
-│   ├── mockData/        # Datos iniciales del menu
-│   ├── pages/           # 42 paginas (22 admin + 20 public/client)
-│   ├── routes/          # Rutas de la aplicacion
-│   ├── store/           # Zustand stores (auth, admin)
-│   ├── types/           # Tipos TypeScript
-│   └── utils/           # Utilidades generales
+│   │   ├── ui/          # ProductCard
+│   │   ├── feedback/    # ConfirmModal, EmptyState, Skeletons, CookieConsent
+│   │   ├── navigation/  # AdminGuard, ScrollToTop, WhatsAppButton, BackToTop
+│   │   ├── admin/ cart/ checkout/ home/ menu/ menuDetail/
+│   ├── features/        # 12 dominios: auth, products, orders, reservations,
+│   │                     # customers, loyalty, promotions, inventory, cash,
+│   │                     # billing, reviews, events (types + *.service + index)
+│   ├── services/
+│   │   ├── api/         # http.ts (modo real, inactivo en demo)
+│   │   └── storage/     # adaptadores localStorage por dominio + storageKeys
+│   ├── pages/
+│   │   ├── public/      # sitio + home/ (10 secciones)
+│   │   ├── client/      # login, mi-cuenta, recuperar-contrasena
+│   │   └── admin/       # 21 paginas admin
+│   ├── layouts/         # PublicLayout, AdminLayout, ClientLayout
+│   ├── lib/             # config, dataService (compat), seedDemo, seo
+│   ├── demo/            # config y usuarios demo
+│   ├── store/           # Zustand (cart, auth, client, products)
+│   ├── hooks/ constants/ utils/ mockData/
+│   └── styles/          # index.css (Tailwind)
+├── .env.example
 ├── README.md
 ├── package.json
 ├── vite.config.ts
 └── tailwind.config.js
 ```
+
+**Modo demo / modo real:** los `features/*.service` leen hoy de
+`services/storage` (localStorage) y están listos para usar `services/api`
+cuando exista el backend, sin cambiar componentes. Detalles en `docs/`.
 
 ---
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { IProductCart } from '../../types/product'
+import type { IProductCart } from '../../features/products/types'
 import { numberFormatter } from '../../utils/numberFormatter'
 import { getRestaurantConfig } from '../../lib/config'
 

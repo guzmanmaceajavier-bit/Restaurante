@@ -4,7 +4,7 @@ import { useAuthStore } from '../store/useAuthStore'
 import { getRestaurantConfig } from '../lib/config'
 import { FaShoppingBag, FaSignOutAlt, FaHome, FaUtensils, FaCalendarAlt, FaHeart, FaTrophy, FaMapMarkerAlt, FaShieldAlt } from 'react-icons/fa'
 import { useCartStore } from '../store/useCartStore'
-import ConfirmModal from '../components/core/ConfirmModal'
+import ConfirmModal from '../components/feedback/ConfirmModal'
 
 const navItems = [
   { label: 'Resumen', icon: FaHome, path: '/mi-cuenta#inicio' },

@@ -1,7 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { ICliente } from '../types/client'
-import { obtenerNivel, calcularPuntos } from '../lib/fidelidad'
+import type { ICliente } from '../features/customers/types'
+import { obtenerNivel, calcularPuntos } from '../features/loyalty/fidelidad'
+import { authStorage } from '../services/storage/authStorage'
+import { STORAGE_KEYS } from '../services/storage/storageKeys'
 
 interface ClientStore {
   clientes: ICliente[]
@@ -14,34 +16,25 @@ interface ClientStore {
 }
 
 function syncAuthStore(clientes: ICliente[]) {
-  try {
-    const authData = localStorage.getItem('auth-client-storage')
-    if (!authData) return
-    const parsed = JSON.parse(authData)
-    const authClientes = parsed.state?.clientes || []
-    const updated = authClientes.map((ac: any) => {
-      const synced = clientes.find((c) => c.telefono === ac.telefono)
-      if (synced) {
-        return { ...ac, puntos: synced.puntos, nivel: synced.nivel, historialPedidos: synced.historialPedidos }
-      }
-      return ac
-    })
-    localStorage.setItem('auth-client-storage', JSON.stringify({ ...parsed, state: { ...parsed.state, clientes: updated } }))
-  } catch {}
+  const authClientes = authStorage.readClients<any>()
+  if (!authClientes.length) return
+  const updated = authClientes.map((ac: any) => {
+    const synced = clientes.find((c) => c.telefono === ac.telefono)
+    if (synced) {
+      return { ...ac, puntos: synced.puntos, nivel: synced.nivel, historialPedidos: synced.historialPedidos }
+    }
+    return ac
+  })
+  authStorage.writeClients(updated)
 }
 
 function readFromAuthStore(): ICliente[] {
-  try {
-    const authData = localStorage.getItem('auth-client-storage')
-    if (!authData) return []
-    const parsed = JSON.parse(authData)
-    const authClientes = parsed.state?.clientes || []
-    return authClientes.map((c: any) => ({
-      id: c.id, nombre: c.nombre, email: c.email, telefono: c.telefono,
-      puntos: c.puntos || 0, nivel: c.nivel || 'bronce',
-      historialPedidos: c.historialPedidos || [], createdAt: c.createdAt || '',
-    }))
-  } catch { return [] }
+  return authStorage.readClients<any>().map((c: any) => ({
+    id: c.id, nombre: c.nombre, email: c.email, telefono: c.telefono,
+    puntos: c.puntos || 0, nivel: c.nivel || 'bronce',
+    historialPedidos: c.historialPedidos || [], historialReservas: c.historialReservas || [],
+    direcciones: c.direcciones || [], createdAt: c.createdAt || '',
+  }))
 }
 
 export const useClientStore = create<ClientStore>()(
@@ -102,6 +95,6 @@ export const useClientStore = create<ClientStore>()(
 
       setClienteActual: (cliente) => set({ clienteActual: cliente }),
     }),
-    { name: 'client-storage' }
+    { name: STORAGE_KEYS.CLIENT_STORE }
   )
 )

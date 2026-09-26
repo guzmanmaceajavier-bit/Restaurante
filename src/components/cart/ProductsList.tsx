@@ -1,7 +1,7 @@
 import { FaMinus, FaPlus, FaTrash, FaUtensils, FaStickyNote } from 'react-icons/fa'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { IProductCart } from '../../types/product'
+import type { IProductCart } from '../../features/products/types'
 import { numberFormatter } from '../../utils/numberFormatter'
 import { useCartStore } from '../../store/useCartStore'
 

@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { IProduct } from '../types/product'
+import type { IProduct } from '../features/products/types'
+import { productStorage } from '../services/storage/productStorage'
+import { STORAGE_KEYS } from '../services/storage/storageKeys'
 
 interface ProductStore {
   productos: IProduct[]
@@ -21,15 +23,14 @@ export const useProductStore = create<ProductStore>()(
 
       loadProductos: () => {
         if (get().loaded) return
-        const raw = localStorage.getItem('productos')
-        if (raw) {
-          const data = JSON.parse(raw) as IProduct[]
+        const data = productStorage.getAll()
+        if (data.length) {
           const withIds = data.map((p, i) => ({
             ...p,
             id: p.id || `prod-${Date.now().toString(36)}-${i}`,
           }))
           set({ productos: withIds, loaded: true })
-          localStorage.setItem('productos', JSON.stringify(withIds))
+          productStorage.saveAll(withIds)
         }
       },
 
@@ -40,7 +41,7 @@ export const useProductStore = create<ProductStore>()(
         }
         const updated = [...get().productos, nuevo]
         set({ productos: updated })
-        localStorage.setItem('productos', JSON.stringify(updated))
+        productStorage.saveAll(updated)
         return nuevo
       },
 
@@ -49,13 +50,13 @@ export const useProductStore = create<ProductStore>()(
           p.id === id ? { ...p, ...data } : p
         )
         set({ productos: updated })
-        localStorage.setItem('productos', JSON.stringify(updated))
+        productStorage.saveAll(updated)
       },
 
       deleteProducto: (id) => {
         const updated = get().productos.filter((p) => p.id !== id)
         set({ productos: updated })
-        localStorage.setItem('productos', JSON.stringify(updated))
+        productStorage.saveAll(updated)
       },
 
       getProductoById: (id) => {
@@ -66,6 +67,6 @@ export const useProductStore = create<ProductStore>()(
         return [...new Set(get().productos.map((p) => p.categoría))]
       },
     }),
-    { name: 'products-storage' }
+    { name: STORAGE_KEYS.PRODUCTS_STORE }
   )
 )
