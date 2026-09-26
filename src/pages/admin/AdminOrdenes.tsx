@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { storage } from '../../lib/storage'
+import { orderService } from '../../features/orders/order.service'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
 import { FaSearch, FaWhatsapp, FaPrint, FaFilter, FaTimes, FaExternalLinkAlt, FaCheckCircle } from 'react-icons/fa'
@@ -26,14 +26,7 @@ const nextAction: Record<string, {label:string, next:string}> = {
   preparando: {label:'Marcar listo', next:'listo'},
   listo: {label:'Entregar', next:'entregado'},
 }
-function buildHistory(o:any): {estado:string, fecha:string}[] {
-  if (Array.isArray(o.historial) && o.historial.length) return o.historial
-  const base = o.createdAt ? new Date(o.createdAt) : new Date()
-  const flow = ['recibido','preparando','listo','entregado']
-  const idx = flow.indexOf(o.estado)
-  if (idx===-1) return [{estado:o.estado, fecha: o.createdAt||new Date().toISOString()}]
-  return flow.slice(0, idx+1).map((e,i)=> ({estado:e, fecha: new Date(base.getTime()+ i*12*60000).toISOString()}))
-}
+const buildHistory = (o: Order) => orderService.buildHistory(o)
 
 export default function AdminOrdenes() {
   const navigate = useNavigate()
@@ -48,58 +41,24 @@ export default function AdminOrdenes() {
   const [page, setPage] = useState(1)
 
   useEffect(() => {
-    const load = () => setOrdenes(storage.getOrdenes<Order>())
+    const load = () => setOrdenes(orderService.getAll())
     load(); const id=setInterval(load,5000); const onStorage=()=>load()
     window.addEventListener('storage', onStorage); return ()=>{clearInterval(id); window.removeEventListener('storage', onStorage)}
   }, [])
 
-  const ordenesFiltradas = useMemo(()=> ordenes.filter(o=>{
-    if(filtroEstado && o.estado!==filtroEstado) return false
-    if(filtroMetodo && (o as any).metodoPago!==filtroMetodo) return false
-    if(filtroTipo && (o as any).tipoServicio!==filtroTipo) return false
-    if(filtroFecha && !o.createdAt?.startsWith(filtroFecha)) return false
-    if(busqueda){ const b=busqueda.toLowerCase(); return (o.id?.toLowerCase().includes(b)) || (o.fullName?.toLowerCase().includes(b)) || (o.phone?.includes(b)) }
-    return true
-  }).sort((a,b)=> new Date(b.createdAt||0).getTime()-new Date(a.createdAt||0).getTime()), [ordenes,busqueda,filtroEstado,filtroMetodo,filtroTipo,filtroFecha])
+  const ordenesFiltradas = useMemo(()=> orderService.filterOrders(ordenes, {
+    busqueda, estado: filtroEstado, metodo: filtroMetodo, tipo: filtroTipo, fecha: filtroFecha,
+  }), [ordenes,busqueda,filtroEstado,filtroMetodo,filtroTipo,filtroFecha])
 
   const totalPages=Math.ceil(ordenesFiltradas.length/ITEMS_PER_PAGE)
   const pagina=ordenesFiltradas.slice((page-1)*ITEMS_PER_PAGE, page*ITEMS_PER_PAGE)
   const hasActiveFilters = !!(filtroEstado||filtroMetodo||filtroTipo||filtroFecha||busqueda)
   const cambiarEstado=(id:string, s:string)=>{
-    const prev=ordenes.find(o=> o.id===id)
-    const nowIso=new Date().toISOString()
-    const u=ordenes.map(o=> {
-      if(o.id!==id) return o
-      const hist = Array.isArray((o as any).historial) ? [...(o as any).historial] : buildHistory(o)
-      hist.push({estado:s, fecha: nowIso})
-      return {...o, estado:s, historial: hist} as any
-    })
-    setOrdenes(u as any); storage.setOrdenes(u as any)
-    // Stock: si cancelado, devolver stock; si se reactiva desde cancelado, volver a descontar
-    try {
-      if(prev && s==='cancelado' && prev.estado!=='cancelado'){
-        const productos=JSON.parse(localStorage.getItem('productos')||'[]')
-        let changed=false
-        ;(prev.items as any[])?.forEach((it:any)=>{
-          const idx=productos.findIndex((p:any)=> p.nombre===it.nombre || p.id===it.id)
-          if(idx!==-1){ productos[idx].stock = (productos[idx].stock||0) + it.quantity; changed=true }
-        })
-        if(changed) localStorage.setItem('productos', JSON.stringify(productos))
-      }
-      if(prev && prev.estado==='cancelado' && s!=='cancelado'){
-        const productos=JSON.parse(localStorage.getItem('productos')||'[]')
-        let changed=false
-        ;(prev.items as any[])?.forEach((it:any)=>{
-          const idx=productos.findIndex((p:any)=> p.nombre===it.nombre || p.id===it.id)
-          if(idx!==-1){ productos[idx].stock = Math.max(0, (productos[idx].stock||0) - it.quantity); changed=true }
-        })
-        if(changed) localStorage.setItem('productos', JSON.stringify(productos))
-      }
-    } catch {}
-    // audit log
-    try{ const log=JSON.parse(localStorage.getItem('activity_log')||'[]'); log.unshift({id:'act_'+Date.now(), accion:'Pedidos', detalle:`Pedido #${id.slice(0,8)} → ${estadoBadge[s]?.label||s}`, fecha: nowIso, usuario:'Admin'}); localStorage.setItem('activity_log', JSON.stringify(log.slice(0,120)))} catch{}
-    if(selected?.id===id) setSelected(prevSel=> prevSel ? ({...prevSel, estado:s, historial: [...buildHistory(prevSel), {estado:s, fecha: nowIso}]} as any) : null)
-    toast.success(`Estado → ${estadoBadge[s]?.label||s}`)
+    const result = orderService.cambiarEstado(id, s)
+    if(!result.ok || !result.entry){ toast.error(result.error ?? 'No se pudo actualizar'); return }
+    setOrdenes(result.ordenes)
+    if(selected?.id===id) setSelected(prevSel=> prevSel ? ({...prevSel, estado:s, historial: [...buildHistory(prevSel), result.entry!]} as any) : null)
+    toast.success(`Estado → ${orderService.getEstadoLabel(s)}`)
   }
 
   return (

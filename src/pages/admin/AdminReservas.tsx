@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
-import { storage } from '../../lib/storage'
+import { reservationService } from '../../features/reservations/reservation.service'
+import { customerService } from '../../features/customers/customer.service'
 import { CONFIG } from '../../lib/config'
 import { toast } from 'sonner'
 import { FaPlus, FaSearch, FaWhatsapp, FaCheck, FaBan, FaCalendarAlt, FaChevronLeft, FaChevronRight, FaClock } from 'react-icons/fa'
@@ -39,13 +40,9 @@ export default function AdminReservas(){
   const [mensaje,setMensaje]=useState('')
   const [formCreate,setFormCreate]=useState(emptyForm)
   const [formEdit,setFormEdit]=useState(emptyForm)
-  useEffect(()=> setReservas(storage.getReservas()), [])
-  const guardar=(d:Reserva[])=>{ setReservas(d); storage.setReservas(d)}
-  const filtered=useMemo(()=> reservas.filter(r=>{
-    if(filtroEstado && r.estado!==filtroEstado) return false
-    if(busqueda){ const b=busqueda.toLowerCase(); return r.nombre?.toLowerCase().includes(b)||r.email?.toLowerCase().includes(b)||r.telefono?.includes(b)}
-    return true
-  }), [reservas,filtroEstado,busqueda])
+  useEffect(()=> setReservas(reservationService.getAll()), [])
+  const guardar=(d:Reserva[])=>{ setReservas(d); reservationService.saveAll(d)}
+  const filtered=useMemo(()=> reservationService.filterReservas(reservas, { busqueda, estado: filtroEstado }), [reservas,filtroEstado,busqueda])
   const byDate=useMemo(()=>{ const m=new Map<string, Reserva[]>(); filtered.forEach(r=>{ if(!m.has(r.fecha)) m.set(r.fecha,[]); m.get(r.fecha)!.push(r) }); return m}, [filtered])
   const agendaList = useMemo(()=>{
     const key = selectedDate || new Date().toISOString().split('T')[0]
@@ -59,27 +56,21 @@ export default function AdminReservas(){
   const monthLabel=cursor.toLocaleDateString('es-CO',{month:'long', year:'numeric'})
 
   const crear=()=>{
-    if(!formCreate.nombre||!formCreate.email||!formCreate.telefono||!formCreate.fecha||!formCreate.hora){ toast.error('Completa obligatorios'); return}
-    const n:Reserva={...formCreate, id:'res_'+Date.now(), createdAt:new Date().toISOString()}; guardar([...reservas,n])
+    const result = reservationService.crearReserva(formCreate)
+    if(!result.ok){ toast.error(result.error); return }
+    setReservas(result.reservas)
     // Vincular al historial del cliente si existe (para que cliente lo vea en /mi-cuenta)
-    try {
-      const clientes = JSON.parse(localStorage.getItem('clientes')||'[]')
-      const idx = clientes.findIndex((c:any)=> c.telefono===formCreate.telefono || c.email===formCreate.email)
-      if(idx!==-1){ clientes[idx].historialReservas = [...(clientes[idx].historialReservas||[]), n.id]; localStorage.setItem('clientes', JSON.stringify(clientes))
-        // también actualizar auth-client-storage si es el mismo cliente logueado
-        const authRaw = localStorage.getItem('auth-client-storage')
-        if(authRaw){ const auth=JSON.parse(authRaw); if(auth.state?.clienteActual && (auth.state.clienteActual.telefono===formCreate.telefono || auth.state.clienteActual.email===formCreate.email)){ auth.state.clienteActual.historialReservas = [...(auth.state.clienteActual.historialReservas||[]), n.id]; auth.state.clientes = auth.state.clientes.map((c:any)=> c.id===clientes[idx].id ? {...c, historialReservas: clientes[idx].historialReservas} : c); localStorage.setItem('auth-client-storage', JSON.stringify(auth)) } }
-      }
-    } catch {}
+    customerService.linkReserva({ telefono: formCreate.telefono, email: formCreate.email }, result.reserva.id)
     setShowCreate(false); setFormCreate(emptyForm); toast.success('Reserva creada y vinculada al cliente si existe')
   }
   const guardarEdit=()=>{
     if(!showEdit) return
-    if(!formEdit.nombre||!formEdit.email||!formEdit.telefono||!formEdit.fecha||!formEdit.hora){ toast.error('Completa obligatorios'); return}
-    guardar(reservas.map(r=> r.id===showEdit.id ? {...showEdit, ...formEdit} : r)); setShowEdit(null); toast.success('Reserva actualizada')
+    const result = reservationService.actualizarReserva(showEdit.id, formEdit)
+    if(!result.ok){ toast.error(result.error); return }
+    setReservas(result.reservas); setShowEdit(null); toast.success('Reserva actualizada')
   }
-  const confirmar=(id:string)=>{ const r=reservas.find(x=>x.id===id); if(!r) return; guardar(reservas.map(x=> x.id===id? {...x, estado:'confirmada' as const}:x)); setMsgTarget(r); setMensaje(`Hola ${r.nombre}, tu reserva del ${r.fecha} a las ${r.hora} ha sido confirmada. ¡Te esperamos!`); toast.success('Confirmada')}
-  const rechazar=(id:string)=>{ const r=reservas.find(x=>x.id===id); if(!r) return; guardar(reservas.map(x=> x.id===id? {...x, estado:'rechazada' as const}:x)); setMsgTarget(r); setMensaje(`Hola ${r.nombre}, lamentamos informarte que no hay disponibilidad para el ${r.fecha} a las ${r.hora}.`); toast.message('Rechazada')}
+  const confirmar=(id:string)=>{ const r=reservas.find(x=>x.id===id); if(!r) return; setReservas(reservationService.cambiarEstado(id, 'confirmada')); setMsgTarget(r); setMensaje(`Hola ${r.nombre}, tu reserva del ${r.fecha} a las ${r.hora} ha sido confirmada. ¡Te esperamos!`); toast.success('Confirmada')}
+  const rechazar=(id:string)=>{ const r=reservas.find(x=>x.id===id); if(!r) return; setReservas(reservationService.cambiarEstado(id, 'rechazada')); setMsgTarget(r); setMensaje(`Hola ${r.nombre}, lamentamos informarte que no hay disponibilidad para el ${r.fecha} a las ${r.hora}.`); toast.message('Rechazada')}
 
   return (
     <div>

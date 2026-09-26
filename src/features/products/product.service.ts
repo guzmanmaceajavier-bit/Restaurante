@@ -97,10 +97,10 @@ export const productService = {
     return { ok: true, categorias };
   },
 
-  deleteCategoria: (categoria: string): ResultadoCategoria => {
+  deleteCategoria: (categoria: string, actuales: string[]): ResultadoCategoria => {
     const count = productStorage.getAll().filter((p) => p.categoría === categoria).length;
     if (count > 0) return { ok: false, error: `No se puede: ${count} productos usan esta categoría` };
-    const categorias = productStorage.getCategories().filter((c) => c !== categoria);
+    const categorias = actuales.filter((c) => c !== categoria);
     productStorage.saveCategories(categorias);
     return { ok: true, categorias };
   },

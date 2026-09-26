@@ -7,18 +7,8 @@ import { ExportButton } from '../../components/admin/ExportButton'
 import { PageHeader } from '../../components/admin/PageHeader'
 import { DetailDrawer, DrawerSection, DrawerField } from '../../components/admin/DetailDrawer'
 import { ActionMenu } from '../../components/admin/ActionMenu'
-
-interface Mesa { id:string; numero:number; ubicacion:string; estado:string; occupiedSince?: string }
-const initial: Mesa[] = [
-  {id:'m1',numero:1,ubicacion:'Interior',estado:'disponible'},
-  {id:'m2',numero:2,ubicacion:'Interior',estado:'disponible'},
-  {id:'m3',numero:3,ubicacion:'Interior',estado:'ocupada'},
-  {id:'m4',numero:4,ubicacion:'Terraza',estado:'disponible'},
-  {id:'m5',numero:5,ubicacion:'Terraza',estado:'reservada'},
-  {id:'m6',numero:6,ubicacion:'Barra',estado:'disponible'},
-  {id:'m7',numero:7,ubicacion:'Zona Privada',estado:'disponible'},
-  {id:'m8',numero:8,ubicacion:'Interior',estado:'mantenimiento'},
-]
+import { tableService } from '../../features/tables/table.service'
+import type { Mesa } from '../../features/tables/table.service'
 const estadoCfg: Record<string, {label:string, bg:string, border:string, text:string, dot:string}> = {
   disponible: {label:'Libre', bg:'bg-white', border:'border-[#E5E7EB]', text:'text-[#475569]', dot:'bg-[#10B981]'},
   ocupada: {label:'Ocupada', bg:'bg-[#FEF2F2]', border:'border-[#FECACA]', text:'text-[#991B1B]', dot:'bg-[#EF4444]'},
@@ -29,7 +19,7 @@ const ubicacionesOptions=['Interior','Terraza','Barra','Zona Privada','Exterior'
 const estadosOptions=['disponible','ocupada','reservada','mantenimiento'] as const
 
 export default function AdminMesas(){
-  const [mesas,setMesas]=useState<Mesa[]>(()=>{ try{ const s=JSON.parse(localStorage.getItem('mesas')||'[]'); return s.length? s: initial } catch{ return initial}})
+  const [mesas,setMesas]=useState<Mesa[]>(()=> tableService.getOrSeed())
   const [nowTick,setNowTick]=useState(Date.now())
   useEffect(()=>{ const id=setInterval(()=> setNowTick(Date.now()), 30000); return ()=> clearInterval(id)}, [])
   const [filtro,setFiltro]=useState('')
@@ -41,8 +31,7 @@ export default function AdminMesas(){
   const [formUbicacion,setFormUbicacion]=useState('Interior')
   const [formEstado,setFormEstado]=useState('disponible')
   const [customUbic,setCustomUbic]=useState('')
-  const save=(u:Mesa[])=>{ setMesas(u); localStorage.setItem('mesas', JSON.stringify(u))}
-  const stats=useMemo(()=> ({ total: mesas.length, libres: mesas.filter(m=>m.estado==='disponible').length, ocupadas: mesas.filter(m=>m.estado==='ocupada').length, reservadas: mesas.filter(m=>m.estado==='reservada').length }), [mesas])
+  const stats=useMemo(()=> tableService.getStats(mesas), [mesas])
   const zonas=useMemo(()=> Array.from(new Set(mesas.map(m=> m.ubicacion))), [mesas])
   const filtradas=useMemo(()=> mesas.filter(m=> !filtro || m.ubicacion===filtro), [mesas,filtro])
   const grouped=useMemo(()=>{ const g=new Map<string,Mesa[]>(); filtradas.forEach(m=>{ if(!g.has(m.ubicacion)) g.set(m.ubicacion,[]); g.get(m.ubicacion)!.push(m)}); return Array.from(g.entries())}, [filtradas])
@@ -50,14 +39,15 @@ export default function AdminMesas(){
   const openCreate=()=>{ reset(); setShowForm(true)}
   const openEdit=(m:Mesa)=>{ setEditing(m); setFormNumero(String(m.numero)); setFormUbicacion(ubicacionesOptions.includes(m.ubicacion)? m.ubicacion: m.ubicacion); setFormEstado(m.estado); setCustomUbic(ubicacionesOptions.includes(m.ubicacion)? '': m.ubicacion); setShowForm(true)}
   const submit=()=>{
-    const num=parseInt(formNumero); if(isNaN(num)||num<=0){ toast.error('Número válido'); return}
-    if(mesas.some(m=> m.numero===num && m.id!==editing?.id)){ toast.error('Número ya existe'); return}
-    const ubic=customUbic.trim()||formUbicacion; if(!ubic){ toast.error('Ubicación requerida'); return}
-    if(editing){ save(mesas.map(m=> m.id===editing.id ? {...m, numero:num, ubicacion:ubic, estado:formEstado, occupiedSince: formEstado==='ocupada' ? (m.occupiedSince || new Date().toISOString()) : undefined}:m)); toast.success('Mesa actualizada')}
-    else { save([...mesas, {id:'mesa_'+Date.now(), numero:num, ubicacion:ubic, estado:formEstado, occupiedSince: formEstado==='ocupada' ? new Date().toISOString() : undefined}]); toast.success('Mesa creada')}
+    const result = tableService.guardarMesa(
+      { id: editing?.id, numero: parseInt(formNumero), ubicacion: customUbic.trim()||formUbicacion, estado: formEstado },
+      mesas,
+    )
+    if(!result.ok){ toast.error(result.error); return }
+    setMesas(result.mesas); toast.success(editing ? 'Mesa actualizada' : 'Mesa creada')
     setShowForm(false); reset()
   }
-  const cambiarEstado=(id:string, estado:string)=>{ save(mesas.map(m=> m.id===id ? {...m, estado, occupiedSince: estado==='ocupada' ? new Date().toISOString() : undefined}:m)); toast.success(`Mesa → ${estadoCfg[estado]?.label}`); setSelected(null)}
+  const cambiarEstado=(id:string, estado:string)=>{ setMesas(tableService.cambiarEstado(id, estado)); toast.success(`Mesa → ${estadoCfg[estado]?.label}`); setSelected(null)}
   return (
     <div>
       <PageHeader title="Mesas — Mapa del salón" description={`${stats.total} mesas · ${stats.libres} libres · ${stats.ocupadas} ocupadas · ${stats.reservadas} reservadas · Toca una mesa para gestionar`} actions={<><ExportButton data={filtradas} filename="mesas" columns={[{key:'numero',label:'Número'},{key:'ubicacion',label:'Ubicación'},{key:'estado',label:'Estado'}]} /><button onClick={openCreate} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0F172A] text-white text-sm font-medium hover:bg-[#1E293B]"><FaPlus size={11}/> Nueva mesa</button></>} />
@@ -140,7 +130,7 @@ export default function AdminMesas(){
         </>}
       </DetailDrawer>
 
-      <ConfirmModal open={!!confirmDelete} onClose={()=> setConfirmDelete(null)} onConfirm={()=> { if(confirmDelete){ save(mesas.filter(m=> m.id!==confirmDelete)); setConfirmDelete(null); toast.success('Mesa eliminada')}}} title="Eliminar mesa" message="¿Eliminar esta mesa?" confirmText="Eliminar" variant="danger" />
+      <ConfirmModal open={!!confirmDelete} onClose={()=> setConfirmDelete(null)} onConfirm={()=> { if(confirmDelete){ setMesas(tableService.eliminarMesa(confirmDelete)); setConfirmDelete(null); toast.success('Mesa eliminada')}}} title="Eliminar mesa" message="¿Eliminar esta mesa?" confirmText="Eliminar" variant="danger" />
     </div>
   )
 }

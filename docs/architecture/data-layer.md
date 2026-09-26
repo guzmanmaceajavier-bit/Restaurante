@@ -30,6 +30,19 @@ Todas viven en `services/storage/storageKeys.ts` (los valores no deben cambiar).
 - `pages/admin/AdminCatalogo.tsx` → `features/products/product.service.ts`
   (CRUD, filtros, paginación, categorías con validaciones) +
   `features/inventory/inventory.service.ts` (stock, estado Agotado/Bajo/OK).
+- `pages/admin/AdminOrdenes.tsx` → `features/orders/order.service.ts`
+  (filtros+orden, `buildHistory`, `cambiarEstado` con compensación de stock y
+  auditoría, etiquetas de estado). `deleteCategoria` ahora opera sobre la lista
+  pasada por la página, no sobre la guardada.
+- `pages/admin/AdminReservas.tsx` → `features/reservations/reservation.service.ts`
+  (filtros, crear/actualizar/cambiar-estado/eliminar con validación) +
+  `features/customers/customer.service.ts#linkReserva` (historial en lista
+  admin + sesión del portal).
+- `pages/admin/AdminMesas.tsx` → `features/tables/table.service.ts`
+  (nuevo dominio salón: seed, stats, guardar con validaciones, cambio de
+  estado con `occupiedSince`, eliminar).
+- `pages/admin/AdminCocina.tsx` → `features/orders/order.service.ts`
+  (`filterCocina`, `avanzarPedido` sin historial, igual que el KDS original).
 
 ## Pendiente (acceso directo en componentes, migrar a features/*.service)
 

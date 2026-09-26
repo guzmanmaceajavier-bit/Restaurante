@@ -65,7 +65,7 @@ export default function AdminCatalogo() {
     setShowCatForm(false); setCatEditing(null); setCatForm('')
   }
   const deleteCat = (cat:string) => {
-    const result = productService.deleteCategoria(cat)
+    const result = productService.deleteCategoria(cat, categorias)
     if(!result.ok) return toast.error(result.error)
     setCategorias(result.categorias ?? categorias); toast.success('Categoría eliminada')
   }

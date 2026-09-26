@@ -25,4 +25,16 @@ export const inventoryService = {
     productStorage.saveAll(updated);
     return updated;
   },
+
+  /** Ajuste relativo de stock (positivo devuelve, negativo descuenta). */
+  adjustStock: (productIdOrName: string, delta: number): boolean => {
+    let changed = false;
+    const updated = productStorage.getAll().map((p) => {
+      if (p.id !== productIdOrName && p.nombre !== productIdOrName) return p;
+      changed = true;
+      return { ...p, stock: Math.max(0, (p.stock || 0) + delta) };
+    });
+    if (changed) productStorage.saveAll(updated);
+    return changed;
+  },
 };

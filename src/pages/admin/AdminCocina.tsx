@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { storage } from '../../lib/storage'
+import { orderService } from '../../features/orders/order.service'
 import { toast } from 'sonner'
 import { FaClock, FaCheck, FaArrowRight, FaExclamationTriangle, FaFire } from 'react-icons/fa'
 import EmptyState from '../../components/feedback/EmptyState'
@@ -26,8 +26,8 @@ export default function AdminCocina() {
       } catch{}
     }
     const load=()=>{
-      const data=storage.getOrdenes<Order>()
-      const nuevos=data.filter((o:any)=> o.estado==='recibido').length
+      const data=orderService.getAll()
+      const nuevos=data.filter((o)=> o.estado==='recibido').length
       if(nuevos>prevCount && prevCount!==0) beep()
       setPrevCount(nuevos)
       setOrdenes(data)
@@ -35,12 +35,13 @@ export default function AdminCocina() {
     load(); const id=setInterval(load, 5000); const tick=setInterval(()=> setNow(Date.now()), 30000)
     return ()=> {clearInterval(id); clearInterval(tick)}
   }, [prevCount])
-  const cocina = useMemo(()=> ordenes.filter(o=> ['recibido','preparando','listo'].includes(o.estado)), [ordenes])
+  const cocina = useMemo(()=> orderService.filterCocina(ordenes), [ordenes])
   const byEstado = (e:string)=> cocina.filter(o=> o.estado===e)
   const avanzar=(id:string)=>{
     const o=ordenes.find(x=> x.id===id); if(!o) return
     const next=cfg[o.estado]?.next; if(!next) return
-    const u=ordenes.map(x=> x.id===id ? {...x, estado: next}:x); setOrdenes(u as any); storage.setOrdenes(u as any); toast.success(`Pedido → ${cfg[next]?.label}`)
+    const result=orderService.avanzarPedido(id, next); if(!result.ok) return
+    setOrdenes(result.ordenes); toast.success(`Pedido → ${cfg[next]?.label}`)
   }
 
   const Card=({o}:{o:Order})=>{
