@@ -111,8 +111,12 @@ export function ProductsSection() {
   if (loading) return <MenuSkeleton />
 
   return (
-    <section className="py-12 px-6" ref={ref}>
+    <section className="py-14 md:py-20 px-6 bg-cream-50" ref={ref}>
       <div className="max-w-content mx-auto">
+        <div className="text-center mb-8">
+          <p className="kicker text-olive-500 mb-2">Nuestra carta</p>
+          <h2 className="font-display font-bold text-espresso-800 text-3xl md:text-4xl display-balance">Platos de la casa</h2>
+        </div>
         {/* Search icon / expanded bar */}
         <div className={`mb-8 ${isVisible ? 'animate-fade-in' : 'opacity-0'}`}>
           <div className="relative max-w-xl mx-auto">
@@ -254,13 +258,13 @@ export function ProductsSection() {
 
         {/* Results */}
         <div className="flex items-center justify-between mb-6">
-          <p className="text-sm text-steel">{productosFiltrados.length} plato{productosFiltrados.length !== 1 ? 's' : ''}</p>
+          <p className="kicker text-steel">{productosFiltrados.length} plato{productosFiltrados.length !== 1 ? 's' : ''}</p>
           {hasActiveFilters && <span className="text-xs text-olive-600 flex items-center gap-1"><span className="w-2 h-2 bg-olive-500 rounded-full" /> Filtros activos</span>}
         </div>
 
         {/* Products grid */}
         {productosPagina.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-7">
             {productosPagina.map((p, i) => (
               <div key={p.id || p.nombre || i} className={isVisible ? 'animate-fade-in' : 'opacity-0'} style={{ transitionDelay: `${Math.min(i * 60, 480)}ms` }}>
                 <ProductCard {...p} />

@@ -24,7 +24,7 @@ const badges: { key: keyof IProduct; label: string; color: string }[] = [
   { key: 'nuevo', label: 'Nuevo', color: 'bg-gold-500' },
 ]
 
-export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, stock, descuento, picante, tiempoPreparacion, calorias, ingredientes, destacado, masVendido, recomendado, nuevo }: IProps) {
+export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, stock, descuento, picante, tiempoPreparacion, calorias, ingredientes, destacado, masVendido, recomendado, nuevo, categoría }: IProps) {
   const { pathname } = useLocation()
   const addToCart = useCartStore((s) => s.addToCart)
   const clienteActual = useAuthStore((s) => s.clienteActual)
@@ -80,16 +80,16 @@ export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, 
 
   const content = (
     <>
-      <div className="relative w-full aspect-[4/3] overflow-hidden">
-        <img src={imagen} alt={nombre || 'Producto'} className="size-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="relative w-full aspect-[5/4] overflow-hidden">
+        <img src={imagen} alt={nombre || 'Producto'} className="size-full object-cover img-zoom" loading="lazy" />
+        <div className="absolute inset-0 bg-gradient-to-t from-espresso-900/45 via-transparent to-transparent" />
 
         {/* Badges */}
         {activeBadges.slice(0, 2).map((b, i) => (
-          <span key={b.key} className={`absolute top-3 left-3 ${b.color} text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm ${i > 0 ? 'mt-8' : ''}`}>{b.label}</span>
+          <span key={b.key} className={`absolute top-3 left-3 ${b.color} text-white text-[10px] font-semibold tracking-wide px-2.5 py-1 rounded-full shadow-sm backdrop-blur-sm ${i > 0 ? 'mt-8' : ''}`}>{b.label}</span>
         ))}
         {descuento && <span className="absolute top-3 right-3 bg-olive-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">-{descuento}%</span>}
-        {stockLevel === 'low' && <span className="absolute bottom-14 left-3 bg-gold-500 text-espresso-900 text-[10px] font-bold px-3 py-1 rounded-full shadow-sm inline-flex items-center gap-1"><FaClock size={10} /> Quedan {stock}</span>}
+        {stockLevel === 'low' && <span className="absolute bottom-3 left-3 bg-espresso-900/70 backdrop-blur-sm text-cream-100 text-[10px] font-semibold px-3 py-1 rounded-full shadow-sm inline-flex items-center gap-1"><FaClock size={10} /> Quedan {stock}</span>}
 
         {/* Favorite button */}
         <button
@@ -128,23 +128,24 @@ export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, 
         )}
       </div>
 
-      <div className="p-4">
-        <h3 className="text-base font-display font-bold text-espresso-800 group-hover:text-olive-600 transition-colors duration-300">{nombre}</h3>
-        <p className={`text-xs text-steel mt-1 ${descExpanded ? '' : 'line-clamp-2'}`}>{descripcion}</p>
+      <div className="p-5">
+        {categoría && <p className="kicker text-olive-500 mb-1.5">{categoría}</p>}
+        <h3 className="text-lg font-display font-bold text-espresso-800 group-hover:text-olive-600 transition-colors duration-300 leading-snug">{nombre}</h3>
+        <p className={`text-xs text-steel mt-1.5 leading-relaxed ${descExpanded ? '' : 'line-clamp-2'}`}>{descripcion}</p>
         {descripcion && descripcion.length > 80 && (
           <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDescExpanded(!descExpanded) }}
             className="text-[11px] text-olive-500 hover:text-olive-600 font-medium mt-1 transition-colors">
             {descExpanded ? 'Ver menos' : 'Ver más'}
           </button>
         )}
-        <div className="flex items-center gap-2 mt-2.5">
+        <div className="flex items-end gap-2 mt-3 pt-3 border-t border-cream-200/70">
           {descuento ? (
-            <div className="flex items-center gap-1.5">
-              <span className="text-xl font-display font-bold text-olive-600">${numberFormatter(precio ?? 0)}</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-display font-bold text-espresso-800">${numberFormatter(precio ?? 0)}</span>
               <span className="text-xs text-steel line-through">${numberFormatter(Math.round((precio ?? 0) * 100 / (100 - descuento)))}</span>
             </div>
           ) : (
-            <span className="text-xl font-display font-bold text-olive-600">${numberFormatter(precio ?? 0)}</span>
+            <span className="text-2xl font-display font-bold text-espresso-800">${numberFormatter(precio ?? 0)}</span>
           )}
           {tiempoPreparacion && <span className="flex items-center gap-1 text-[11px] text-steel ml-auto"><FaClock size={10} /> {tiempoPreparacion} min</span>}
         </div>
@@ -165,7 +166,7 @@ export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, 
   )
 
   if (isFinal) return (
-    <div className="relative w-[90%] sm:w-72 overflow-hidden rounded-2xl bg-white border border-cream-200 shadow-sm hover:shadow-lift transition-all duration-300 group">
+    <div className="relative w-[90%] sm:w-72 overflow-hidden rounded-[1.25rem] bg-white shadow-card hover:shadow-lift transition-all duration-300 group card-lift">
       {content}
       <Link to={RoutesPath.menu} className="absolute inset-0 bg-espresso-900/40 backdrop-blur-sm grid place-items-center opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl">
         <span className="text-white text-xl font-display font-bold">Ver más</span>
@@ -175,7 +176,7 @@ export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, 
 
   return (
     <Link to={stockLevel === 'out' ? '#' : RoutesPath.menuDetail(url)}
-      className={`block w-full overflow-hidden rounded-2xl bg-white border border-cream-200 shadow-sm hover:shadow-lift transition-all duration-300 group ${stockLevel === 'out' ? 'opacity-70' : ''}`}
+      className={`block w-full overflow-hidden rounded-[1.25rem] bg-white shadow-card hover:shadow-lift transition-all duration-300 group card-lift ${stockLevel === 'out' ? 'opacity-70' : ''}`}
       aria-label={`Detalles de ${nombre}`}
       onClick={(e) => stockLevel === 'out' && e.preventDefault()}>
       {content}
