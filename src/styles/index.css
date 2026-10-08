@@ -27,9 +27,12 @@
     color: #e8e3dc;
     background-color: #1a1f16;
   }
+  /* Editorial headings: tighter tracking + compact leading */
   h1, h2, h3, h4 {
     font-family: 'Playfair Display', Georgia, serif;
     color: #30451D;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
   }
   .dark h1, .dark h2, .dark h3, .dark h4 {
     color: #e8e3dc;
@@ -45,26 +48,34 @@
 }
 
 @layer components {
+  /* Buttons: no !important — utilities in className always win over these
+     base styles, so variants (px-6, text-sm, w-full…) customize freely. */
   .btn-primary {
     @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-md transition-colors duration-150;
-    background-color: #667A22 !important;
-    color: white !important;
-    border: 1px solid #667A22 !important;
+    background-color: #667A22;
+    color: white;
+    border: 1px solid #667A22;
   }
-  .btn-primary:hover { background-color: #556619 !important; border-color: #556619 !important; }
+  .btn-primary:hover { background-color: #556619; border-color: #556619; }
+  .btn-primary:active { background-color: #445214; border-color: #445214; transform: scale(0.98); }
+  .btn-primary:disabled { background-color: #cdd4d9; border-color: #cdd4d9; color: #f4f6f7; cursor: not-allowed; transform: none; }
   .btn-secondary {
     @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-md transition-colors duration-150;
-    background-color: white !important;
-    border: 1px solid #E5E7EB !important;
-    color: #334155 !important;
+    background-color: white;
+    border: 1px solid #E5E7EB;
+    color: #334155;
   }
-  .btn-secondary:hover { background-color: #F8FAFC !important; border-color: #CBD5E1 !important; }
+  .btn-secondary:hover { background-color: #F8FAFC; border-color: #CBD5E1; }
+  .btn-secondary:active { background-color: #F1F5F9; transform: scale(0.98); }
+  .btn-secondary:disabled { background-color: #f4f6f7; color: #a9b4bf; cursor: not-allowed; transform: none; }
   .btn-ghost {
     @apply inline-flex items-center justify-center px-3 py-1.5 font-medium rounded-md transition-colors duration-150;
-    color: #475569 !important;
-    background: transparent !important;
+    color: #475569;
+    background: transparent;
   }
-  .btn-ghost:hover { background-color: #F1F5F9 !important; }
+  .btn-ghost:hover { background-color: #F1F5F9; }
+  .btn-ghost:active { transform: scale(0.98); }
+  .btn-ghost:disabled { color: #a9b4bf; cursor: not-allowed; transform: none; }
   .card-base {
     background-color: white;
     border-radius: 0.5rem;
@@ -97,12 +108,30 @@
     box-shadow: 0 0 0 3px rgba(102,122,34,0.15);
     border-color: #667A22;
   }
+  .input-base:disabled {
+    background-color: #f4f6f7;
+    color: #a9b4bf;
+    cursor: not-allowed;
+  }
 
   .text-gradient {
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-image: linear-gradient(to right, #667A22, #B9C98A);
+  }
+
+  /* Editorial kicker: small uppercase section label */
+  .kicker {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  /* Balanced display lines for hero / section titles */
+  .display-balance {
+    text-wrap: balance;
   }
 }
 
@@ -126,7 +155,7 @@ img {
   transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* === ANIMATIONS === */
+/* === ANIMATIONS (conservadas de la base existente) === */
 
 /* Fade up on scroll */
 .animate-fade-up {
@@ -267,7 +296,7 @@ img {
   @apply px-3 py-2.5 rounded-xl text-sm font-medium border-2 transition-all duration-200 cursor-pointer text-center;
 }
 .hour-slot.hour-available {
-  @apply border-cream-200 bg-white text-espresso-700 hover:border-olive-300 hover:bg-olive-50;
+  @apply border-cream-200 bg-white text-espresso-600 hover:border-olive-300 hover:bg-olive-50;
 }
 .hour-slot.hour-selected {
   @apply border-olive-500 bg-olive-500 text-white shadow-md shadow-olive-500/25;
@@ -284,4 +313,14 @@ img {
 .navbar-scrolled {
   box-shadow: 0 4px 20px rgba(48,69,29,0.08);
   backdrop-filter: blur(12px);
+}
+
+/* Accessibility: respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

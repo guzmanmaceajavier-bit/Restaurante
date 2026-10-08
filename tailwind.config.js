@@ -1,4 +1,19 @@
-/** @type {import('tailwindcss').Config} */
+/**
+ * Sabor y Origen — tokens de diseño (Fase 1: lenguaje visual editorial premium).
+ *
+ * REGLAS DE USO DE LA PALETA (no cambiar valores sin revisar todo el sitio):
+ * - olive ........ marca y CTAs principales (botones, enlaces activos, foco)
+ * - espresso ..... fondos oscuros (footer, hero overlay) y texto principal
+ * - gold ......... acentos puntuales (puntos, destacados, sellos). Nunca fondos grandes
+ * - cream ........ fondos cálidos de sección y superficies claras
+ * - sage ......... estados de éxito / disponible
+ * - steel ........ texto secundario y bordes neutros
+ * - orange ....... ofertas y urgencia (uso escaso)
+ *
+ * RADIOS: compactos (md/lg) en controles y tarjetas de datos;
+ * amplios (2xl/3xl) solo en fotografía, hero y destacados.
+ */
+ /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
@@ -22,6 +37,7 @@ export default {
           700: '#445214',
           800: '#374112',
           900: '#30451D',
+          DEFAULT: '#667A22',
         },
         orange: {
           50: '#fef3ec',
@@ -46,6 +62,7 @@ export default {
           700: '#9e5908',
           800: '#82460e',
           900: '#6f390f',
+          DEFAULT: '#F5B51B',
         },
         sage: {
           50: '#f7f9f2',
@@ -58,6 +75,7 @@ export default {
           700: '#4e6130',
           800: '#404e2a',
           900: '#374326',
+          DEFAULT: '#819c4e',
         },
         cream: {
           50: '#FFFDF7',
@@ -66,6 +84,7 @@ export default {
           300: '#FFE8C4',
           400: '#F5D9A8',
           500: '#E9D6B8',
+          DEFAULT: '#FFF8EA',
         },
         espresso: {
           50: '#f5f3f0',
@@ -78,6 +97,7 @@ export default {
           700: '#5e4a38',
           800: '#30451D',
           900: '#1e2c14',
+          DEFAULT: '#1C2A0F',
         },
         steel: {
           50: '#f4f6f7',
@@ -93,10 +113,11 @@ export default {
         },
       },
       boxShadow: {
-        card: '0 1px 3px rgba(16,24,40,0.06), 0 1px 2px rgba(16,24,40,0.04)',
-        lift: '0 8px 24px rgba(16,24,40,0.08)',
-        'card-hover': '0 4px 12px rgba(16,24,40,0.08)',
+        card: '0 1px 2px rgba(48,69,29,0.05)',
+        lift: '0 12px 32px rgba(48,69,29,0.10)',
+        'card-hover': '0 6px 18px rgba(48,69,29,0.09)',
         glow: '0 0 30px rgba(102,122,34,0.15)',
+        soft: '0 24px 64px rgba(48,69,29,0.12)',
       },
       maxWidth: {
         content: '1280px',
