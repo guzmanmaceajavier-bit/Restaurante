@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import ErrorBoundary from '../../lib/ErrorBoundary';
 import ScrollToTop from '../../components/navigation/ScrollToTop';
+import ScrollProgress from '../../components/navigation/ScrollProgress';
 import CookieConsent from '../../components/feedback/CookieConsent';
 
 export function AppProviders({ children }: { children: ReactNode }) {
@@ -10,6 +11,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
     <ErrorBoundary>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <ScrollToTop />
+        <ScrollProgress />
         {children}
       </BrowserRouter>
       <Toaster
