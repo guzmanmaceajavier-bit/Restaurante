@@ -10,7 +10,7 @@ import { productService } from '../../features/products/product.service'
 import { getRestaurantConfig } from '../../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../../lib/seo'
-import { FaShoppingBag, FaCalendarAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaGift, FaTrophy, FaCheckCircle, FaEdit, FaTrash, FaMapMarkerAlt, FaShieldAlt, FaHeadset, FaPlus } from 'react-icons/fa'
+import { FaShoppingBag, FaCalendarAlt, FaWhatsapp, FaEye, FaArrowRight, FaHeart, FaRedo, FaGift, FaTrophy, FaCheckCircle, FaEdit, FaTrash, FaMapMarkerAlt, FaShieldAlt, FaHeadset, FaPlus, FaLock } from 'react-icons/fa'
 import EmptyState from '../../components/feedback/EmptyState'
 import ConfirmModal from '../../components/feedback/ConfirmModal'
 import { useFavorites } from '../../hooks/useFavorites'
@@ -113,7 +113,7 @@ export default function ClientPanel() {
   if (!clienteActual) {
     return (
       <div className="max-w-md mx-auto text-center py-16">
-        <div className="w-16 h-16 rounded-2xl bg-white border border-[#F1E9D8] flex items-center justify-center mx-auto mb-4 text-xl">🔒</div>
+        <div className="w-16 h-16 rounded-2xl bg-white border border-[#F1E9D8] flex items-center justify-center mx-auto mb-4"><FaLock className="text-[#94A3B8]" size={22} /></div>
         <h1 className="text-xl font-bold text-[#1C2A0F]">Inicia sesión primero</h1>
         <p className="text-sm text-[#64748B] mt-1">Necesitas una cuenta para ver tu rincón</p>
         <Link to="/login" className="inline-flex mt-6 px-6 py-2.5 rounded-full bg-[#1C2A0F] text-white text-sm font-medium">Iniciar sesión <FaArrowRight size={11} className="ml-2"/></Link>
@@ -328,7 +328,7 @@ export default function ClientPanel() {
             <motion.div initial="hidden" animate="visible" variants={{hidden:{}, visible:{transition:{staggerChildren:0.06}}}} className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {favoriteProducts.map(p=> (
                 <motion.div key={p.id} variants={{hidden:{opacity:0, scale:0.98}, visible:{opacity:1, scale:1, transition:{type:'spring', damping:22, stiffness:280}}}} whileHover={{y:-3, scale:1.01}} className="bg-white rounded-2xl border border-[#F1E9D8] overflow-hidden group hover:shadow-md transition-shadow">
-                  <div className="relative aspect-[4/3] bg-[#F8FAFC]"><img src={p.imagen} alt={p.nombre} onError={(e)=>{ (e.currentTarget as HTMLImageElement).src='https://via.placeholder.com/400x300?text=Sin+imagen'; (e.currentTarget as HTMLImageElement).onerror=null}} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"/><button onClick={()=> { toggleFavorite(p.id||p.nombre); toast.success('Eliminado de favoritos')}} className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/95 border border-[#F1E9D8] flex items-center justify-center"><FaHeart size={12} className="text-[#E11D48] fill-[#E11D48]"/></button></div>
+                  <div className="relative aspect-[4/3] bg-[#F8FAFC]"><img src={p.imagen} alt={p.nombre} onError={(e)=>{ (e.currentTarget as HTMLImageElement).src='/platos/bandeja_paisa.webp'; (e.currentTarget as HTMLImageElement).onerror=null}} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"/><button onClick={()=> { toggleFavorite(p.id||p.nombre); toast.success('Eliminado de favoritos')}} className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/95 border border-[#F1E9D8] flex items-center justify-center"><FaHeart size={12} className="text-[#E11D48] fill-[#E11D48]"/></button></div>
                   <div className="p-3"><h4 className="text-xs font-semibold text-[#1C2A0F] truncate">{p.nombre}</h4><p className="text-[#F59E0B] font-bold text-sm mt-1">${numberFormatter(p.precio??0)}</p>
                     <div className="flex gap-1.5 mt-2"><button onClick={()=>{ addToCart({nombre:p.nombre, precio:p.precio, quantity:1, imagen:p.imagen}); toast.success(`${p.nombre} agregado`)}} className="flex-1 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium">Agregar</button><button onClick={()=> setConfirmFav(p.id||p.nombre)} className="px-3 py-2 rounded-full bg-white border border-[#FECACA] text-[#DC2626] text-xs"><FaTrash size={10}/></button></div>
                   </div>
@@ -417,7 +417,7 @@ export default function ClientPanel() {
               const recompensas = loyaltyService.getRewardsOrDefaults()
               return <div className="space-y-2">{recompensas.map((r:any) => (
               <div key={r.name||r.nombre} className="flex items-center gap-3 p-3 rounded-xl border border-[#F1E9D8] hover:border-[#FDE68A] transition-colors">
-                <span className="w-9 h-9 rounded-xl bg-[#FFFBF5] border border-[#F1E9D8] flex items-center justify-center text-lg">{r.icon||'🎁'}</span>
+                <span className="w-9 h-9 rounded-xl bg-[#FFFBF5] border border-[#F1E9D8] flex items-center justify-center"><FaGift size={16} className="text-[#F59E0B]" /></span>
                 <div className="flex-1 min-w-0"><h4 className="text-sm font-semibold text-[#1C2A0F]">{r.name||r.nombre}</h4><p className="text-xs text-[#64748B]">{r.desc||r.descripcion} · <span className="text-[#F59E0B] font-medium">{r.cost||r.puntos} pts</span></p></div>
                 <button onClick={()=>{ const c=r.cost||r.puntos; const res=canjearPuntos(c); if(res.ok){ loyaltyService.registrarCanje(clienteActual.id, r.name||r.nombre, c); toast.success(`¡${r.name||r.nombre} canjeado!`)} else toast.error(res.error||'Puntos insuficientes')}} disabled={(clienteActual.puntos||0) < (r.cost||r.puntos)} className="px-4 py-2 rounded-full bg-[#1C2A0F] text-white text-xs font-medium disabled:bg-[#F1F5F9] disabled:text-[#94A3B8] disabled:border">Canjear</button>
               </div>

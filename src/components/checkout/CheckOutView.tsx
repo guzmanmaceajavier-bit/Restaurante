@@ -11,7 +11,7 @@ import { getRestaurantConfig, CONFIG } from '../../lib/config'
 import { calcularPuntos, puntosParaSiguienteNivel, FIDELIDAD_CONFIG } from '../../features/loyalty/fidelidad'
 import { toast } from 'sonner'
 import { SEO } from '../../lib/seo'
-import { FaCheck, FaStar, FaArrowRight } from 'react-icons/fa'
+import { FaCheck, FaStar, FaArrowRight, FaShoppingBag } from 'react-icons/fa'
 
 const nf = (num: number) => new Intl.NumberFormat('es-CO').format(num)
 
@@ -68,24 +68,24 @@ export function CheckOutView() {
     // Persistir pedido y descontar stock real — ERP: pedido descuenta inventario
     orderService.crearPedido(newOrder)
 
-    let message = `🍽️ *Nuevo pedido* #${orderId}%0A%0A`
-    message += `👤 *Cliente:* ${data.fullName}%0A`
-    message += `📞 *Teléfono:* ${data.phone}%0A`
+    let message = `*Nuevo pedido* #${orderId}%0A%0A`
+    message += `*Cliente:* ${data.fullName}%0A`
+    message += `*Teléfono:* ${data.phone}%0A`
     const typeLabels: Record<string, string> = { eatHere: 'Comer aquí', delivery: 'A domicilio', pickup: 'Recoger' }
-    message += `📦 *Tipo:* ${typeLabels[data.typeOrder] || data.typeOrder}%0A`
-    if (data.tableNumber) message += `🪑 *Mesa:* ${data.tableNumber}%0A`
-    if (data.neighborhood) message += `📍 *Barrio:* ${data.neighborhood}%0A`
-    if (data.address) message += `🏠 *Dirección:* ${data.address}%0A`
-    if (data.scheduled && data.scheduledTime) message += `⏰ *Programado:* ${data.scheduledTime}%0A`
-    message += `💳 *Pago:* ${CONFIG.metodosPago.find((m) => m.nombre === data.paymentMethod || m.id === data.paymentMethod)?.nombre || data.paymentMethod}%0A%0A`
-    message += `🧾 *Productos:*%0A`
+    message += `*Tipo:* ${typeLabels[data.typeOrder] || data.typeOrder}%0A`
+    if (data.tableNumber) message += `*Mesa:* ${data.tableNumber}%0A`
+    if (data.neighborhood) message += `*Barrio:* ${data.neighborhood}%0A`
+    if (data.address) message += `*Dirección:* ${data.address}%0A`
+    if (data.scheduled && data.scheduledTime) message += `*Programado:* ${data.scheduledTime}%0A`
+    message += `*Pago:* ${CONFIG.metodosPago.find((m) => m.nombre === data.paymentMethod || m.id === data.paymentMethod)?.nombre || data.paymentMethod}%0A%0A`
+    message += `*Productos:*%0A`
     cart.forEach((item) => { message += `- ${item.nombre} ×${item.quantity} = $${nf((item.precio ?? 0) * item.quantity)}%0A` })
-    message += `%0A💰 *Subtotal:* $${nf(subtotal)}%0A`
-    if (deliveryFee > 0) message += `🚚 *Delivery:* $${nf(deliveryFee)}%0A`
-    if (promoDiscount > 0) message += `🎟️ *Descuento (${data.appliedPromo?.codigo}):* -$${nf(promoDiscount)}%0A`
+    message += `%0A*Subtotal:* $${nf(subtotal)}%0A`
+    if (deliveryFee > 0) message += `*Delivery:* $${nf(deliveryFee)}%0A`
+    if (promoDiscount > 0) message += `*Descuento (${data.appliedPromo?.codigo}):* -$${nf(promoDiscount)}%0A`
     message += `*Total:* $${nf(total)}%0A`
-    if (puntos > 0) message += `⭐ *Puntos ganados:* ${puntos}%0A`
-    message += `%0A🙏 ¡Gracias!`
+    if (puntos > 0) message += `*Puntos ganados:* ${puntos}%0A`
+    message += `%0A¡Gracias por tu compra!`
 
     const rc2 = getRestaurantConfig()
     const whatsappUrl = `https://wa.me/${rc2.whatsapp}?text=${encodeURIComponent(message)}`
@@ -103,7 +103,7 @@ export function CheckOutView() {
         <SEO title="Carrito" />
         <section className="min-h-[60vh] flex flex-col items-center justify-center px-6 text-center">
           <div className="w-20 h-20 bg-cream-100 rounded-3xl flex items-center justify-center mb-6">
-            <span className="text-4xl">🛒</span>
+            <FaShoppingBag className="text-steel/40" size={32} />
           </div>
           <h2 className="text-2xl font-display font-bold text-espresso-800 mb-2">Tu carrito está vacío</h2>
           <p className="text-steel mb-8">Agrega productos desde nuestro menú</p>

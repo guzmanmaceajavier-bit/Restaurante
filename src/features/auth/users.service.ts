@@ -29,7 +29,7 @@ function persistir(usuarios: Usuario[]): void {
 }
 
 /**
- * Dominio de usuarios y roles (RBAC básico demo). Hoy persiste en
+ * Dominio de usuarios y roles (RBAC básico). Hoy persiste en
  * localStorage vía adapters; mañana: /api/users.
  */
 export const usersService = {

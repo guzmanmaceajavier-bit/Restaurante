@@ -1,4 +1,4 @@
-# Capa de datos (modo demo)
+# Capa de datos (persistencia local)
 
 ## Claves centralizadas
 
@@ -13,14 +13,13 @@ Todas viven en `services/storage/storageKeys.ts` (los valores no deben cambiar).
 | Fidelidad | `fidelizacion_cfg`, `fidelizacion_recompensas`, `fidelidad_historial_<id>`, `prefs_<id>`, `sabor-favorites-<tel>` |
 | Caja/compras | `caja_movs`, `gastos`, `caja_abierta`, `caja_apertura`, `compras`, `proveedores` |
 | Contenido | `resenas`, `resenas_admin`, `eventos_admin`, `contact-reviews`, `home_faq`, `home_testimonials` |
-| Sistema | `isAdmin`, `adminName`, `activity_log`, `restaurant-config`, `usuarios_roles`, `whatsapp-historial`, `admin_collapsed`, `cookie-consent-accepted`, `demo_seeded`, `politica-privacidad-text`, `terminos-condiciones-text`, `cart-storage` |
+| Sistema | `isAdmin`, `adminName`, `activity_log`, `restaurant-config`, `usuarios_roles`, `whatsapp-historial`, `admin_collapsed`, `cookie-consent-accepted`, `politica-privacidad-text`, `terminos-condiciones-text`, `cart-storage` |
 
 ## Migrado a adaptadores / services
 
-`lib/storage.ts`, `lib/dataService.ts` (lecturas de catálogo/promos),
-`lib/config.ts` (restaurant-config), `lib/activity.ts`, `lib/seedDemo.ts`,
-`store/useProductStore`, `store/useClientStore`, `store/useAuthStore`,
-`pages/client/ClientLogin.tsx` (demo login).
+`lib/config.ts` (restaurant-config), `lib/activity.ts`,
+`store/useProductStore`, `store/useClientStore`, `store/useAuthStore`.
+(`lib/storage.ts` y `lib/dataService.ts` fueron eliminados: 0 consumidores.)
 
 ## Pilotos migrados a domain services (0 localStorage directo)
 
@@ -49,8 +48,7 @@ Todas viven en `services/storage/storageKeys.ts` (los valores no deben cambiar).
   `features/orders/order.service.ts#cancelarPedido`,
   `features/loyalty/loyalty.service.ts` (recompensas, canjes, historial),
   `features/products/product.service.ts` (favoritos).
-- `pages/client/ClientLogin.tsx` (demo vía `authStorage`),
-  `pages/public/{MiPerfil,OrderHistory,OrderTracking}.tsx`,
+- `pages/public/{MiPerfil,OrderHistory,OrderTracking}.tsx`,
   `hooks/useFavorites.ts` (vía `authStorage`).
 - `pages/admin/AdminFacturacion.tsx` → `features/billing/billing.service.ts`
   (facturas no canceladas ordenadas, total facturado).

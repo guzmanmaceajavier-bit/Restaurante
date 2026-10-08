@@ -31,10 +31,10 @@ export function Summary({ orderData }: IProps) {
       <TotalOrder cart={cart} showDelivery orderType={orderData?.typeOrder} />
       {orderData && (
         <div className="mt-4 pt-4 border-t border-cream-200 text-xs text-steel space-y-1">
-          {orderData.typeOrder === 'eatHere' && <p>🍴 Comer aquí {orderData.tableNumber ? `- Mesa ${orderData.tableNumber}` : ''}</p>}
-          {orderData.typeOrder === 'pickup' && <p>🥡 Recoger en el local</p>}
-          {orderData.typeOrder === 'delivery' && <p>🚚 A domicilio - {orderData.neighborhood}</p>}
-          {orderData.paymentMethod && <p>💳 {CONFIG.metodosPago.find(m => m.id === orderData.paymentMethod)?.nombre}</p>}
+          {orderData.typeOrder === 'eatHere' && <p>Comer aquí {orderData.tableNumber ? `- Mesa ${orderData.tableNumber}` : ''}</p>}
+          {orderData.typeOrder === 'pickup' && <p>Recoger en el local</p>}
+          {orderData.typeOrder === 'delivery' && <p>A domicilio - {orderData.neighborhood}</p>}
+          {orderData.paymentMethod && <p>Pago: {CONFIG.metodosPago.find(m => m.id === orderData.paymentMethod)?.nombre}</p>}
         </div>
       )}
     </div>

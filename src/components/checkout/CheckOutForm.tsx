@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { FaUtensils, FaMotorcycle, FaShoppingBag, FaCheck, FaRegClock } from 'react-icons/fa'
+import { FaUtensils, FaMotorcycle, FaShoppingBag, FaCheck, FaRegClock, FaMoneyBillWave, FaMobileAlt, FaUniversity, FaCreditCard } from 'react-icons/fa'
 import { CONFIG, getRestaurantConfig } from '../../lib/config'
 import { toast } from 'sonner'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -252,7 +252,10 @@ export function CheckOutForm({ onSubmit }: IProps) {
             <div className="space-y-5">
               <p className="font-semibold text-espresso-800 mb-4">Método de pago</p>
               <div className="space-y-3">
-                {CONFIG.metodosPago.map((mp) => (
+                {CONFIG.metodosPago.map((mp) => {
+                  const icons = { FaMoneyBillWave, FaMobileAlt, FaUniversity, FaCreditCard } as Record<string, typeof FaMoneyBillWave>
+                  const Icon = icons[mp.icono] ?? FaMoneyBillWave
+                  return (
                   <button
                     key={mp.id}
                     type="button"
@@ -265,7 +268,7 @@ export function CheckOutForm({ onSubmit }: IProps) {
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{mp.icono}</span>
+                      <span className="w-11 h-11 rounded-2xl bg-cream-100 flex items-center justify-center shrink-0"><Icon size={20} className="text-olive-600" /></span>
                       <div className="flex-1">
                         <p className={clsx('font-bold', values.paymentMethod === mp.id ? 'text-olive-700' : 'text-espresso-800')}>{mp.nombre}</p>
                         <p className="text-sm text-steel">{mp.desc}</p>
@@ -277,7 +280,8 @@ export function CheckOutForm({ onSubmit }: IProps) {
                       )}
                     </div>
                   </button>
-                ))}
+                  )
+                })}
               </div>
               <ErrorMessage name="paymentMethod" component="p" className="text-red-500 text-xs" />
               {values.paymentMethod && values.paymentMethod !== 'efectivo' && (

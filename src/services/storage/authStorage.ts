@@ -10,7 +10,7 @@ export interface AuthPersistState {
 export const favoritesKey = (phoneOrId: string): string => `${STORAGE_KEYS.FAVORITES_PREFIX}-${phoneOrId}`;
 
 export const authStorage = {
-  // Sesión admin (bandera local demo)
+  // Sesión admin (bandera local)
   isAdmin: (): boolean => readString(STORAGE_KEYS.IS_ADMIN) === 'true',
   setAdmin: (value: boolean, name?: string): void => {
     writeString(STORAGE_KEYS.IS_ADMIN, String(value));

@@ -233,7 +233,7 @@ export function ProductsSection() {
                 </div>
               </div>
               <div>
-                <label className="text-xs font-semibold text-espresso-700 mb-2 block">Picante (máx {maxPicante} 🌶️)</label>
+                <label className="text-xs font-semibold text-espresso-700 mb-2 block">Picante (máx {maxPicante})</label>
                 <input type="range" min={0} max={3} value={maxPicante} onChange={(e) => setMaxPicante(Number(e.target.value))}
                   className="w-full accent-olive-500" />
               </div>

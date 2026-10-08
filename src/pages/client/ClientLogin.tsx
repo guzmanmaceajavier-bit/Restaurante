@@ -3,8 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/useAuthStore'
 import { toast } from 'sonner'
 import { SEO } from '../../lib/seo'
-import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash, FaArrowRight, FaRocket } from 'react-icons/fa'
-import { authStorage } from '../../services/storage/authStorage'
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaEye, FaEyeSlash, FaArrowRight } from 'react-icons/fa'
 
 export default function ClientLogin() {
   const location = useLocation()
@@ -32,20 +31,6 @@ export default function ClientLogin() {
     const result = register({ nombre, email, telefono, password })
     if (result.ok) { toast.success('¡Cuenta creada! Ya puedes hacer pedidos'); navigate('/mi-cuenta') }
     else { toast.error(result.error) }
-  }
-
-  const handleDemoLogin = () => {
-    let result = login('cliente@demo.com', 'Demo123')
-    if (!result.ok) {
-      const clientes = authStorage.readClients<any>()
-      const demo = clientes.find((c: any) => c.email === 'cliente@demo.com')
-      if (demo) {
-        useAuthStore.setState({ clienteActual: demo, clientes })
-        result = login('cliente@demo.com', 'Demo123')
-      }
-    }
-    if (result.ok) { toast.success('¡Bienvenido Laura! (Demo)'); navigate('/mi-cuenta') }
-    else { toast.error('Error al entrar en modo demo') }
   }
 
   return (
@@ -112,6 +97,11 @@ export default function ClientLogin() {
               {isRegister ? 'Crear cuenta' : 'Iniciar sesión'}
               <FaArrowRight size={12} />
             </button>
+            {isRegister && (
+              <p className="text-[11px] text-[#94A3B8] text-center leading-relaxed">
+                Al registrarte aceptas nuestra <Link to="/politica-privacidad" className="text-olive-500 hover:underline">Política de Privacidad</Link> y los <Link to="/terminos-condiciones" className="text-olive-500 hover:underline">Términos</Link>
+              </p>
+            )}
           </form>
 
           <div className="mt-6 text-center">
@@ -120,21 +110,7 @@ export default function ClientLogin() {
             </button>
           </div>
 
-          <div className="relative my-5">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#F1E9D8]" /></div>
-            <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-[#94A3B8]">o</span></div>
-          </div>
-
-          <button onClick={handleDemoLogin}
-            className="w-full flex items-center justify-center gap-2 bg-[#667A22] hover:bg-[#4A5A18] text-white py-3 rounded-full font-medium text-sm transition-colors">
-            <FaRocket size={14} />
-            Entrar como cliente demo
-          </button>
         </div>
-
-        <Link to="/demo" className="mt-6 text-[#94A3B8] hover:text-[#64748B] text-xs transition-colors">
-          ← Ver otras interfaces de demo
-        </Link>
       </div>
     </section>
   )

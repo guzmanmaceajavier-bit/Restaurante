@@ -13,21 +13,21 @@ const typeConfig: Record<string, { icon: any; title: string; subtitle: string; m
     icon: FaUtensils,
     title: 'Pedido confirmado',
     subtitle: 'Tu pedido ya está en la cola',
-    msg: '✨ ¡Tu pedido está en la cocina! Pronto lo llevaremos a tu mesa. Relájate y disfruta del ambiente.',
+    msg: '¡Tu pedido está en la cocina! Pronto lo llevaremos a tu mesa. Relájate y disfruta del ambiente.',
     color: 'from-olive-500 to-olive-600',
   },
   delivery: {
     icon: FaMotorcycle,
     title: 'Pedido confirmado',
     subtitle: 'Tu pedido está en preparación',
-    msg: '🚗 ¡Tu pedido se está preparando! Pronto saldrá camino a tu dirección. Mantén tu teléfono cerca.',
+    msg: '¡Tu pedido se está preparando! Pronto saldrá camino a tu dirección. Mantén tu teléfono cerca.',
     color: 'from-olive-500 to-olive-600',
   },
   pickup: {
     icon: FaShoppingBag,
     title: 'Pedido confirmado',
     subtitle: 'Tu pedido está listo',
-    msg: '🛍️ ¡Tu pedido estará listo pronto! Cuando llegues, menciona tu número de pedido en caja.',
+    msg: '¡Tu pedido estará listo pronto! Cuando llegues, menciona tu número de pedido en caja.',
     color: 'from-olive-500 to-olive-600',
   },
 }
@@ -64,7 +64,7 @@ export default function OrderConfirmation() {
 
   const handleSendFeedback = () => {
     if (!feedbackMsg.trim()) { toast.error('Escribe un mensaje'); return }
-    const fbMsg = `⭐ *Nuevo comentario de ${order.fullName}*%0APedido: #${order.id}%0A%0A${encodeURIComponent(feedbackMsg)}`
+    const fbMsg = `*Nuevo comentario de ${order.fullName}*%0APedido: #${order.id}%0A%0A${encodeURIComponent(feedbackMsg)}`
     window.open(`https://wa.me/${CONFIG.contacto.whatsapp}?text=${fbMsg}`, '_blank')
     toast.success('¡Gracias por tu comentario!')
     setShowFeedback(false); setFeedbackMsg('')

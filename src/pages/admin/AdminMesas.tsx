@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { toast } from 'sonner'
-import { FaPlus, FaThLarge, FaMapMarkerAlt } from 'react-icons/fa'
+import { FaPlus, FaThLarge, FaMapMarkerAlt, FaClock } from 'react-icons/fa'
 import EmptyState from '../../components/feedback/EmptyState'
 import ConfirmModal from '../../components/feedback/ConfirmModal'
 import { ExportButton } from '../../components/admin/ExportButton'
@@ -77,7 +77,7 @@ export default function AdminMesas(){
                       <div className="w-12 h-12 rounded-xl bg-white border border-[#E5E7EB] flex items-center justify-center mx-auto mb-2"><FaThLarge size={18} className="text-[#94A3B8]"/></div>
                       <p className="text-center text-lg font-semibold text-[#0F172A] tracking-tight">Mesa {m.numero}</p>
                       <p className="text-center text-xs text-[#64748B]">{m.ubicacion}</p>
-                      {m.estado==='ocupada' && m.occupiedSince && <p className="text-center text-[11px] font-medium text-[#991B1B] mt-1">⏱ {Math.max(0, Math.floor((nowTick - new Date(m.occupiedSince).getTime())/60000))} min ocupada</p>}
+                      {m.estado==='ocupada' && m.occupiedSince && <p className="text-center text-[11px] font-medium text-[#991B1B] mt-1 inline-flex items-center gap-1 justify-center"><FaClock size={10} /> {Math.max(0, Math.floor((nowTick - new Date(m.occupiedSince).getTime())/60000))} min ocupada</p>}
                     </div>
                   )
                 })}

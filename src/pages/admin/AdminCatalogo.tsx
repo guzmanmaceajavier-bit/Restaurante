@@ -25,7 +25,6 @@ export default function AdminCatalogo() {
   const [editing, setEditing] = useState<IProduct | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  // categorias
   const [categorias, setCategorias] = useState<string[]>(() => productService.getOrSeedCategories())
   const [catBusqueda, setCatBusqueda] = useState('')
   const [catForm, setCatForm] = useState('')
@@ -55,7 +54,6 @@ export default function AdminCatalogo() {
     setProductos(productService.deleteMany([...selectedIds], productos)); toast.success(`${selectedIds.size} eliminados`); setSelectedIds(new Set())
   }
 
-  // categorias helpers
   const saveCat = () => {
     const result = catEditing
       ? productService.updateCategoria(catEditing, catForm, categorias)

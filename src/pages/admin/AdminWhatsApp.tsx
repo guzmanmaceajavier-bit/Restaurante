@@ -6,11 +6,11 @@ import { CONFIG } from '../../lib/config'
 import { FaWhatsapp, FaSearch, FaRegSquare, FaCheckSquare, FaExternalLinkAlt } from 'react-icons/fa'
 
 const plantillas = [
-  { id: 'bienvenida', titulo: 'Bienvenida', mensaje: `¡Hola {nombre}! 👋 Bienvenido a {restaurante}. Estamos felices de tenerte como cliente. Disfruta de nuestro menú y no dudes en escribirnos si necesitas algo.` },
-  { id: 'promo', titulo: 'Promoción', mensaje: `¡Hola {nombre}! 🎉 Tienes una promoción exclusiva en {restaurante}. Visítanos pronto y aprovecha nuestros descuentos especiales. ¡Te esperamos!` },
-  { id: 'recordatorio', titulo: 'Recordatorio', mensaje: `¡Hola {nombre}! 📋 Te recordamos tu reserva en {restaurante}. Si tienes alguna pregunta o necesitas cambiar la fecha, contáctanos.` },
-  { id: 'cumpleanos', titulo: 'Cumpleaños', mensaje: `¡Feliz cumpleaños, {nombre}! 🎂 En {restaurante} queremos celebrar contigo. Visítanos y te obsequiamos algo especial.` },
-  { id: 'seguimiento', titulo: 'Seguimiento', mensaje: `¡Hola {nombre}! 😊 Queríamos saber cómo fue tu experiencia en {restaurante}. Tu opinión nos ayuda a mejorar. ¡Gracias por preferirnos!` },
+  { id: 'bienvenida', titulo: 'Bienvenida', mensaje: `¡Hola {nombre}! Bienvenido a {restaurante}. Estamos felices de tenerte como cliente. Disfruta de nuestro menú y no dudes en escribirnos si necesitas algo.` },
+  { id: 'promo', titulo: 'Promoción', mensaje: `¡Hola {nombre}! Tienes una promoción exclusiva en {restaurante}. Visítanos pronto y aprovecha nuestros descuentos especiales. ¡Te esperamos!` },
+  { id: 'recordatorio', titulo: 'Recordatorio', mensaje: `¡Hola {nombre}! Te recordamos tu reserva en {restaurante}. Si tienes alguna pregunta o necesitas cambiar la fecha, contáctanos.` },
+  { id: 'cumpleanos', titulo: 'Cumpleaños', mensaje: `¡Feliz cumpleaños, {nombre}! En {restaurante} queremos celebrar contigo. Visítanos y te obsequiamos algo especial.` },
+  { id: 'seguimiento', titulo: 'Seguimiento', mensaje: `¡Hola {nombre}! Queríamos saber cómo fue tu experiencia en {restaurante}. Tu opinión nos ayuda a mejorar. ¡Gracias por preferirnos!` },
 ]
 
 export default function AdminWhatsApp() {

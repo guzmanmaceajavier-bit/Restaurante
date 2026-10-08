@@ -4,7 +4,7 @@ import { useClientStore } from '../../store/useClientStore'
 import { puntosParaSiguienteNivel, FIDELIDAD_CONFIG } from '../../features/loyalty/fidelidad'
 import { customerService } from '../../features/customers/customer.service'
 import { Link } from 'react-router-dom'
-import { FaStar, FaArrowRight } from 'react-icons/fa'
+import { FaStar, FaArrowRight, FaUser } from 'react-icons/fa'
 
 export default function MiPerfil() {
   const [telefono, setTelefono] = useState('')
@@ -50,7 +50,7 @@ export default function MiPerfil() {
         {buscado && !clienteActual && (
           <div className="bg-cream-50 border border-cream-200 rounded-3xl p-10 text-center">
             <div className="w-16 h-16 bg-cream-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">👤</span>
+              <FaUser className="text-steel/40" size={28} />
             </div>
             <p className="text-xl font-display font-bold text-espresso-800 mb-2">No se encontró perfil</p>
             <p className="text-steel mb-6">Realiza un pedido para acumular puntos automáticamente</p>

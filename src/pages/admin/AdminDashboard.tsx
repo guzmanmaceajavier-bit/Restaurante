@@ -4,7 +4,7 @@ import { dashboardService } from '../../features/dashboard/dashboard.service'
 import { SEO } from '../../lib/seo'
 import type { Order } from '../../features/orders/types'
 import type { ReservaData } from '../../features/reservations/types'
-import { FaUsers, FaClock, FaExclamationTriangle, FaPlus, FaCalendarAlt, FaUtensils, FaFire, FaChartLine, FaConciergeBell, FaGlassCheers } from 'react-icons/fa'
+import { FaUsers, FaClock, FaExclamationTriangle, FaPlus, FaCalendarAlt, FaUtensils, FaFire, FaChartLine, FaConciergeBell, FaGlassCheers, FaCheckCircle } from 'react-icons/fa'
 import EmptyState from '../../components/feedback/EmptyState'
 import { StatCard } from '../../components/admin/StatCard'
 import { getRestaurantConfig } from '../../lib/config'
@@ -154,11 +154,11 @@ export default function AdminDashboard() {
 
         <div className="bg-white rounded-xl border border-[#E5E7EB] p-4">
           <h2 className="text-sm font-semibold text-[#0F172A] mb-3">Requiere atención</h2>
-          {(s.stockBajo.length===0 && s.agotados.length===0 && s.pendientes===0) ? <p className="text-sm text-[#10B981]">✓ Todo al día</p> : (
+          {(s.stockBajo.length===0 && s.agotados.length===0 && s.pendientes===0) ? <p className="text-sm text-[#10B981] inline-flex items-center gap-1.5"><FaCheckCircle size={13} /> Todo al día</p> : (
             <div className="space-y-2">
               {s.pendientes>0 && <Link to="/admin-ordenes" className="flex items-center gap-2 p-2.5 rounded-lg bg-[#FFFBEB] border border-[#FDE68A] text-sm text-[#92400E] hover:bg-[#FEF3C7] transition-colors"><FaClock size={12}/> {s.pendientes} pendientes <span className="ml-auto text-xs font-semibold">Ver →</span></Link>}
-              {s.stockBajo.length>0 && <Link to="/admin-inventario" className="flex items-center gap-2 p-2.5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-sm text-[#991B1B]"><FaExclamationTriangle size={12}/> {s.stockBajo.length} stock bajo</Link>}
-              {s.agotados.length>0 && <Link to="/admin-inventario" className="flex items-center gap-2 p-2.5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-sm text-[#991B1B]"><FaExclamationTriangle size={12}/> {s.agotados.length} agotados</Link>}
+              {s.stockBajo.length>0 && <Link to="/admin-catalogo#inventario" className="flex items-center gap-2 p-2.5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-sm text-[#991B1B]"><FaExclamationTriangle size={12}/> {s.stockBajo.length} stock bajo</Link>}
+              {s.agotados.length>0 && <Link to="/admin-catalogo#inventario" className="flex items-center gap-2 p-2.5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-sm text-[#991B1B]"><FaExclamationTriangle size={12}/> {s.agotados.length} agotados</Link>}
             </div>
           )}
           <div className="mt-4 pt-4 border-t border-[#F1F5F9]">

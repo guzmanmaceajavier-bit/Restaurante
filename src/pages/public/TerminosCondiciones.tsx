@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { SEO } from '../../lib/seo'
 import { getRestaurantConfig } from '../../lib/config'
-import { FaFileContract, FaShoppingCart, FaTag, FaCalendarCheck, FaTruck, FaExchangeAlt, FaCopyright, FaExclamationTriangle, FaGavel } from 'react-icons/fa'
+import { FaFileContract, FaShoppingCart, FaTag, FaCalendarCheck, FaTruck, FaExchangeAlt, FaCopyright, FaExclamationTriangle, FaGavel, FaUser, FaTrophy, FaBan } from 'react-icons/fa'
 
 const config = getRestaurantConfig()
 
@@ -12,8 +12,19 @@ const sections = [
     content: `Al acceder y utilizar el sitio web y los servicios de ${config.nombre}, aceptas estos términos y condiciones en su totalidad. Si no estás de acuerdo con alguno de estos términos, no utilices nuestros servicios.`,
   },
   {
+    icon: FaUser,
+    title: '2. Cuenta de usuario',
+    content: 'Para usar el portal de cliente debes registrarte con datos veraces:',
+    list: [
+      'Eres responsable de custodiar tu contraseña (mínimo 6 caracteres) y de no compartirla.',
+      'Debes ser mayor de edad o contar con supervisión de un acudiente.',
+      'Puedes descargar tus datos y eliminar tu cuenta en cualquier momento desde Mi cuenta.',
+      'Nos reservamos el derecho de suspender cuentas con uso fraudulento o abusivo.',
+    ],
+  },
+  {
     icon: FaShoppingCart,
-    title: '2. Pedidos',
+    title: '3. Pedidos',
     content: 'Los pedidos están sujetos a las siguientes condiciones:',
     list: [
       'Los pedidos están sujetos a disponibilidad de ingredientes',
@@ -24,12 +35,12 @@ const sections = [
   },
   {
     icon: FaTag,
-    title: '3. Precios y pagos',
+    title: '4. Precios y pagos',
     content: 'Aceptamos pago contra entrega (efectivo) y transferencia bancaria (Nequi, Bancolombia, Daviplata). El pago debe realizarse al momento de recibir el pedido o según lo acordado para transferencias. Los precios mostrados incluyen impuestos cuando aplique.',
   },
   {
     icon: FaCalendarCheck,
-    title: '4. Reservas',
+    title: '5. Reservas',
     content: 'Las reservas están sujetas a las siguientes condiciones:',
     list: [
       'Las reservas están sujetas a disponibilidad',
@@ -40,27 +51,48 @@ const sections = [
   },
   {
     icon: FaTruck,
-    title: '5. Delivery',
+    title: '6. Delivery',
     content: 'El servicio de domicilio tiene un costo que se muestra antes de confirmar el pedido. El tiempo de entrega es estimado y puede verse afectado por condiciones climáticas, tráfico u otras circunstancias fuera de nuestro control.',
   },
   {
     icon: FaExchangeAlt,
-    title: '6. Devoluciones',
+    title: '7. Devoluciones',
     content: 'Dada la naturaleza de nuestros productos (alimentos), no se aceptan devoluciones una vez entregado el pedido. Si tienes algún inconformidad con tu pedido, contáctanos inmediatamente para buscar una solución.',
   },
   {
+    icon: FaTrophy,
+    title: '8. Fidelidad y puntos',
+    content: 'El programa de puntos se rige por estas reglas:',
+    list: [
+      'Los puntos no tienen valor monetario, no son transferibles ni canjeables por dinero.',
+      'Los puntos se pierden al eliminar tu cuenta.',
+      'Podemos ajustar o anular puntos obtenidos por error o fraude.',
+      'Podemos modificar o finalizar el programa avisando en el sitio.',
+    ],
+  },
+  {
+    icon: FaBan,
+    title: '9. Uso aceptable',
+    content: 'Al usar el sitio te comprometes a:',
+    list: [
+      'No realizar pedidos falsos ni abusar de promociones.',
+      'No intentar vulnerar la seguridad del sitio o de otras cuentas.',
+      'No publicar reseñas falsas o con contenido ofensivo.',
+    ],
+  },
+  {
     icon: FaCopyright,
-    title: '7. Propiedad intelectual',
+    title: '10. Propiedad intelectual',
     content: `Todo el contenido del sitio web (textos, imágenes, logos, diseños) es propiedad de ${config.nombre} y está protegido por las leyes de propiedad intelectual colombianas.`,
   },
   {
     icon: FaExclamationTriangle,
-    title: '8. Limitación de responsabilidad',
+    title: '11. Disponibilidad y responsabilidad',
     content: `${config.nombre} no se responsabiliza por retrasos en entregas debido a condiciones climáticas, tráfico o circunstancias fuera de nuestro control. Nuestra responsabilidad se limita al valor del pedido.`,
   },
   {
     icon: FaGavel,
-    title: '9. Ley aplicable',
+    title: '12. Ley aplicable',
     content: 'Estos términos se rigen por las leyes de la República de Colombia. Cualquier disputa será sometida a la jurisdicción de los tribunales competentes en Colombia.',
   },
 ]
@@ -85,7 +117,7 @@ export default function TerminosCondiciones() {
             Términos y Condiciones
           </h1>
           <p className="text-steel text-sm">
-            Última actualización: Enero 2026
+            Última actualización: Octubre 2026
           </p>
         </div>
 

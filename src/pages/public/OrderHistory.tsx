@@ -7,7 +7,7 @@ import { useAuthStore } from '../../store/useAuthStore'
 import { CONFIG } from '../../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../../lib/seo'
-import { FaSearch, FaWhatsapp, FaUser, FaArrowRight } from 'react-icons/fa'
+import { FaSearch, FaWhatsapp, FaUser, FaArrowRight, FaClipboardList } from 'react-icons/fa'
 import type { Order } from '../../features/orders/types'
 import clsx from 'clsx'
 
@@ -115,7 +115,7 @@ export default function OrderHistory() {
             {misOrdenes.length === 0 ? (
               <div className="bg-white rounded-3xl p-12 text-center border border-cream-200 shadow-card">
                 <div className="w-16 h-16 bg-cream-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">📋</span>
+                  <FaClipboardList className="text-steel/40" size={28} />
                 </div>
                 <p className="text-xl font-display font-bold text-espresso-800 mb-2">No tienes pedidos aún</p>
                 <Link to="/menu" className="btn-primary inline-flex items-center gap-2 mt-4">

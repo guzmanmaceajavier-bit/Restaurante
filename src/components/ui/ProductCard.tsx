@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { RoutesPath } from '../../app/router/routes'
 import { TbShoppingBagPlus } from 'react-icons/tb'
-import { FaHeart, FaShareAlt, FaClock } from 'react-icons/fa'
+import { FaHeart, FaShareAlt, FaClock, FaPepperHot } from 'react-icons/fa'
 import { useCartStore } from '../../store/useCartStore'
 import { useAuthStore } from '../../store/useAuthStore'
 import { useFavorites } from '../../hooks/useFavorites'
@@ -72,7 +72,7 @@ export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, 
   const handleShare = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    const text = `🍽️ ¡Mira este plato de Sabor y Origen!\n\n${nombre}\n$${numberFormatter(precio ?? 0)}\n\n${descripcion || ''}`
+    const text = `¡Mira este plato de Sabor y Origen!\n\n${nombre}\n$${numberFormatter(precio ?? 0)}\n\n${descripcion || ''}`
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`
     window.open(url, '_blank')
     toast.success('Compartido por WhatsApp')
@@ -89,7 +89,7 @@ export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, 
           <span key={b.key} className={`absolute top-3 left-3 ${b.color} text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm ${i > 0 ? 'mt-8' : ''}`}>{b.label}</span>
         ))}
         {descuento && <span className="absolute top-3 right-3 bg-olive-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">-{descuento}%</span>}
-        {stockLevel === 'low' && <span className="absolute bottom-14 left-3 bg-gold-500 text-espresso-900 text-[10px] font-bold px-3 py-1 rounded-full shadow-sm">⚡ Quedan {stock}</span>}
+        {stockLevel === 'low' && <span className="absolute bottom-14 left-3 bg-gold-500 text-espresso-900 text-[10px] font-bold px-3 py-1 rounded-full shadow-sm inline-flex items-center gap-1"><FaClock size={10} /> Quedan {stock}</span>}
 
         {/* Favorite button */}
         <button
@@ -151,7 +151,7 @@ export function ProductCard({ id, imagen, nombre, precio, isFinal, descripcion, 
         {calorias && (
           <div className="flex items-center gap-2 mt-1.5 text-[11px] text-steel">
             <span>{calorias} cal</span>
-            {picante !== undefined && picante > 0 && <span>{'🌶️'.repeat(picante)}</span>}
+            {picante !== undefined && picante > 0 && <span className="inline-flex items-center gap-0.5">{Array.from({ length: picante }).map((_, i) => <FaPepperHot key={i} size={10} className="text-red-400" />)}</span>}
           </div>
         )}
         {ingredientes && ingredientes.length > 0 && (

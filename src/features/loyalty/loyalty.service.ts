@@ -27,10 +27,10 @@ const ADMIN_DEFAULT_REWARDS: RecompensaAdmin[] = [
 ];
 
 const DEFAULT_REWARDS: Recompensa[] = [
-  { name: 'Descuento $10.000', cost: 100, icon: '🏷️', desc: '$10.000' },
-  { name: 'Bebida gratis', cost: 50, icon: '🥤', desc: 'Bebida' },
-  { name: 'Postre gratis', cost: 75, icon: '🍰', desc: 'Postre' },
-  { name: 'Envío gratis', cost: 30, icon: '🚴', desc: 'Envío' },
+  { name: 'Descuento $10.000', cost: 100, desc: '$10.000' },
+  { name: 'Bebida gratis', cost: 50, desc: 'Bebida' },
+  { name: 'Postre gratis', cost: 75, desc: 'Postre' },
+  { name: 'Envío gratis', cost: 30, desc: 'Envío' },
 ];
 
 /** Fachada de fidelización. Hoy lee localStorage; mañana: /api/loyalty. */

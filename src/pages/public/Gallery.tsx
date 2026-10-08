@@ -4,7 +4,7 @@ import { GallerySkeleton } from '../../components/feedback/LoadingSkeleton'
 import { SEO } from '../../lib/seo'
 import { productService } from '../../features/products/product.service'
 import { numberFormatter } from '../../utils/numberFormatter'
-import { FaTimes, FaShoppingBag } from 'react-icons/fa'
+import { FaTimes, FaShoppingBag, FaClock, FaFire } from 'react-icons/fa'
 
 const fallbackGallery = [
   { src: '/platos/bandeja_paisa.webp', label: 'Bandeja Paisa' },
@@ -72,8 +72,8 @@ export default function Gallery() {
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-bold text-olive-500">${numberFormatter(selectedProduct.precio ?? 0)}</span>
                       <div className="flex gap-2">
-                        {selectedProduct.tiempoPreparacion && <span className="text-xs text-steel bg-cream-100 px-2 py-1 rounded-full">⏱ {selectedProduct.tiempoPreparacion} min</span>}
-                        {selectedProduct.calorias && <span className="text-xs text-steel bg-cream-100 px-2 py-1 rounded-full">🔥 {selectedProduct.calorias} cal</span>}
+                        {selectedProduct.tiempoPreparacion && <span className="text-xs text-steel bg-cream-100 px-2 py-1 rounded-full inline-flex items-center gap-1"><FaClock size={11} /> {selectedProduct.tiempoPreparacion} min</span>}
+                        {selectedProduct.calorias && <span className="text-xs text-steel bg-cream-100 px-2 py-1 rounded-full inline-flex items-center gap-1"><FaFire size={11} /> {selectedProduct.calorias} cal</span>}
                       </div>
                     </div>
                     <Link to={`/menu/${encodeURIComponent(selectedProduct.id)}`} className="btn-primary flex items-center justify-center gap-2 w-full py-3">

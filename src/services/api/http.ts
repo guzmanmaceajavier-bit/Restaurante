@@ -2,7 +2,7 @@ import { API_URL } from '../../constants';
 
 /**
  * Cliente HTTP para el modo real (backend REST).
- * En modo demo no se usa: los features leen de services/storage.
+ * Aún sin usar: los features leen de services/storage hasta que exista backend.
  * Cuando el backend exista, cada feature cambia su servicio a estas
  * llamadas sin modificar componentes.
  */

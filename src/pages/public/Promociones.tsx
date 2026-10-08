@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { promotionService } from '../../features/promotions/promotion.service'
 import { CONFIG } from '../../lib/config'
 import { SEO } from '../../lib/seo'
-import { FaTag, FaPercent, FaBox, FaArrowRight, FaFire } from 'react-icons/fa'
+import { FaTag, FaPercent, FaBox, FaArrowRight, FaFire, FaUsers } from 'react-icons/fa'
 
 export default function Promociones() {
   const promociones = promotionService.getVigentes()
@@ -95,7 +95,7 @@ export default function Promociones() {
                           </div>
                           <p className="text-steel text-sm mt-2">{c.descripcion}</p>
                           {c.paraCompartir && (
-                            <span className="inline-block mt-2 bg-cream-100 text-olive-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-cream-200">👥 Para compartir</span>
+                            <span className="inline-flex items-center gap-1 mt-2 bg-cream-100 text-olive-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-cream-200"><FaUsers size={11} /> Para compartir</span>
                           )}
                           <div className="mt-3">
                             <span className="text-2xl font-bold text-olive-600">${c.precio.toLocaleString('es-CO')}</span>

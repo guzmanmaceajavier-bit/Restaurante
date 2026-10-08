@@ -1,67 +1,99 @@
 import { Link } from 'react-router-dom'
 import { SEO } from '../../lib/seo'
 import { getRestaurantConfig } from '../../lib/config'
-import { FaShieldAlt, FaDatabase, FaCookieBite, FaLock, FaUserShield, FaEnvelope } from 'react-icons/fa'
+import { FaShieldAlt, FaDatabase, FaCookieBite, FaLock, FaUserShield, FaEnvelope, FaFileContract, FaChild, FaHistory } from 'react-icons/fa'
 
 const config = getRestaurantConfig()
 
 const sections = [
   {
-    icon: FaDatabase,
-    title: '1. Datos que recopilamos',
-    content: `En ${config.nombre} recopilamos únicamente la información necesaria para procesar tus pedidos y reservas:`,
-    list: [
-      'Nombre completo',
-      'Número de teléfono',
-      'Correo electrónico (opcional)',
-      'Dirección de entrega (para domicilios)',
-      'Historial de pedidos y reservas',
-    ],
-  },
-  {
-    icon: FaShieldAlt,
-    title: '2. Cómo usamos tus datos',
-    content: 'Utilizamos tu información exclusivamente para:',
-    list: [
-      'Procesar y entregar tus pedidos',
-      'Confirmar y gestionar tus reservas',
-      'Enviarte confirmaciones por WhatsApp',
-      'Mejorar nuestro servicio de atención al cliente',
-      'Gestionar tu programa de fidelidad y puntos',
-    ],
-  },
-  {
-    icon: FaCookieBite,
-    title: '3. Cookies',
-    content:
-      'Este sitio no utiliza cookies de terceros. La información se almacena localmente en tu navegador (localStorage) para recordar tus preferencias y datos de sesión. No utilizamos cookies de rastreo, publicidad ni análisis.',
-  },
-  {
-    icon: FaLock,
-    title: '4. Seguridad',
-    content:
-      'Tu información se almacena únicamente en tu navegador y no se transmite a servidores externos. No compartimos, vendemos ni cedemos tus datos personales a terceros. Implementamos medidas de seguridad razonables para proteger la información almacenada.',
-  },
-  {
-    icon: FaUserShield,
-    title: '5. Derechos del usuario',
-    content: 'Tienes derecho a:',
-    list: [
-      'Solicitar acceso a tus datos personales',
-      'Solicitar la eliminación de tus datos',
-      'Oponerte al procesamiento de tus datos',
-      'Solicitar la rectificación de datos inexactos',
-    ],
-  },
-  {
-    icon: FaEnvelope,
-    title: '6. Contacto',
-    content: `Si tienes preguntas sobre esta política de privacidad, puedes contactarnos:`,
+    icon: FaFileContract,
+    title: '1. Responsable del tratamiento',
+    content: `${config.nombre} es responsable del tratamiento de tus datos personales:`,
     list: [
       `Email: ${config.email}`,
       `Teléfono: ${config.telefono}`,
       `Dirección: ${config.direccion}`,
     ],
+  },
+  {
+    icon: FaDatabase,
+    title: '2. Datos que recopilamos',
+    content: `Recopilamos únicamente la información necesaria para procesar tus pedidos y reservas:`,
+    list: [
+      'Nombre completo',
+      'Número de teléfono',
+      'Correo electrónico',
+      'Dirección de entrega (para domicilios)',
+      'Credenciales de acceso a tu cuenta',
+      'Historial de pedidos, reservas y puntos de fidelidad',
+    ],
+  },
+  {
+    icon: FaShieldAlt,
+    title: '3. Finalidades y consentimiento',
+    content: 'Al registrarte o hacer un pedido aceptas el tratamiento de tus datos exclusivamente para:',
+    list: [
+      'Procesar y entregar tus pedidos',
+      'Confirmar y gestionar tus reservas',
+      'Enviarte confirmaciones por WhatsApp',
+      'Gestionar tu cuenta, tu programa de fidelidad y tus puntos',
+      'Atender tus solicitudes, quejas y reclamos',
+    ],
+  },
+  {
+    icon: FaDatabase,
+    title: '4. Dónde se almacenan tus datos',
+    content:
+      'Actualmente tu información se guarda únicamente en tu propio navegador (almacenamiento local del dispositivo) y no se transmite a servidores externos, salvo los casos del punto 5. Si migramos a servidores propios, actualizaremos esta política antes del cambio.',
+  },
+  {
+    icon: FaEnvelope,
+    title: '5. Terceros',
+    content: 'Compartimos datos con terceros solo en estos casos:',
+    list: [
+      'WhatsApp (Meta): si haces clic en botones de WhatsApp, tu número y mensaje se comparten con Meta según sus propias políticas.',
+      'Google Maps: el mapa de contacto carga contenido de Google, que puede registrar tu visita según sus políticas.',
+      'No vendemos ni cedemos tus datos con fines publicitarios.',
+    ],
+  },
+  {
+    icon: FaCookieBite,
+    title: '6. Cookies',
+    content:
+      'Este sitio no utiliza cookies de terceros. La información se almacena localmente en tu navegador para recordar tus preferencias, tu carrito y tu sesión. No utilizamos cookies de rastreo, publicidad ni análisis.',
+  },
+  {
+    icon: FaLock,
+    title: '7. Seguridad y conservación',
+    content: '',
+    list: [
+      'Tus credenciales se guardan localmente en tu dispositivo: no compartas tu contraseña ni uses equipos públicos sin cerrar sesión.',
+      'Conservamos tus datos mientras tu cuenta exista. Al eliminar tu cuenta desde Mi cuenta se borran tu perfil, direcciones y preferencias.',
+      'Los pedidos y reservas ya procesados se conservan con fines contables y operativos.',
+    ],
+  },
+  {
+    icon: FaChild,
+    title: '8. Menores de edad',
+    content:
+      'El registro está dirigido a mayores de edad. Si eres menor, debes usar el sitio con la supervisión de un padre o acudiente.',
+  },
+  {
+    icon: FaUserShield,
+    title: '9. Tus derechos',
+    content: 'Puedes ejercer tus derechos de acceso, actualización, rectificación, supresión y revocatoria de la autorización:',
+    list: [
+      `Escríbenos a ${config.email} o llámanos al ${config.telefono} indicando tu nombre y tu solicitud.`,
+      'Respondemos consultas en un máximo de 10 días hábiles y reclamos en 15 días hábiles.',
+      'Desde Mi cuenta puedes descargar tus datos y eliminar tu cuenta en cualquier momento.',
+    ],
+  },
+  {
+    icon: FaHistory,
+    title: '10. Cambios a esta política',
+    content:
+      'Podemos actualizar esta política. La fecha de última actualización siempre aparece al inicio de esta página y los cambios importantes se anunciarán en el sitio.',
   },
 ]
 
@@ -85,7 +117,7 @@ export default function PoliticaPrivacidad() {
             Política de Privacidad
           </h1>
           <p className="text-steel text-sm">
-            Última actualización: Enero 2026
+            Última actualización: Octubre 2026
           </p>
         </div>
 

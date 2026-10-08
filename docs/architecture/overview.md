@@ -1,6 +1,6 @@
 # Arquitectura
 
-## Modo actual: DEMO
+## Modo actual: persistencia local
 
 ```
 React + TypeScript
@@ -10,29 +10,27 @@ React + TypeScript
   → Zustand persist (cart, auth-client, client, products)
 ```
 
-Los componentes NO deberían acceder a `localStorage` directamente: deben usar
-`features/<dominio>/*.service` o `services/storage/*`. La migración de páginas
-es progresiva (ver `data-layer.md`).
+Pages, components, hooks y layouts: 0 accesos directos a `localStorage`
+(verificado por búsqueda). Todo acceso pasa por `features/*` o `services/*`.
 
-## Modo objetivo: REAL
+## Modo objetivo: API real
 
 ```
 React → features/*.service → services/api/http.ts → REST API → backend → DB
 ```
 
 Cada `*.service` cambia su implementación interna a `http.get/post/put/remove`
-sin modificar componentes. `VITE_API_URL` y `VITE_DEMO_MODE` en `.env`
-(ver `.env.example`).
+sin modificar componentes. `VITE_API_URL` en `.env` (ver `.env.example`).
 
 ## Mapa de módulos
 
 | Área | Rutas | Layout |
 |---|---|---|
-| Pública | `/`, `/menu`, `/checkout`, `/reservas`, `/contacto`, `/demo`, … | `layouts/PublicLayout.tsx` |
+| Pública | `/`, `/menu`, `/checkout`, `/reservas`, `/contacto`, … | `layouts/PublicLayout.tsx` |
 | Cliente | `/login`, `/registro`, `/mi-cuenta`, `/recuperar-contrasena` | `layouts/ClientLayout.tsx` |
-| Admin | `/admin-*` (20 rutas, guard `AdminGuard`) | `layouts/AdminLayout.tsx` |
+| Admin | `/admin-*` (guard `AdminGuard`, credenciales en `/admin-login`) | `layouts/AdminLayout.tsx` |
 
-`src/pages/{public,client,admin}/`, `src/features/*` (12 dominios),
+`src/pages/{public,client,admin}/`, `src/features/*`,
 `src/app/{router,providers}/`, `src/components/{ui,feedback,navigation,…}`.
 
 ## Decisiones
@@ -40,5 +38,5 @@ sin modificar componentes. `VITE_API_URL` y `VITE_DEMO_MODE` en `.env`
 - La raíz del repo sigue siendo el frontend (Vercel despliega desde `/`).
   La división `frontend/` + `backend/` se hará al crear el backend,
   moviendo este árbol intacto a `frontend/`.
-- `lib/` queda como núcleo compartido (config, dataService compat, seedDemo).
-- Sin dependencias nuevas en esta fase.
+- `lib/` queda como núcleo compartido (config, initCatalog, seo).
+- Sin cuentas demo: el cliente se registra, el admin usa sus credenciales.

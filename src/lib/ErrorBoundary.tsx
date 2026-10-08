@@ -1,5 +1,5 @@
 import { Component, type ReactNode } from 'react'
-import { FaRedo } from 'react-icons/fa'
+import { FaRedo, FaExclamationTriangle } from 'react-icons/fa'
 
 interface Props { children: ReactNode }
 interface State { hasError: boolean }
@@ -20,7 +20,7 @@ export default class ErrorBoundary extends Component<Props, State> {
         <section className="min-h-screen flex items-center justify-center bg-cream-50 dark:bg-[#1a1f16] px-6">
           <div className="text-center max-w-md">
             <div className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-3xl flex items-center justify-center mx-auto mb-6">
-              <span className="text-4xl">⚠️</span>
+              <FaExclamationTriangle className="text-red-500" size={32} />
             </div>
             <h1 className="text-3xl font-display font-bold text-espresso-800 dark:text-cream-200 mb-2">Algo salió mal</h1>
             <p className="text-steel dark:text-cream-400 mb-8">Ocurrió un error inesperado. Por favor intenta de nuevo.</p>

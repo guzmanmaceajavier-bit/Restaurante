@@ -2,21 +2,17 @@
 
 Sistema web completo de gestion y pedidos para restaurante colombiano. Incluye sitio publico, portal de cliente registrado y panel administrativo con 20+ modulos.
 
-**Demo:** [restaurante-hgdsw9piq-javier-1e91.vercel.app](https://restaurante-hgdsw9piq-javier-1e91.vercel.app/demo)
+**Sitio:** [restaurante-hgdsw9piq-javier-1e91.vercel.app](https://restaurante-hgdsw9piq-javier-1e91.vercel.app/)
 
 ---
 
-## Demo
+## Acceso
 
-Accede a la demo completa en **[/demo](https://restaurante-hgdsw9piq-javier-1e91.vercel.app/demo)** desde donde puedes explorar las 3 interfaces:
-
-| Interfaz | Credenciales | Descripcion |
+| Interfaz | Acceso | Descripcion |
 |---|---|---|
-| Sitio publico | -- | Menu, carrito, checkout, reservas, contacto |
-| Portal cliente | `cliente@demo.com` / `Demo123` | Pedidos, reservas, favoritos, fidelidad, perfil |
-| Panel admin | `admin` / `12345` | Dashboard, pedidos, cocina, mesas, inventario, caja, clientes |
-
-Los datos de demostracion se cargan automaticamente (18 pedidos, 12 reservas, 6 clientes, 4 reseñas).
+| Sitio publico | libre | Menu, carrito, checkout, reservas, contacto |
+| Portal cliente | registro en `/login` | Pedidos, reservas, favoritos, fidelidad, perfil |
+| Panel admin | `admin` / `12345` en `/admin-login` | Dashboard, pedidos, cocina, mesas, inventario, caja, clientes |
 
 ---
 
@@ -112,19 +108,19 @@ restaurante/
 │   │   ├── feedback/    # ConfirmModal, EmptyState, Skeletons, CookieConsent
 │   │   ├── navigation/  # AdminGuard, ScrollToTop, WhatsAppButton, BackToTop
 │   │   ├── admin/ cart/ checkout/ home/ menu/ menuDetail/
-│   ├── features/        # 12 dominios: auth, products, orders, reservations,
+│   ├── features/        # dominios: auth, products, orders, reservations,
 │   │                     # customers, loyalty, promotions, inventory, cash,
-│   │                     # billing, reviews, events (types + *.service + index)
+│   │                     # billing, reviews, events, tables, finance, activity,
+│   │                     # dashboard (types + *.service + index)
 │   ├── services/
-│   │   ├── api/         # http.ts (modo real, inactivo en demo)
+│   │   ├── api/         # http.ts (cliente REST para futuro backend)
 │   │   └── storage/     # adaptadores localStorage por dominio + storageKeys
 │   ├── pages/
 │   │   ├── public/      # sitio + home/ (10 secciones)
 │   │   ├── client/      # login, mi-cuenta, recuperar-contrasena
 │   │   └── admin/       # 21 paginas admin
 │   ├── layouts/         # PublicLayout, AdminLayout, ClientLayout
-│   ├── lib/             # config, dataService (compat), seedDemo, seo
-│   ├── demo/            # config y usuarios demo
+│   ├── lib/             # config, initCatalog, seo
 │   ├── store/           # Zustand (cart, auth, client, products)
 │   ├── hooks/ constants/ utils/ mockData/
 │   └── styles/          # index.css (Tailwind)
@@ -135,7 +131,7 @@ restaurante/
 └── tailwind.config.js
 ```
 
-**Modo demo / modo real:** los `features/*.service` leen hoy de
+**Persistencia local / API futura:** los `features/*.service` leen hoy de
 `services/storage` (localStorage) y están listos para usar `services/api`
 cuando exista el backend, sin cambiar componentes. Detalles en `docs/`.
 
@@ -154,25 +150,25 @@ npm install
 npm run dev
 
 # Abrir en navegador
-http://localhost:5173/demo
+http://localhost:5173/
 ```
 
 ---
 
-## Credenciales de demo
+## Acceso administrador
 
 | Rol | Usuario | Contrasena |
 |---|---|---|
 | Administrador | `admin` | `12345` |
-| Cliente | `cliente@demo.com` | `Demo123` |
+
+Los clientes crean su cuenta en `/login` (registro con email y contraseña).
 
 ---
 
 ## Decisiones tecnicas
 
-- **Sin backend:** Para una demo de portafolio, los datos se persisten en localStorage. Esto permite que cualquier persona pueda probar el flujo completo sin configurar un servidor.
+- **Sin backend:** Los datos se persisten en localStorage del navegador. El catalogo inicial se carga desde `mockData/`.
 - **Zustand + persist:** El store de autenticacion se sincroniza con localStorage, permitiendo que los datos del cliente (pedidos, reservas, puntos) sobrevivan entre sesiones.
-- **Mock data seed:** Los datos de demostracion se cargan automaticamente la primera vez, haciendo que el sistema parezca realmente utilizado.
 - **Preparado para produccion:** La arquitectura esta diseniada para reemplazar la capa de persistencia local por una API REST sin cambiar la UI.
 
 ---
@@ -182,4 +178,4 @@ http://localhost:5173/demo
 Desarrollado por **Javier Guzman Macea**
 
 - GitHub: [guzmanmaceajavier-bit](https://github.com/guzmanmaceajavier-bit)
-- Demo: [restaurante-hgdsw9piq-javier-1e91.vercel.app](https://restaurante-hgdsw9piq-javier-1e91.vercel.app/demo)
+- Sitio: [restaurante-hgdsw9piq-javier-1e91.vercel.app](https://restaurante-hgdsw9piq-javier-1e91.vercel.app/)

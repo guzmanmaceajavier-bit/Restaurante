@@ -68,7 +68,7 @@ export default function Reserve() {
 
   if (confirmed) {
     const fechaFormatted = new Date(confirmed.fecha + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-    const whatsappMsg = `🍽️ *Reserva*%0A👤 ${confirmed.nombre}%0A📅 ${confirmed.fecha}%0A🕐 ${confirmed.hora}%0A👥 ${confirmed.personas} personas%0A🎉 ${confirmed.ocasion || 'Sin especificar'}`
+    const whatsappMsg = `*Reserva*%0ANombre: ${confirmed.nombre}%0AFecha: ${confirmed.fecha}%0AHora: ${confirmed.hora}%0APersonas: ${confirmed.personas}%0AOcasión: ${confirmed.ocasion || 'Sin especificar'}`
     const calendarDate = confirmed.fecha.replace(/-/g, '') + 'T' + confirmed.hora.replace(':', '') + '00'
     const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Reserva+Sabor+y+Origen&dates=${calendarDate}/${calendarDate}&details=Mesa+para+${confirmed.personas}+personas`
 
@@ -171,7 +171,7 @@ export default function Reserve() {
                     </button>
                   </div>
                   <div className="bg-olive-50 border border-olive-200 rounded-xl p-4 text-center">
-                    <p className="text-sm font-semibold text-olive-700">🪑 Mesa para {values.personas} {values.personas === 1 ? 'persona' : 'personas'}</p>
+                    <p className="text-sm font-semibold text-olive-700">Mesa para {values.personas} {values.personas === 1 ? 'persona' : 'personas'}</p>
                   </div>
                   <ErrorMessage name="personas" component="p" className="text-red-500 text-xs text-center" />
                   <button type="button" onClick={() => handleNext(validateForm)} className="w-full btn-primary py-3.5 flex items-center justify-center gap-2">

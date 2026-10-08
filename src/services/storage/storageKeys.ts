@@ -1,5 +1,5 @@
 /**
- * Claves centralizadas de persistencia local (modo demo).
+ * Claves centralizadas de persistencia local.
  * Los valores NO deben cambiar: romperían los datos ya guardados en navegadores.
  * Cuando exista backend, estos adaptadores se reemplazan por llamadas HTTP
  * sin tocar los componentes (ver services/api/http.ts).
@@ -37,7 +37,6 @@ export const STORAGE_KEYS = {
   WHATSAPP_HISTORY: 'whatsapp-historial',
   ADMIN_COLLAPSED: 'admin_collapsed',
   COOKIE_CONSENT: 'cookie-consent-accepted',
-  DEMO_SEEDED: 'demo_seeded',
   PRODUCTS_STORE: 'products-storage',
   CART_STORE: 'cart-storage',
   LEGAL_PRIVACY: 'politica-privacidad-text',

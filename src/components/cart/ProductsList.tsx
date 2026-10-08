@@ -1,4 +1,4 @@
-import { FaMinus, FaPlus, FaTrash, FaUtensils, FaStickyNote } from 'react-icons/fa'
+import { FaMinus, FaPlus, FaTrash, FaUtensils, FaStickyNote, FaShoppingBag } from 'react-icons/fa'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { IProductCart } from '../../features/products/types'
@@ -23,7 +23,7 @@ export function ProductsList({ cart, onClose }: IProps) {
       <div className='flex-1 flex items-center justify-center py-16 px-6 text-center'>
         <div>
           <div className="w-20 h-20 bg-cream-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-4xl">🛒</span>
+            <FaShoppingBag className="text-steel/40" size={32} />
           </div>
           <p className='text-espresso-800 font-display font-bold text-lg mb-1'>Tu carrito está vacío</p>
           <p className="text-sm text-steel mb-5">Explora nuestro menú y encuentra tu plato favorito</p>

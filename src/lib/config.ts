@@ -91,9 +91,9 @@ export const CONFIG = {
     tiempoMesa: 15,
   },
   redes: [
-    { nombre: 'Instagram', url: 'https://www.instagram.com/tu_restaurante', icono: '📷' },
-    { nombre: 'Facebook', url: 'https://www.facebook.com/tu_restaurante', icono: '👍' },
-    { nombre: 'WhatsApp', url: `https://wa.me/${atob('NTczMDAxMjM0NTY3')}`, icono: '💬' },
+    { nombre: 'Instagram', url: 'https://www.instagram.com/tu_restaurante', icono: 'FaInstagram' },
+    { nombre: 'Facebook', url: 'https://www.facebook.com/tu_restaurante', icono: 'FaFacebook' },
+    { nombre: 'WhatsApp', url: `https://wa.me/${atob('NTczMDAxMjM0NTY3')}`, icono: 'FaWhatsapp' },
   ] as RedSocial[],
   admin: {
     usuario: atob('YWRtaW4='),
@@ -121,10 +121,10 @@ export const CONFIG = {
     tiempoEstimado: '30-45 min',
   },
   metodosPago: [
-    { id: 'efectivo', nombre: 'Efectivo', icono: '💵', desc: 'Paga en efectivo al recibir' },
-    { id: 'nequi', nombre: 'Nequi', icono: '📱', desc: 'Nequi: 3001234567', numero: '3001234567', tipo: 'Nequi' },
-    { id: 'bancolombia', nombre: 'Bancolombia', icono: '🏦', desc: 'Cuenta de ahorros: 123-456789-00', numero: '12345678900', tipo: 'Cuenta de ahorros' },
-    { id: 'daviplata', nombre: 'Daviplata', icono: '💳', desc: 'Daviplata: 3001234567', numero: '3001234567', tipo: 'Daviplata' },
+    { id: 'efectivo', nombre: 'Efectivo', icono: 'FaMoneyBillWave', desc: 'Paga en efectivo al recibir' },
+    { id: 'nequi', nombre: 'Nequi', icono: 'FaMobileAlt', desc: 'Nequi: 3001234567', numero: '3001234567', tipo: 'Nequi' },
+    { id: 'bancolombia', nombre: 'Bancolombia', icono: 'FaUniversity', desc: 'Cuenta de ahorros: 123-456789-00', numero: '12345678900', tipo: 'Cuenta de ahorros' },
+    { id: 'daviplata', nombre: 'Daviplata', icono: 'FaCreditCard', desc: 'Daviplata: 3001234567', numero: '3001234567', tipo: 'Daviplata' },
   ] as MetodoPago[],
   promociones: [
     { id: 'promo1', titulo: '2x1 en Bandeja Paisa', descripcion: 'Todos los martes, lleva dos bandejas al precio de una', descuento: 50, vigente: true },

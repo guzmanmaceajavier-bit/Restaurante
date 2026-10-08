@@ -11,13 +11,13 @@ import LogoEfectivo from '../../assets/efectivo.avif'
 import LogoBancolombia from '../../assets/logo-bancolombia.png'
 import LogoNequi from '../../assets/nequi _logo.webp'
 import type { IProduct, Adicional } from '../../features/products/types'
-import { FaClock, FaFire, FaLeaf, FaArrowLeft, FaCheck, FaHeart, FaShareAlt, FaStar } from 'react-icons/fa'
+import { FaClock, FaFire, FaLeaf, FaArrowLeft, FaCheck, FaHeart, FaShareAlt, FaStar, FaExclamationTriangle, FaPepperHot } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 import { useFavorites } from '@/hooks/useFavorites'
 import { reviewService } from '../../features/reviews/review.service'
 import { toast } from 'sonner'
 
-const picanteLabels = ['', '🌶️ Poco picante', '🌶️🌶️ Picante', '🌶️🌶️🌶️ Muy picante']
+const picanteLabels = ['', 'Poco picante', 'Picante', 'Muy picante']
 
 export function DetailView() {
   const { id: productId } = useParams()
@@ -144,7 +144,7 @@ export function DetailView() {
                   )}
                   {productById.picante !== undefined && productById.picante > 0 && (
                     <span className="flex items-center gap-1.5 bg-cream-100 rounded-xl px-3.5 py-2 text-sm text-espresso-600 font-medium">
-                      {picanteLabels[productById.picante]}
+                      <FaPepperHot className="text-red-400" size={13} /> {picanteLabels[productById.picante]}
                     </span>
                   )}
                 </div>
@@ -164,7 +164,7 @@ export function DetailView() {
 
                 {productById.alergenos && productById.alergenos.length > 0 && (
                   <div className="mt-4 p-3 bg-gold-50 border border-gold-200 rounded-xl">
-                    <p className="text-xs font-semibold text-gold-700">⚠️ Contiene: {productById.alergenos.join(', ')}</p>
+                    <p className="text-xs font-semibold text-gold-700 inline-flex items-center gap-1.5"><FaExclamationTriangle size={11} /> Contiene: {productById.alergenos.join(', ')}</p>
                   </div>
                 )}
 

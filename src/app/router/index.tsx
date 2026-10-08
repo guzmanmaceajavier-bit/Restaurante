@@ -23,7 +23,6 @@ import ClientPanel from '../../pages/client/ClientPanel'
 import OrderTracking from '../../pages/public/OrderTracking'
 import AboutUs from '../../pages/public/AboutUs'
 import ForgotPassword from '../../pages/client/ForgotPassword'
-import DemoHub from '../../pages/public/DemoHub'
 
 // Admin pages
 import GestionReserva from '../../pages/admin/GestionReserva'
@@ -117,9 +116,6 @@ export default function MainRoutes() {
 
       {/* 404 */}
       <Route path="*" element={<NotFound />} />
-
-      {/* Demo hub */}
-      <Route path={RoutesPath.demo} element={<DemoHub />} />
     </Routes>
   )
 }

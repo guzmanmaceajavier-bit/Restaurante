@@ -4,7 +4,7 @@ import { authStorage } from '../../services/storage/authStorage';
 export type UserRole = 'ADMIN' | 'MANAGER' | 'EMPLOYEE' | 'CUSTOMER';
 
 /**
- * Sesión admin en modo demo (bandera local).
+ * Sesión admin local (bandera en almacenamiento del navegador).
  * En modo real: POST /api/auth/login → JWT/sesión.
  */
 export const authService = {

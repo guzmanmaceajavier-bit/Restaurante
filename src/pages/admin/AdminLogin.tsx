@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { CONFIG } from '../../lib/config'
 import { authService } from '../../features/auth/auth.service'
 import { toast } from 'sonner'
 import { SEO } from '../../lib/seo'
-import { FaLock, FaUser, FaRocket } from 'react-icons/fa'
+import { FaLock, FaUser } from 'react-icons/fa'
 
 export default function AdminLogin() {
   const [usuario, setUsuario] = useState('')
@@ -20,12 +20,6 @@ export default function AdminLogin() {
     } else {
       toast.error('Usuario o contraseña incorrectos')
     }
-  }
-
-  const handleDemoLogin = () => {
-    authService.loginAdmin(CONFIG.admin.nombre)
-    toast.success('¡Bienvenido Admin (Demo)!')
-    navigate('/admin-dashboard')
   }
 
   return (
@@ -62,21 +56,12 @@ export default function AdminLogin() {
             </button>
           </form>
 
-          <div className="relative my-5">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-cream-200" /></div>
-            <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-steel">o</span></div>
+          <div className="mt-5 rounded-xl bg-cream-50 border border-cream-200 px-4 py-3 text-xs text-steel leading-relaxed">
+            <p className="font-semibold text-espresso-700 mb-1">Acceso del restaurante</p>
+            <p>Usuario: <span className="font-mono font-semibold text-espresso-800">admin</span></p>
+            <p>Clave: <span className="font-mono font-semibold text-espresso-800">12345</span></p>
           </div>
-
-          <button onClick={handleDemoLogin}
-            className="w-full flex items-center justify-center gap-2 bg-olive-600 hover:bg-olive-700 text-white py-3 rounded-xl font-medium text-sm transition-all">
-            <FaRocket size={14} />
-            Entrar como administrador demo
-          </button>
         </div>
-
-        <Link to="/demo" className="mt-6 text-white/30 hover:text-white/60 text-xs transition-colors">
-          ← Ver otras interfaces de demo
-        </Link>
       </section>
     </>
   )
