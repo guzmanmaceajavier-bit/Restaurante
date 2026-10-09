@@ -1,181 +1,112 @@
 # Sabor y Origen
 
-Sistema web completo de gestion y pedidos para restaurante colombiano. Incluye sitio publico, portal de cliente registrado y panel administrativo con 20+ modulos.
+Sistema web para un restaurante colombiano: sitio público con menú y pedidos en línea, portal de clientes con fidelización, y panel administrativo para operar el negocio (pedidos, cocina, mesas, inventario, caja y clientes).
 
-**Sitio:** [restaurante-hgdsw9piq-javier-1e91.vercel.app](https://restaurante-hgdsw9piq-javier-1e91.vercel.app/)
+**Sitio en producción:** https://restaurante-hgdsw9piq-javier-1e91.vercel.app/
 
 ---
 
-## Acceso
+## Cómo entrar
 
-| Interfaz | Acceso | Descripcion |
+| Quién | Dónde | Acceso |
 |---|---|---|
-| Sitio publico | libre | Menu, carrito, checkout, reservas, contacto |
-| Portal cliente | registro en `/login` | Pedidos, reservas, favoritos, fidelidad, perfil |
-| Panel admin | `admin` / `12345` en `/admin-login` | Dashboard, pedidos, cocina, mesas, inventario, caja, clientes |
+| Cliente | `/login` | Se registra con nombre, email, teléfono y contraseña |
+| Administrador | `/admin-login` | Usuario `admin` · Clave `12345` |
 
 ---
 
-## Funcionalidades
+## Qué incluye
 
-### Sitio publico
-- Menu con 25+ platos colombianos (imagenes reales)
-- Carrito de compras con multiples metodos de pago
-- Checkout con domicilio, recoger o mesa
-- Sistema de reservas con zonas y extras
-- Pagina de promociones y eventos
-- Galeria de fotos
-- Formulario de contacto
-- Resenas de clientes
+**Sitio público**
+- Menú de 25 platos con fotos, buscador, filtros por categoría/precio/tiempo/picante y ordenamiento
+- Carrito con cupones de descuento y checkout (domicilio, recoger o en mesa)
+- Reservas por pasos con calendario, zonas y disponibilidad por horario
+- Promociones, eventos, galería, reseñas, contacto y seguimiento de pedidos
 
-### Portal cliente
-- Historial de pedidos con seguimiento en tiempo real
-- Historial de reservas con cancelacion
-- Lista de favoritos
-- Direcciones guardadas
-- Sistema de fidelidad (puntos, niveles, canjes)
-- Perfil con Formik/Yup
-- Descarga de datos en JSON
+**Portal del cliente** (`/mi-cuenta`)
+- Pedidos con seguimiento, repetición y cancelación
+- Reservas: crear, modificar y cancelar
+- Favoritos, direcciones guardadas y programa de puntos (bronce/plata/oro)
+- Perfil, descarga de datos y eliminación de cuenta
 
-### Panel administrativo
-- Dashboard con metricas en tiempo real
-- Gestion de pedidos (recibido -> preparando -> listo -> entregado)
-- Cocina con vista de pedidos activos
-- Control de mesas (ocupada/reservada/disponible)
-- Gestion de reservas con confirmacion/rechazo
-- Catalogo de productos con CRUD
-- Inventario con control de stock
-- Clientes unificados con historial
-- Caja con ingresos/egresos
-- Facturacion
-- Compras y proveedores
-- Fidelizacion con niveles (bronce/plata/oro)
-- Promociones y descuentos
-- Eventos
-- Actividad del sistema
-- Configuracion del restaurante
-- Usuarios y permisos
-- WhatsApp integrado
+**Panel admin** (`/admin-*`, 22 módulos)
+- Operación: dashboard, pedidos, cocina (kanban), reservas, mesas
+- Catálogo: productos, categorías, stock, compras y proveedores
+- Finanzas: caja, facturación y analítica
+- Clientes: base unificada, fidelización, reseñas y WhatsApp masivo
+- Sistema: usuarios y roles, actividad, configuración y legales editables
 
 ---
 
-## Arquitectura
+## Capturas
 
-```
-Frontend SPA (Single Page Application)
-├── Persistencia local (localStorage + Zustand)
-├── Datos simulados (mock data + seed demo)
-└── Preparado para conectar API y base de datos
-```
+> Carpeta sugerida: `docs/screenshots/` (aún sin imágenes).
 
-**Para produccion:** Esta version utiliza datos simulados y persistencia local. La arquitectura esta preparada para reemplazar esa capa por una API REST y una base de datos real.
-
----
-
-## Tecnologias
-
-| Tecnologia | Uso |
-|---|---|
-| React 18 | UI library |
-| TypeScript 5 | Type safety |
-| Vite 5 | Build tool |
-| Tailwind CSS 3 | Styling |
-| Zustand 4 | State management |
-| Formik + Yup | Forms + validation |
-| Framer Motion 10 | Animaciones |
-| React Router 6 | Routing |
-| Sonner | Notificaciones |
-| React Icons | Iconografia |
+- `home.png` — Portada con hero y secciones
+- `menu.png` — Menú con buscador y filtros
+- `checkout.png` — Carrito y confirmación de pedido
+- `mi-cuenta.png` — Portal del cliente (pedidos y fidelidad)
+- `admin-dashboard.png` — Panel principal del administrador
+- `admin-cocina.png` — Vista kanban de cocina
+- `reservas.png` — Flujo de reserva en 4 pasos
 
 ---
 
-## Estructura del proyecto
+## Decisiones técnicas
+
+- **Sin backend (por ahora):** los datos viven en el `localStorage` del navegador. El catálogo inicial sale de `src/mockData/mock_data.json`.
+- **Capas separadas:** las páginas consumen `features/*.service`, y esos servicios leen `services/storage/*`. Para conectar una API real solo hay que cambiar los services, sin tocar la interfaz.
+- **Estado con Zustand** (carrito, autenticación, clientes, catálogo) con persistencia entre sesiones.
+- **Formularios con Formik + Yup**, animaciones con Framer Motion, iconos con React Icons.
+
+---
+
+## Estructura
 
 ```
 restaurante/
-├── docs/
-│   ├── architecture/    # overview, data-layer (modo demo → real)
-│   ├── api/             # borrador REST (sin implementar)
-│   └── database/        # entidades objetivo
-├── public/              # platos/, icons/, manifest.json, sw.js
+├── docs/               # arquitectura, api (borrador), base de datos (entidades)
+├── public/             # fotos de platos, iconos PWA, manifest, service worker
 ├── src/
-│   ├── app/
-│   │   ├── providers/   # AppProviders (router, toasts, cookies, errores)
-│   │   └── router/      # rutas (antes src/routes)
-│   ├── assets/          # logos, banners, imagenes
-│   ├── components/
-│   │   ├── ui/          # ProductCard
-│   │   ├── feedback/    # ConfirmModal, EmptyState, Skeletons, CookieConsent
-│   │   ├── navigation/  # AdminGuard, ScrollToTop, WhatsAppButton, BackToTop
-│   │   ├── admin/ cart/ checkout/ home/ menu/ menuDetail/
-│   ├── features/        # dominios: auth, products, orders, reservations,
-│   │                     # customers, loyalty, promotions, inventory, cash,
-│   │                     # billing, reviews, events, tables, finance, activity,
-│   │                     # dashboard (types + *.service + index)
-│   ├── services/
-│   │   ├── api/         # http.ts (cliente REST para futuro backend)
-│   │   └── storage/     # adaptadores localStorage por dominio + storageKeys
-│   ├── pages/
-│   │   ├── public/      # sitio + home/ (10 secciones)
-│   │   ├── client/      # login, mi-cuenta, recuperar-contrasena
-│   │   └── admin/       # 21 paginas admin
-│   ├── layouts/         # PublicLayout, AdminLayout, ClientLayout
-│   ├── lib/             # config, initCatalog, seo
-│   ├── store/           # Zustand (cart, auth, client, products)
+│   ├── app/            # providers + router
+│   ├── assets/         # logos, banners
+│   ├── components/     # ui, feedback, navigation, admin, cart, checkout, menu...
+│   ├── features/       # lógica por dominio (pedidos, caja, clientes...)
+│   ├── services/       # api (cliente REST futuro) + storage (adaptadores)
+│   ├── pages/          # public/ · client/ · admin/
+│   ├── layouts/        # PublicLayout, ClientLayout, AdminLayout
+│   ├── lib/            # config, initCatalog, seo
+│   ├── store/          # Zustand (cart, auth, client, products)
 │   ├── hooks/ constants/ utils/ mockData/
-│   └── styles/          # index.css (Tailwind)
+│   └── styles/         # index.css (Tailwind)
 ├── .env.example
-├── README.md
 ├── package.json
 ├── vite.config.ts
 └── tailwind.config.js
 ```
 
-**Persistencia local / API futura:** los `features/*.service` leen hoy de
-`services/storage` (localStorage) y están listos para usar `services/api`
-cuando exista el backend, sin cambiar componentes. Detalles en `docs/`.
-
 ---
 
-## Instalacion
+## Instalación
 
 ```bash
-# Clonar repositorio
 git clone https://github.com/guzmanmaceajavier-bit/Restaurante.git
-
-# Instalar dependencias
+cd Restaurante
 npm install
-
-# Iniciar servidor de desarrollo
 npm run dev
-
-# Abrir en navegador
-http://localhost:5173/
+# http://localhost:5173/
 ```
 
----
-
-## Acceso administrador
-
-| Rol | Usuario | Contrasena |
-|---|---|---|
-| Administrador | `admin` | `12345` |
-
-Los clientes crean su cuenta en `/login` (registro con email y contraseña).
+Build de producción: `npm run build` (`tsc -b && vite build`).
 
 ---
 
-## Decisiones tecnicas
+## Tecnologías
 
-- **Sin backend:** Los datos se persisten en localStorage del navegador. El catalogo inicial se carga desde `mockData/`.
-- **Zustand + persist:** El store de autenticacion se sincroniza con localStorage, permitiendo que los datos del cliente (pedidos, reservas, puntos) sobrevivan entre sesiones.
-- **Preparado para produccion:** La arquitectura esta diseniada para reemplazar la capa de persistencia local por una API REST sin cambiar la UI.
+React 18 · TypeScript 5 · Vite 5 · Tailwind CSS 3 · Zustand 4 · Formik + Yup · Framer Motion 10 · React Router 6 · Sonner · React Icons
 
 ---
 
 ## Autor
 
-Desarrollado por **Javier Guzman Macea**
-
-- GitHub: [guzmanmaceajavier-bit](https://github.com/guzmanmaceajavier-bit)
-- Sitio: [restaurante-hgdsw9piq-javier-1e91.vercel.app](https://restaurante-hgdsw9piq-javier-1e91.vercel.app/)
+**Javier Guzmán Macea** — [guzmanmaceajavier-bit](https://github.com/guzmanmaceajavier-bit)

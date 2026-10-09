@@ -27,12 +27,13 @@ export function BannerSection() {
           style={{ transform: `translateX(-${indexSlide * 100}%)` }}
         >
           {banners.map((banner, index) => (
-            <div key={index} className="min-w-full h-full">
+            <div key={index} className="min-w-full h-full" aria-hidden={index !== indexSlide}>
               <img
                 src={banner}
                 className="w-full h-full object-cover"
-                alt={`Banner promocional ${index + 1}`}
-                loading="lazy"
+                alt={`Promoción ${index + 1} de Sabor y Origen`}
+                loading={index === 0 ? 'eager' : 'lazy'}
+                fetchPriority={index === 0 ? 'high' : undefined}
               />
             </div>
           ))}
@@ -55,10 +56,14 @@ export function BannerSection() {
           <LuChevronRight className="text-xl" />
         </button>
 
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5" role="tablist" aria-label="Promociones">
           {banners.map((_, i) => (
-            <span
+            <button
               key={i}
+              type="button"
+              role="tab"
+              aria-selected={i === indexSlide}
+              aria-label={`Ver promoción ${i + 1}`}
               onClick={() => setIndexSlide(i)}
               className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${
                 i === indexSlide

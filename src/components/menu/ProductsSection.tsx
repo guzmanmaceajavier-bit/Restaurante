@@ -57,8 +57,12 @@ export function ProductsSection() {
   const [sortBy, setSortBy] = useState('default')
   const { ref, isVisible } = useScrollAnimate(0.05)
 
-  useEffect(() => { if (categoriaUrl) setCategoriaSeleccionada(categoriaUrl) }, [categoriaUrl])
-  useEffect(() => { if (buscarUrl) { setBusqueda(buscarUrl) } }, [buscarUrl])
+  useEffect(() => {
+    if (!categoriaUrl) { setCategoriaSeleccionada('Todos'); return }
+    if (allProducts.length === 0) return
+    setCategoriaSeleccionada(categorias.includes(categoriaUrl) ? categoriaUrl : 'Todos')
+  }, [categoriaUrl, categorias, allProducts.length])
+  useEffect(() => { setBusqueda(buscarUrl || '') }, [buscarUrl])
   useEffect(() => { setPaginaActual(1) }, [categoriaSeleccionada, busqueda, priceRange, timeRange, maxPicante])
 
   const searchSuggestions = useMemo(() => {
@@ -84,14 +88,15 @@ export function ProductsSection() {
     switch (sortBy) {
       case 'price-asc': filtrados = [...filtrados].sort((a, b) => (a.precio ?? 0) - (b.precio ?? 0)); break
       case 'price-desc': filtrados = [...filtrados].sort((a, b) => (b.precio ?? 0) - (a.precio ?? 0)); break
-      case 'best-sellers': filtrados = [...filtrados].sort((a, b) => ((b as any).ventas ?? 0) - ((a as any).ventas ?? 0)); break
-      case 'newest': filtrados = [...filtrados].sort((a, b) => ((b as any).nuevo ? 1 : 0) - ((a as any).nuevo ? 1 : 0)); break
+      case 'best-sellers': filtrados = [...filtrados].sort((a, b) => ((b as unknown as { ventas?: number }).ventas ?? 0) - ((a as unknown as { ventas?: number }).ventas ?? 0)); break
+      case 'newest': filtrados = [...filtrados].sort((a, b) => (b.nuevo ? 1 : 0) - (a.nuevo ? 1 : 0)); break
     }
     return filtrados
   }, [categoriaSeleccionada, busqueda, allProducts, priceRange, timeRange, maxPicante, sortBy])
 
   const totalPaginas = Math.ceil(productosFiltrados.length / ITEMS_PER_PAGE)
   const productosPagina = productosFiltrados.slice((paginaActual - 1) * ITEMS_PER_PAGE, paginaActual * ITEMS_PER_PAGE)
+  useEffect(() => { if (totalPaginas > 0 && paginaActual > totalPaginas) setPaginaActual(totalPaginas) }, [totalPaginas, paginaActual])
   const hasActiveFilters = priceRange > 0 || timeRange > 0 || maxPicante < 3
 
   if (loading) return <MenuSkeleton />
