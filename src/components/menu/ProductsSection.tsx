@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { productService } from '../../features/products/product.service'
-import type { IProduct } from '../../features/products/types'
+import { useProductStore } from '../../store/useProductStore'
 import { ProductCard } from '../ui/ProductCard'
 import { FaSearch, FaSlidersH, FaTimes, FaSortAmountDown } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
@@ -39,17 +38,10 @@ export function ProductsSection() {
   const buscarUrl = searchParams.get('buscar')
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(true)
-  const [allProducts, setAllProducts] = useState<IProduct[]>([])
-  useEffect(() => {
-    let attempts = 0
-    const check = () => {
-      const data = productService.getAll()
-      if (data.length > 0 || attempts > 30) { setAllProducts(data); setLoading(false); return }
-      attempts++
-      setTimeout(check, 150)
-    }
-    check()
-  }, [])
+  const allProducts = useProductStore((s) => s.productos)
+  useEffect(() => { useProductStore.getState().loadProductos() }, [])
+  useEffect(() => { if (allProducts.length > 0) setLoading(false) }, [allProducts])
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 4500); return () => clearTimeout(t) }, [])
 
   const categorias = useMemo(
     () => ['Todos', ...Array.from(new Set(allProducts.map((item) => item.categoría || 'Otros')))],

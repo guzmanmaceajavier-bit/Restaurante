@@ -1,6 +1,7 @@
 import { productStorage } from '../../services/storage/productStorage';
 import { purchaseStorage } from '../../services/storage/purchaseStorage';
 import type { StoredSupplier } from '../../services/storage/purchaseStorage';
+import { useProductStore } from '../../store/useProductStore';
 
 export interface Compra {
   id: string;
@@ -52,6 +53,7 @@ export const purchaseService = {
         return coincide ? { ...p, stock: (p.stock || 0) + form.cantidad } : p;
       });
       productStorage.saveAll(updated);
+      useProductStore.setState({ productos: updated });
     }
     return { ok: true, compras };
   },

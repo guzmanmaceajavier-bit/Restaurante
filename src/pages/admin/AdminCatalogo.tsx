@@ -10,6 +10,7 @@ import { PageHeader } from '../../components/admin/PageHeader'
 import type { IProduct } from '../../features/products/types'
 import { productService } from '../../features/products/product.service'
 import { inventoryService } from '../../features/inventory/inventory.service'
+import { useProductStore } from '../../store/useProductStore'
 import { ITEMS_PER_PAGE } from '../../constants'
 import { SEO } from '../../lib/seo'
 
@@ -18,6 +19,11 @@ type Tab = 'productos' | 'inventario' | 'categorias'
 export default function AdminCatalogo() {
   const [tab, setTab] = useState<Tab>('productos')
   const [productos, setProductos] = useState<IProduct[]>(() => productService.getAll())
+  useEffect(() => {
+    useProductStore.getState().loadProductos()
+    const unsub = useProductStore.subscribe((s) => { if (s.productos.length) setProductos(s.productos) })
+    return unsub
+  }, [])
   const [busqueda, setBusqueda] = useState('')
   const [filtroCat, setFiltroCat] = useState('')
   const [page, setPage] = useState(1)

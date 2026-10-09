@@ -1,5 +1,6 @@
 import type { IProduct } from '../products/types';
 import { productStorage } from '../../services/storage/productStorage';
+import { useProductStore } from '../../store/useProductStore';
 
 export type EstadoStock = 'Agotado' | 'Bajo' | 'OK';
 
@@ -23,6 +24,7 @@ export const inventoryService = {
     const value = Math.max(0, Math.floor(stock));
     const updated = productStorage.getAll().map((p) => (p.id === productId ? { ...p, stock: value } : p));
     productStorage.saveAll(updated);
+    useProductStore.setState({ productos: updated });
     return updated;
   },
 
@@ -34,7 +36,10 @@ export const inventoryService = {
       changed = true;
       return { ...p, stock: Math.max(0, (p.stock || 0) + delta) };
     });
-    if (changed) productStorage.saveAll(updated);
+    if (changed) {
+      productStorage.saveAll(updated);
+      useProductStore.setState({ productos: updated });
+    }
     return changed;
   },
 };

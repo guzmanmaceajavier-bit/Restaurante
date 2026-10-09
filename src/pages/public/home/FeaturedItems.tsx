@@ -1,10 +1,12 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { productService } from '../../../features/products/product.service'
+import { useProductStore } from '../../../store/useProductStore'
 import { ProductCard } from '../../../components/ui/ProductCard'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 
 export default function FeaturedItems() {
-  const allProducts = productService.getAll()
+  const allProducts = useProductStore((s) => s.productos)
+  useEffect(() => { useProductStore.getState().loadProductos() }, [])
   const items = allProducts.filter((p) => p.destacado || p.masVendido).slice(0, 6)
   const { ref, isVisible } = useScrollAnimate(0.1)
 

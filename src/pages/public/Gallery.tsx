@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { GallerySkeleton } from '../../components/feedback/LoadingSkeleton'
 import { SEO } from '../../lib/seo'
-import { productService } from '../../features/products/product.service'
+import { useProductStore } from '../../store/useProductStore'
 import { numberFormatter } from '../../utils/numberFormatter'
 import { FaTimes, FaShoppingBag, FaClock, FaFire } from 'react-icons/fa'
 
@@ -21,7 +21,8 @@ const fallbackGallery = [
 
 export default function Gallery() {
   const [loading, setLoading] = useState(true)
-  const allProducts = productService.getAll()
+  const allProducts = useProductStore((s) => s.productos)
+  useEffect(() => { useProductStore.getState().loadProductos() }, [])
   const galleryImages = allProducts.length ? allProducts.filter(p=> p.imagen).map(p=> ({ src: p.imagen, label: p.nombre })) : fallbackGallery
   const [selected, setSelected] = useState<typeof galleryImages[number] | null>(null)
 

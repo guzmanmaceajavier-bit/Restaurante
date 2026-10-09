@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { IProduct } from '../features/products/types'
 import { productService } from '../features/products/product.service'
+import { useProductStore } from '../store/useProductStore'
 
 interface IProps {
   productId?: string
@@ -10,6 +11,9 @@ export function useProducts({ productId }: IProps) {
   const [productById, setProductById] = useState<IProduct>()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const storeProductos = useProductStore((s) => s.productos)
+
+  useEffect(() => { useProductStore.getState().loadProductos() }, [])
 
   useEffect(() => {
     setLoading(true)
@@ -35,10 +39,10 @@ export function useProducts({ productId }: IProps) {
     } finally {
       setLoading(false)
     }
-  }, [productId])
+  }, [productId, storeProductos])
 
   const filterProducts = (category: string) => {
-    return productService.getAll().filter((product) => product.categoría === category && product.nombre !== productId)
+    return storeProductos.filter((product) => product.categoría === category && product.nombre !== productId)
   }
 
   return {

@@ -2,6 +2,7 @@ import type { Order, OrderHistorialEntry } from './types';
 import { orderStorage } from '../../services/storage/orderStorage';
 import { activityStorage } from '../../services/storage/activityStorage';
 import { productStorage } from '../../services/storage/productStorage';
+import { useProductStore } from '../../store/useProductStore';
 
 export interface FiltroOrdenes {
   busqueda: string;
@@ -126,7 +127,10 @@ export const orderService = {
             changed = true;
           }
         });
-        if (changed) productStorage.saveAll(productos);
+        if (changed) {
+          productStorage.saveAll(productos);
+          useProductStore.setState({ productos });
+        }
       }
     } catch {
       /* el cambio de estado ya quedó persistido */
@@ -170,7 +174,10 @@ export const orderService = {
         changed = true;
       }
     });
-    if (changed) productStorage.saveAll(productos);
+    if (changed) {
+      productStorage.saveAll(productos);
+      useProductStore.setState({ productos });
+    }
   },
 
   /** Búsqueda por código exacto insensible a mayúsculas (portal público). */

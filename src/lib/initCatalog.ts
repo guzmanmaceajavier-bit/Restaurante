@@ -1,5 +1,6 @@
 import type { IProduct } from '../features/products/types';
 import { productService } from '../features/products/product.service';
+import { useProductStore } from '../store/useProductStore';
 
 /** Carga inicial del catálogo real (mock_data.json) si el storage está vacío. */
 export async function initDataService(): Promise<void> {
@@ -11,4 +12,5 @@ export async function initDataService(): Promise<void> {
     }));
     productService.saveAll(productos);
   }
+  useProductStore.getState().loadProductos();
 }

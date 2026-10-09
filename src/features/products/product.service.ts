@@ -1,5 +1,13 @@
 import type { IProduct } from './types';
 import { productStorage } from '../../services/storage/productStorage';
+import { useProductStore } from '../../store/useProductStore';
+
+/** Persiste y espeja en el store reactivo (los lectores se suscriben al store). */
+function persistir(productos: IProduct[]): IProduct[] {
+  productStorage.saveAll(productos);
+  useProductStore.setState({ productos });
+  return productos;
+}
 
 export interface FiltroProductos {
   busqueda: string;
@@ -19,34 +27,33 @@ export interface ResultadoCategoria {
  */
 export const productService = {
   getAll: (): IProduct[] => productStorage.getAll(),
-  saveAll: (items: IProduct[]): void => productStorage.saveAll(items),
+  saveAll: (items: IProduct[]): void => {
+    persistir(items);
+  },
 
   getById: (id: string): IProduct | undefined =>
     productStorage.getAll().find((p) => p.id === id || p.nombre === id),
 
   createProducto: (data: Omit<IProduct, 'id'>, actuales: IProduct[]): IProduct => {
     const nuevo = { ...data, id: `prod-${Date.now().toString(36)}` } as IProduct;
-    productStorage.saveAll([...actuales, nuevo]);
+    persistir([...actuales, nuevo]);
     return nuevo;
   },
 
   updateProducto: (id: string, data: Partial<IProduct>, actuales: IProduct[]): IProduct[] => {
     const updated = actuales.map((p) => (p.id === id ? { ...p, ...data } : p));
-    productStorage.saveAll(updated);
-    return updated;
+    return persistir(updated);
   },
 
   deleteProducto: (id: string, actuales: IProduct[]): IProduct[] => {
     const updated = actuales.filter((p) => p.id !== id);
-    productStorage.saveAll(updated);
-    return updated;
+    return persistir(updated);
   },
 
   deleteMany: (ids: string[], actuales: IProduct[]): IProduct[] => {
     const set = new Set(ids);
     const updated = actuales.filter((p) => !set.has(p.id));
-    productStorage.saveAll(updated);
-    return updated;
+    return persistir(updated);
   },
 
   filterProductos: (items: IProduct[], filtro: FiltroProductos): IProduct[] =>
