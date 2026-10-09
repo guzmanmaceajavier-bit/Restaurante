@@ -37,11 +37,11 @@ export function ProductsSection() {
   const categoriaUrl = searchParams.get('categoria')
   const buscarUrl = searchParams.get('buscar')
   const searchInputRef = useRef<HTMLInputElement>(null)
-  const [loading, setLoading] = useState(true)
+  const catalogStatus = useProductStore((s) => s.status)
+  const loading = catalogStatus === 'loading'
+  const loadError = catalogStatus === 'error'
   const allProducts = useProductStore((s) => s.productos)
   useEffect(() => { useProductStore.getState().loadProductos() }, [])
-  useEffect(() => { if (allProducts.length > 0) setLoading(false) }, [allProducts])
-  useEffect(() => { const t = setTimeout(() => setLoading(false), 4500); return () => clearTimeout(t) }, [])
 
   const categorias = useMemo(
     () => ['Todos', ...Array.from(new Set(allProducts.map((item) => item.categoría || 'Otros')))],
@@ -268,8 +268,8 @@ export function ProductsSection() {
             <div className="w-20 h-20 bg-cream-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
               <FaSearch className="text-steel/30" size={28} />
             </div>
-            <p className="text-espresso-800 font-display font-bold text-lg">No encontramos resultados</p>
-            <p className="text-sm text-steel mt-1">Intenta con otros filtros</p>
+            <p className="text-espresso-800 font-display font-bold text-lg">{loadError ? 'No se pudo cargar el menú' : 'No encontramos resultados'}</p>
+            <p className="text-sm text-steel mt-1">{loadError ? 'Revisa tu conexión y recarga la página' : 'Intenta con otros filtros'}</p>
             <button onClick={() => { setBusqueda(''); setCategoriaSeleccionada('Todos'); setPriceRange(0); setTimeRange(0); setMaxPicante(3) }}
               className="btn-primary text-sm mt-4 py-2.5 px-6">Limpiar filtros</button>
           </div>

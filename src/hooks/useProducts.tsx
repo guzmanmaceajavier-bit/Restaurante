@@ -12,10 +12,21 @@ export function useProducts({ productId }: IProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const storeProductos = useProductStore((s) => s.productos)
+  const catalogStatus = useProductStore((s) => s.status)
 
   useEffect(() => { useProductStore.getState().loadProductos() }, [])
 
   useEffect(() => {
+    if (catalogStatus === 'loading') {
+      setLoading(true)
+      return
+    }
+    if (catalogStatus === 'error') {
+      setLoading(false)
+      setError('No se pudo cargar el catálogo')
+      setProductById(undefined)
+      return
+    }
     setLoading(true)
     setError('')
 
@@ -39,7 +50,7 @@ export function useProducts({ productId }: IProps) {
     } finally {
       setLoading(false)
     }
-  }, [productId, storeProductos])
+  }, [productId, storeProductos, catalogStatus])
 
   const filterProducts = (category: string) => {
     return storeProductos.filter((product) => product.categoría === category && product.nombre !== productId)
