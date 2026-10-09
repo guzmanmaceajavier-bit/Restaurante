@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useProductStore } from '../../store/useProductStore'
 import { ProductCard } from '../ui/ProductCard'
@@ -36,7 +36,6 @@ export function ProductsSection() {
   const [searchParams] = useSearchParams()
   const categoriaUrl = searchParams.get('categoria')
   const buscarUrl = searchParams.get('buscar')
-  const searchInputRef = useRef<HTMLInputElement>(null)
   const catalogStatus = useProductStore((s) => s.status)
   const loading = catalogStatus === 'loading'
   const loadError = catalogStatus === 'error'
@@ -52,7 +51,6 @@ export function ProductsSection() {
   const [busqueda, setBusqueda] = useState(buscarUrl || '')
   const [paginaActual, setPaginaActual] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
-  const [searchExpanded, setSearchExpanded] = useState(!!buscarUrl)
   const [priceRange, setPriceRange] = useState(0)
   const [timeRange, setTimeRange] = useState(0)
   const [maxPicante, setMaxPicante] = useState(3)
@@ -60,12 +58,8 @@ export function ProductsSection() {
   const { ref, isVisible } = useScrollAnimate(0.05)
 
   useEffect(() => { if (categoriaUrl) setCategoriaSeleccionada(categoriaUrl) }, [categoriaUrl])
-  useEffect(() => { if (buscarUrl) { setBusqueda(buscarUrl); setSearchExpanded(true) } }, [buscarUrl])
+  useEffect(() => { if (buscarUrl) { setBusqueda(buscarUrl) } }, [buscarUrl])
   useEffect(() => { setPaginaActual(1) }, [categoriaSeleccionada, busqueda, priceRange, timeRange, maxPicante])
-
-  useEffect(() => {
-    if (searchExpanded && searchInputRef.current) searchInputRef.current.focus()
-  }, [searchExpanded])
 
   const searchSuggestions = useMemo(() => {
     if (!busqueda.trim() || busqueda.length < 2) return []
@@ -109,69 +103,58 @@ export function ProductsSection() {
           <p className="kicker text-olive-500 mb-2">Nuestra carta</p>
           <h2 className="font-display font-bold text-espresso-800 text-3xl md:text-4xl display-balance">Platos de la casa</h2>
         </div>
-        {/* Search icon / expanded bar */}
+        {/* Search bar */}
         <div className={`mb-8 ${isVisible ? 'animate-fade-in' : 'opacity-0'}`}>
           <div className="relative max-w-xl mx-auto">
-            {!searchExpanded ? (
-              <div className="flex justify-center">
-                <button onClick={() => setSearchExpanded(true)}
-                  className="flex items-center gap-3 bg-white rounded-2xl border-2 border-cream-200 px-6 py-3.5 hover:border-olive-300 hover:shadow-md transition-all duration-300 group">
-                  <FaSearch size={18} className="text-olive-500 group-hover:scale-110 transition-transform" />
-                  <span className="text-sm text-steel">Buscar platos, ingredientes...</span>
+            <div className="flex items-center gap-3 bg-white rounded-full border border-cream-200 focus-within:border-olive-400 shadow-card focus-within:shadow-lift pl-5 pr-2 py-2 transition-all duration-300">
+              <FaSearch size={16} className="text-olive-500 shrink-0" />
+              <input
+                type="text"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder="Buscar platos, ingredientes..."
+                aria-label="Buscar en el menú"
+                className="flex-1 bg-transparent text-sm text-espresso-800 placeholder:text-steel/50 outline-none py-1.5"
+              />
+              {busqueda ? (
+                <button onClick={() => setBusqueda('')} aria-label="Limpiar búsqueda"
+                  className="w-8 h-8 rounded-full bg-cream-100 hover:bg-cream-200 flex items-center justify-center text-steel hover:text-espresso-600 transition-colors shrink-0">
+                  <FaTimes size={12} />
                 </button>
-              </div>
-            ) : (
-              <div className="animate-fade-in">
-                <div className="flex items-center gap-3 bg-white rounded-2xl border-2 border-olive-400 shadow-lg shadow-olive-500/10 px-5 py-3.5">
-                  <FaSearch size={18} className="text-olive-500 shrink-0" />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                    placeholder="Buscar platos, ingredientes..."
-                    className="flex-1 bg-transparent text-sm text-espresso-800 placeholder:text-steel/50 outline-none"
-                  />
-                  {busqueda && (
-                    <button onClick={() => setBusqueda('')} className="text-steel hover:text-espresso-600 transition-colors">
-                      <FaTimes size={14} />
-                    </button>
-                  )}
-                  <button onClick={() => { setSearchExpanded(false); setBusqueda('') }}
-                    className="text-steel hover:text-espresso-600 text-xs font-medium ml-1">
-                    Cerrar
+              ) : (
+                <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-steel/60 font-medium bg-cream-50 border border-cream-200 rounded-full px-3 py-1.5 mr-1 shrink-0">
+                  {productosFiltrados.length} platos
+                </span>
+              )}
+            </div>
+
+            {/* Live results */}
+            {searchSuggestions.length > 0 && (
+              <div className="absolute z-20 left-0 right-0 mt-2 bg-white rounded-2xl shadow-lift border border-cream-200 overflow-hidden animate-fade-in">
+                {searchSuggestions.map(p => (
+                  <button key={p.id}
+                    onClick={() => { setBusqueda(p.nombre) }}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-cream-50 transition-colors text-left border-b border-cream-100 last:border-0">
+                    <img src={p.imagen} alt="" className="w-10 h-10 rounded-xl object-cover" loading="lazy" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-espresso-800 truncate">{p.nombre}</p>
+                      <p className="text-xs text-steel truncate">{p.descripcion}</p>
+                    </div>
+                    <span className="text-sm font-bold text-olive-600 shrink-0">${(p.precio ?? 0).toLocaleString('es-CO')}</span>
                   </button>
-                </div>
+                ))}
+              </div>
+            )}
 
-                {/* Live results */}
-                {searchSuggestions.length > 0 && (
-                  <div className="mt-2 bg-white rounded-2xl shadow-lift border border-cream-200 overflow-hidden">
-                    {searchSuggestions.map(p => (
-                      <button key={p.id}
-                        onClick={() => { setBusqueda(p.nombre); setSearchExpanded(false) }}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-cream-50 transition-colors text-left border-b border-cream-100 last:border-0">
-                        <img src={p.imagen} alt="" className="w-10 h-10 rounded-lg object-cover" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-espresso-800 truncate">{p.nombre}</p>
-                          <p className="text-xs text-steel truncate">{p.descripcion}</p>
-                        </div>
-                        <span className="text-sm font-bold text-olive-600 shrink-0">${(p.precio ?? 0).toLocaleString('es-CO')}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {/* Quick suggestions */}
-                {!busqueda && (
-                  <div className="mt-3 flex flex-wrap gap-2 justify-center">
-                    {['Bandeja paisa', 'Arepa', 'Limonada', 'Seco', 'Patacones'].map(s => (
-                      <button key={s} onClick={() => { setBusqueda(s); setSearchExpanded(false) }}
-                        className="text-xs bg-cream-100 hover:bg-olive-100 text-espresso-600 px-3 py-1.5 rounded-full transition-colors">
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                )}
+            {/* Quick suggestions */}
+            {!busqueda && (
+              <div className="mt-3 flex flex-wrap gap-2 justify-center">
+                {['Bandeja paisa', 'Arepa', 'Limonada', 'Seco', 'Patacones'].map(s => (
+                  <button key={s} onClick={() => { setBusqueda(s) }}
+                    className="text-xs bg-white border border-cream-200 hover:border-olive-300 hover:text-olive-600 text-espresso-600 px-3.5 py-1.5 rounded-full transition-colors shadow-sm">
+                    {s}
+                  </button>
+                ))}
               </div>
             )}
           </div>

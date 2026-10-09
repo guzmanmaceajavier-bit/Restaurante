@@ -315,7 +315,8 @@ img {
   backdrop-filter: blur(12px);
 }
 
-/* Accessibility: respect reduced-motion preferences */
+/* Accessibility: respect reduced-motion preferences.
+   Los marquees quedan exentos a petición: son el movimiento de marca. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
@@ -323,8 +324,8 @@ img {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  /* Marquees congelados se vuelven filas desplazables para no cortar tarjetas */
-  section.marquee-viewport {
-    overflow-x: auto;
+  .animate-marquee, .animate-marquee::before, .animate-marquee::after {
+    animation-duration: 30s !important;
+    animation-iteration-count: infinite !important;
   }
 }

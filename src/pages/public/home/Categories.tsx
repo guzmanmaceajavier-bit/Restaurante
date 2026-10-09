@@ -11,7 +11,7 @@ const allCategories = [...categories, ...categories, ...categories]
 
 export default function Categories() {
   return (
-    <section className="py-16 overflow-hidden marquee-viewport">
+    <section className="py-16 overflow-hidden">
       <div className="max-w-content mx-auto px-6 mb-8">
         <span className="text-olive-500 font-semibold text-sm tracking-[0.15em] uppercase">Nuestro menú</span>
         <h2 className="text-3xl md:text-4xl font-display font-bold text-espresso-800 mt-2">

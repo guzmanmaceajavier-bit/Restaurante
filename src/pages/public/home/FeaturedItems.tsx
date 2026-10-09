@@ -15,7 +15,7 @@ export default function FeaturedItems() {
   const tripled = [...items, ...items, ...items]
 
   return (
-    <section className="py-20 px-6 overflow-hidden marquee-viewport">
+    <section className="py-20 px-6 overflow-hidden">
       <div className="max-w-content mx-auto" ref={ref}>
         <div className={`flex items-end justify-between mb-10 ${isVisible ? 'animate-fade-in' : 'opacity-0'}`}>
           <div>
