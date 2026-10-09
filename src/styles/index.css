@@ -323,4 +323,8 @@ img {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  /* Marquees congelados se vuelven filas desplazables para no cortar tarjetas */
+  section.marquee-viewport {
+    overflow-x: auto;
+  }
 }

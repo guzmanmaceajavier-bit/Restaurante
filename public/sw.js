@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sabor-v5'
+const CACHE_NAME = 'sabor-v6'
 self.addEventListener('install', () => self.skipWaiting())
 self.addEventListener('activate', (event) => {
   event.waitUntil(
