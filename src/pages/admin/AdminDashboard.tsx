@@ -79,12 +79,12 @@ export default function AdminDashboard() {
             <h2 className="text-sm font-semibold text-[#0F172A] flex items-center gap-2"><FaChartLine size={12} className="text-[#667A22]"/> Ventas por hora · Hoy</h2>
             <span className="text-xs text-[#94A3B8]">10:00–21:00 · Almuerzo vs Cena</span>
           </div>
-          <div className="flex items-end gap-1 h-28">
+          <div className="flex items-end gap-1 h-28" role="img" aria-label={`Ventas por hora hoy, máximo $${maxHora.toLocaleString('es-CO')}`}>
             {ventasHora.map(v=>{
               const h=parseInt(v.label.split(':')[0]); const isLunch=h>=12 && h<=15; const isDinner=h>=19
               const bg = v.total===0 ? 'bg-[#F1F5F9]' : isDinner ? 'bg-[#1C2A0F]' : isLunch ? 'bg-[#667A22]' : 'bg-[#CBD5E1]'
               return (
-                <div key={v.label} className="flex-1 flex flex-col items-center gap-1">
+                <div key={v.label} className="flex-1 flex flex-col items-center gap-1" title={`${v.label}: $${v.total.toLocaleString('es-CO')}`}>
                   <span className="text-[10px] font-medium text-[#475569]">{v.total>0 ? `$${(v.total/1000).toFixed(0)}k` : ''}</span>
                   <div className={`w-full rounded-t-md transition-all duration-500 ${bg}`} style={{ height: `${Math.max((v.total/maxHora)*100, v.total>0?8:4)}%`, minHeight: '8px' }} />
                   <span className="text-[10px] text-[#94A3B8]">{v.label.slice(0,2)}</span>
@@ -152,13 +152,18 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        <div className="bg-white rounded-xl border border-[#E5E7EB] p-4">
-          <h2 className="text-sm font-semibold text-[#0F172A] mb-3">Requiere atención</h2>
+        <div className={`rounded-xl border p-4 transition-colors ${(s.stockBajo.length>0 || s.agotados.length>0 || s.pendientes>0) ? 'bg-white border-[#FECACA]' : 'bg-white border-[#E5E7EB]'}`}>
+          <h2 className="text-sm font-semibold text-[#0F172A] mb-3 flex items-center gap-2">
+            Requiere atención
+            {(s.stockBajo.length>0 || s.agotados.length>0 || s.pendientes>0) && (
+              <span className="w-2 h-2 rounded-full bg-[#DC2626] animate-pulse" aria-label="Hay alertas activas" />
+            )}
+          </h2>
           {(s.stockBajo.length===0 && s.agotados.length===0 && s.pendientes===0) ? <p className="text-sm text-[#10B981] inline-flex items-center gap-1.5"><FaCheckCircle size={13} /> Todo al día</p> : (
             <div className="space-y-2">
               {s.pendientes>0 && <Link to="/admin-ordenes" className="flex items-center gap-2 p-2.5 rounded-lg bg-[#FFFBEB] border border-[#FDE68A] text-sm text-[#92400E] hover:bg-[#FEF3C7] transition-colors"><FaClock size={12}/> {s.pendientes} pendientes <span className="ml-auto text-xs font-semibold">Ver →</span></Link>}
-              {s.stockBajo.length>0 && <Link to="/admin-catalogo#inventario" className="flex items-center gap-2 p-2.5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-sm text-[#991B1B]"><FaExclamationTriangle size={12}/> {s.stockBajo.length} stock bajo</Link>}
-              {s.agotados.length>0 && <Link to="/admin-catalogo#inventario" className="flex items-center gap-2 p-2.5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-sm text-[#991B1B]"><FaExclamationTriangle size={12}/> {s.agotados.length} agotados</Link>}
+              {s.stockBajo.length>0 && <Link to="/admin-catalogo#inventario" className="flex items-center gap-2 p-2.5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-sm text-[#991B1B] hover:bg-[#FEE2E2] transition-colors"><FaExclamationTriangle size={12}/> {s.stockBajo.length} stock bajo <span className="ml-auto text-xs font-semibold">Ver →</span></Link>}
+              {s.agotados.length>0 && <Link to="/admin-catalogo#inventario" className="flex items-center gap-2 p-2.5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-sm text-[#991B1B] hover:bg-[#FEE2E2] transition-colors"><FaExclamationTriangle size={12}/> {s.agotados.length} agotados <span className="ml-auto text-xs font-semibold">Ver →</span></Link>}
             </div>
           )}
           <div className="mt-4 pt-4 border-t border-[#F1F5F9]">
