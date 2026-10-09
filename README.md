@@ -49,10 +49,7 @@ Sistema web para un restaurante colombiano: sitio público con menú y pedidos e
 -carrito
 - <img width="446" height="616" alt="image" src="https://github.com/user-attachments/assets/9ce6e471-199f-456a-9b99-47133695b27e" />
 
-- `mi-cuenta.png` — Portal del cliente (pedidos y fidelidad)
-- `admin-dashboard.png` — Panel principal del administrador
-- `admin-cocina.png` — Vista kanban de cocina
-- `reservas.png` — Flujo de reserva en 4 pasos
+Pendientes en `docs/screenshots/`: `mi-cuenta.png`, `admin-dashboard.png`, `admin-cocina.png`, `reservas.png`.
 
 ---
 

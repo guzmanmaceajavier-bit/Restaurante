@@ -12,6 +12,7 @@ export default function ClientLogin() {
   const [email, setEmail] = useState('')
   const [telefono, setTelefono] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
   const { login, register } = useAuthStore()
   const navigate = useNavigate()
@@ -28,6 +29,7 @@ export default function ClientLogin() {
     e.preventDefault()
     if (!nombre.trim() || !email.trim() || !telefono.trim() || !password.trim()) { toast.error('Completa todos los campos'); return }
     if (password.length < 6) { toast.error('La contraseña debe tener al menos 6 caracteres'); return }
+    if (password !== confirmPassword) { toast.error('Las contraseñas no coinciden, verifica e intenta de nuevo'); return }
     const result = register({ nombre, email, telefono, password })
     if (result.ok) { toast.success('¡Cuenta creada! Ya puedes hacer pedidos'); navigate('/mi-cuenta') }
     else { toast.error(result.error) }
@@ -93,6 +95,19 @@ export default function ClientLogin() {
                 <Link to="/recuperar-contrasena" className="text-xs text-olive-500 hover:text-olive-600 mt-2 inline-block">¿Olvidaste tu contraseña?</Link>
               )}
             </div>
+            {isRegister && (
+              <div>
+                <label className="text-sm font-medium text-espresso-700 mb-1.5 block">Confirmar contraseña</label>
+                <div className="relative">
+                  <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
+                  <input type={showPass ? 'text' : 'password'} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repite tu contraseña"
+                    className="input-base pl-11 pr-11" />
+                </div>
+                {confirmPassword && password !== confirmPassword && (
+                  <p className="text-xs text-red-500 mt-1.5">Las contraseñas no coinciden</p>
+                )}
+              </div>
+            )}
             <button type="submit" className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-[#1C2A0F] text-white text-sm font-medium hover:bg-[#2A3D16] transition-colors">
               {isRegister ? 'Crear cuenta' : 'Iniciar sesión'}
               <FaArrowRight size={12} />

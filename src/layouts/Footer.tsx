@@ -53,8 +53,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-[11px] text-white/20">&copy; {new Date().getFullYear()} {config.nombre}</p>
+        <div className="py-5 flex flex-col items-center gap-2 text-center">
+          <p className="text-[11px] text-white/30">&copy; {new Date().getFullYear()} {config.nombre}</p>
           <div className="flex gap-4">
             <Link to={RoutesPath.politicaPrivacidad} className="text-[11px] text-white/20 hover:text-white/40 transition-colors">Privacidad</Link>
             <Link to={RoutesPath.terminosCondiciones} className="text-[11px] text-white/20 hover:text-white/40 transition-colors">Términos</Link>
