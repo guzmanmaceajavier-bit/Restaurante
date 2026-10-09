@@ -41,10 +41,14 @@ Sistema web para un restaurante colombiano: sitio público con menú y pedidos e
 ## Capturas
 
 > Carpeta sugerida: `docs/screenshots/` (aún sin imágenes).
+-inicio
+<img width="1355" height="619" alt="image" src="https://github.com/user-attachments/assets/7a3c5e15-26fb-4352-a65a-a3b2ef581765" />
 
-- `home.png` — Portada con hero y secciones
-- `menu.png` — Menú con buscador y filtros
-- `checkout.png` — Carrito y confirmación de pedido
+-menú
+<img width="1354" height="609" alt="image" src="https://github.com/user-attachments/assets/c99898e1-3f4d-4bfc-9567-d207d6b17582" />
+-carrito
+- <img width="446" height="616" alt="image" src="https://github.com/user-attachments/assets/9ce6e471-199f-456a-9b99-47133695b27e" />
+
 - `mi-cuenta.png` — Portal del cliente (pedidos y fidelidad)
 - `admin-dashboard.png` — Panel principal del administrador
 - `admin-cocina.png` — Vista kanban de cocina
