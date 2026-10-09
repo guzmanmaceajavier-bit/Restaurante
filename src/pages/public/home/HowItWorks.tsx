@@ -3,7 +3,7 @@ import { FaUtensils, FaCheckCircle, FaRocket, FaHeart } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 
 const steps = [
-  { icon: FaUtensils, num: '01', title: 'Explora', desc: 'Navega nuestro menú y encuentra tu plato favorito entre más de 30 opciones.' },
+  { icon: FaUtensils, num: '01', title: 'Explora', desc: 'Navega nuestro menú y encuentra tu plato favorito entre los platos de la casa.' },
   { icon: FaCheckCircle, num: '02', title: 'Elige', desc: 'Personaliza tu pedido: adicionales, cantidad, tipo de entrega o recogida.' },
   { icon: FaRocket, num: '03', title: 'Recibe', desc: 'Preparamos tu pedido con cariño y te lo llevamos o lo tienes listo para recoger.' },
   { icon: FaHeart, num: '04', title: 'Disfruta', desc: 'Saborea la tradición colombiana en cada bocado. ¡Repite cuando quieras!' },

@@ -8,6 +8,7 @@ const fallbackTestimonials = [
   { name: 'Ana L.', text: 'Los patacones con todo son mi debilidad. Siempre voy con la familia y nunca nos decepcionan.', rating: 5 },
 ]
 const testimonials = reviewService.getTestimonials(fallbackTestimonials)
+const source = reviewService.getTestimonialsSource()
 
 export default function Testimonials() {
   const { ref, isVisible } = useScrollAnimate(0.1)
@@ -17,9 +18,7 @@ export default function Testimonials() {
       <div className="max-w-content mx-auto" ref={ref}>
         <div className={`text-center mb-14 ${isVisible ? 'animate-fade-in' : 'opacity-0'}`}>
           <span className="text-olive-500 font-semibold text-sm tracking-[0.15em] uppercase">Lo que dicen nuestros clientes</span>
-          <h2 className="text-3xl md:text-5xl font-display font-bold text-espresso-800 mt-3">
-            Reseñas reales
-          </h2>
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-espresso-800 mt-3">{source === 'fallback' ? 'Nos recomiendan' : 'Reseñas reales'}</h2>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           {testimonials.map((t: any, i: number) => (

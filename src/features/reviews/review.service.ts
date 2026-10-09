@@ -134,6 +134,14 @@ export const reviewService = {
     reviewStorage.saveAll(existing);
   },
 
+  /** Origen de los testimonios: contenido real o respaldo estático. */
+  getTestimonialsSource: (): 'custom' | 'resenas' | 'fallback' => {
+    const custom = settingsStorage.getHomeTestimonials<Testimonio[]>();
+    if (custom && Array.isArray(custom) && custom.length) return 'custom';
+    if (reviewStorage.getAll<StoredReview>().length >= 3) return 'resenas';
+    return 'fallback';
+  },
+
   /** Testimonios del home: personalizados, luego resenas, luego respaldo. */
   getTestimonials: (fallback: Testimonio[]): Testimonio[] => {
     const custom = settingsStorage.getHomeTestimonials<Testimonio[]>();

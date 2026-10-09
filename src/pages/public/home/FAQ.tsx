@@ -2,20 +2,22 @@ import { useState } from 'react'
 import { FaChevronDown } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 import { settingsStorage } from '../../../services/storage/settingsStorage'
+import { FIDELIDAD_CONFIG } from '../../../features/loyalty/fidelidad'
+import { CONFIG } from '../../../lib/config'
 import clsx from 'clsx'
 
 const defaultFaqs = [
   {
     q: '¿Hacen domicilios?',
-    a: 'Sí, realizamos domicilios en todo el municipio de Sahagún. El tiempo de entrega es de 30 a 45 minutos dependiendo de la zona.',
+    a: `Sí, realizamos domicilios en Sahagún y alrededores. El tiempo estimado de entrega es de ${CONFIG.delivery.tiempoEstimado}.`,
   },
   {
     q: '¿Cómo acumulo puntos?',
-    a: 'Por cada $10.000 en compras acumulas 1 punto. Los puntos se reflejan automáticamente en tu cuenta y subes de nivel según tu acumulado.',
+    a: `Por cada $${FIDELIDAD_CONFIG.pesosPorPunto.toLocaleString('es-CO')} en compras acumulas 1 punto. Los puntos se reflejan automáticamente en tu cuenta y subes de nivel según tu acumulado.`,
   },
   {
     q: '¿Puedo reservar para eventos grandes?',
-    a: 'Claro, manejamos eventos hasta para 20 personas. Contáctanos con anticipación para personalizar tu menú y espacio.',
+    a: 'Claro, manejamos reuniones familiares y eventos especiales. Contáctanos con anticipación para personalizar tu menú y espacio.',
   },
   {
     q: '¿Tienen opciones vegetarianas?',

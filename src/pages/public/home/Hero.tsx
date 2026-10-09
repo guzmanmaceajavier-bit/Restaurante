@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
-import { FaStar, FaClock, FaUtensils } from 'react-icons/fa'
+import { FaClock, FaMapMarkerAlt } from 'react-icons/fa'
+import { getRestaurantConfig } from '@/lib/config'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 
 export default function Hero() {
   const { ref, isVisible } = useScrollAnimate(0.1)
+  const config = getRestaurantConfig()
 
   return (
     <section className="relative min-h-[92vh] flex items-center overflow-hidden bg-espresso-900">
@@ -41,9 +43,8 @@ export default function Hero() {
           </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-10 text-white/60 text-xs">
-            <span className="inline-flex items-center gap-1.5"><FaStar size={11} className="text-gold-400" /> 4.9 · 200+ reseñas</span>
-            <span className="inline-flex items-center gap-1.5"><FaUtensils size={11} className="text-gold-400" /> 25 platos de la casa</span>
-            <span className="inline-flex items-center gap-1.5"><FaClock size={11} className="text-gold-400" /> Hoy 10:00 – 22:00</span>
+            <span className="inline-flex items-center gap-1.5"><FaMapMarkerAlt size={11} className="text-gold-400" /> Sahagún, Córdoba</span>
+            <span className="inline-flex items-center gap-1.5"><FaClock size={11} className="text-gold-400" /> Hoy {config.horarioApertura} – {config.horarioCierre}</span>
           </div>
         </div>
       </div>
