@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { useCartStore } from '../store/useCartStore'
 import { getRestaurantConfig } from '@/lib/config'
 import { useState, useEffect, useRef } from 'react'
-import { FaShoppingBag, FaUser, FaSignOutAlt, FaSearch } from 'react-icons/fa'
+import { FaShoppingBag, FaUser, FaSignOutAlt, FaSearch, FaTimes } from 'react-icons/fa'
 import { BiMenu, BiX } from 'react-icons/bi'
 import clsx from 'clsx'
 import ConfirmModal from '../components/feedback/ConfirmModal'
@@ -85,55 +85,62 @@ export default function Header({ onCartClick }: Props) {
             </div>
           </Link>
 
-          {/* Nav */}
-          <nav className="flex items-center gap-1">
-            {navLinks.map(l => {
-              const active = isActive(l.path)
-              return (
-                <Link
-                  key={l.path}
-                  to={l.path}
-                  className={clsx(
-                    'relative px-4 py-2 text-[15px] font-medium transition-colors duration-200',
-                    active
-                      ? 'text-olive-700 dark:text-olive-400'
-                      : 'text-espresso-500 dark:text-cream-400 hover:text-espresso-800 dark:hover:text-cream-200'
-                  )}
-                >
-                  {l.label}
-                  {active && (
-                    <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-olive-600 rounded-full" />
-                  )}
-                </Link>
-              )
-            })}
+          {/* Nav / inline search (misma fila, sin mover el layout) */}
+          <nav className="flex-1 flex items-center justify-center gap-1 px-4 min-w-0">
+            {searchOpen ? (
+              <form onSubmit={handleSearch}
+                className="w-full max-w-md flex items-center gap-2 bg-cream-50 border border-cream-200 focus-within:border-olive-400 rounded-full pl-4 pr-1.5 py-1.5 animate-fade-in">
+                <FaSearch size={14} className="text-olive-500 shrink-0" />
+                <input
+                  ref={searchRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Escape') setSearchOpen(false) }}
+                  placeholder="Buscar platos, bebidas..."
+                  aria-label="Buscar en el menú"
+                  className="flex-1 min-w-0 bg-transparent text-sm text-espresso-800 placeholder:text-steel/50 outline-none"
+                />
+                <button type="button" onClick={() => setSearchOpen(false)} aria-label="Cerrar búsqueda"
+                  className="w-7 h-7 rounded-full hover:bg-cream-200/70 flex items-center justify-center text-steel hover:text-espresso-700 transition-colors shrink-0">
+                  <FaTimes size={12} />
+                </button>
+              </form>
+            ) : (
+              navLinks.map(l => {
+                const active = isActive(l.path)
+                return (
+                  <Link
+                    key={l.path}
+                    to={l.path}
+                    className={clsx(
+                      'relative px-4 py-2 text-[15px] font-medium transition-colors duration-200 whitespace-nowrap',
+                      active
+                        ? 'text-olive-700 dark:text-olive-400'
+                        : 'text-espresso-500 dark:text-cream-400 hover:text-espresso-800 dark:hover:text-cream-200'
+                    )}
+                  >
+                    {l.label}
+                    {active && (
+                      <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-olive-600 rounded-full" />
+                    )}
+                  </Link>
+                )
+              })
+            )}
           </nav>
 
           {/* Actions */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Search */}
+            {/* Search toggle */}
             <div className="relative">
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
+                aria-label={searchOpen ? 'Cerrar búsqueda' : 'Buscar'}
                 className="p-2.5 text-espresso-500 hover:text-olive-600 hover:bg-olive-50 rounded-xl transition-all duration-200"
               >
-                <FaSearch size={16} />
+                {searchOpen ? <FaTimes size={16} /> : <FaSearch size={16} />}
               </button>
-              {searchOpen && (
-                <form onSubmit={handleSearch} className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-lift border border-cream-200 p-2 z-50 animate-fade-in">
-                  <div className="flex items-center gap-2 bg-cream-50 rounded-xl px-3 py-2 border border-cream-200 focus-within:border-olive-400 focus-within:ring-2 focus-within:ring-olive-100 transition-all">
-                    <FaSearch size={14} className="text-steel shrink-0" />
-                    <input
-                      ref={searchRef}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Buscar platos, bebidas..."
-                      className="flex-1 bg-transparent text-sm text-espresso-800 placeholder:text-steel/50 outline-none"
-                    />
-                  </div>
-                </form>
-              )}
             </div>
 
             <button

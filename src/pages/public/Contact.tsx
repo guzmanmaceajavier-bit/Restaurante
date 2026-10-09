@@ -87,24 +87,26 @@ export default function Contact() {
     <>
       <SEO title="Contacto" description={`Contacta con ${config.nombre}`} />
 
-      <section className="relative overflow-hidden bg-espresso-900">
-        <img src="/platos/ajiaco.webp" alt="Ajiaco tradicional colombiano"
-          className="absolute inset-0 w-full h-full object-cover opacity-30" loading="lazy" />
-        <div className="absolute inset-0 bg-gradient-to-r from-espresso-900/90 via-espresso-900/60 to-espresso-900/20" />
-        <div className="relative max-w-content mx-auto px-6 py-16 md:py-20">
-          <p className="kicker text-gold-300 mb-3 flex items-center gap-3">
+      <section className="relative overflow-hidden bg-cream-50 border-b border-cream-200">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-olive-100/70 blur-3xl" />
+          <div className="absolute -bottom-24 -left-16 w-80 h-80 rounded-full bg-gold-100/60 blur-3xl" />
+        </div>
+        <div className="relative max-w-content mx-auto px-6 py-14 md:py-16">
+          <p className="kicker text-olive-500 mb-3 flex items-center gap-3">
             <span className="inline-block w-8 h-px bg-gold-400" />
             Contacto
           </p>
-          <h1 className="font-display font-bold text-white text-4xl md:text-5xl display-balance max-w-xl">
+          <h1 className="font-display font-bold text-espresso-800 text-4xl md:text-5xl display-balance max-w-xl">
             Estamos aquí para ti
           </h1>
-          <p className="text-white/65 text-sm mt-3 max-w-md leading-relaxed">
+          <p className="text-steel text-sm mt-3 max-w-md leading-relaxed">
             Visítanos, llámanos o escríbenos. Resolvemos cualquier duda.
           </p>
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-6 text-white/60 text-xs">
-            <span className="inline-flex items-center gap-1.5"><FaClock size={11} className="text-gold-400" /> {config.horarioApertura} - {config.horarioCierre}</span>
-            <span className="inline-flex items-center gap-1.5"><FaPhone size={11} className="text-gold-400" /> {config.telefono}</span>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-6 text-steel text-xs">
+            <span className="inline-flex items-center gap-1.5"><FaClock size={11} className="text-olive-500" /> {config.horarioApertura} - {config.horarioCierre}</span>
+            <span className="inline-flex items-center gap-1.5"><FaPhone size={11} className="text-olive-500" /> {config.telefono}</span>
+            <span className="hidden sm:inline-block w-16 h-px bg-gold-300" aria-hidden />
           </div>
         </div>
       </section>

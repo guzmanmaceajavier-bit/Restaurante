@@ -111,17 +111,18 @@ export default function Reserve() {
   return (
     <section className="pb-16 min-h-screen bg-cream-50">
       <SEO title="Reservas" description="Reserva tu mesa en Sabor y Origen" />
-      <div className="relative overflow-hidden bg-espresso-900">
-        <img src="/platos/carne_llanera.webp" alt="Mesa servida en Sabor y Origen"
-          className="absolute inset-0 w-full h-full object-cover opacity-35" loading="lazy" />
-        <div className="absolute inset-0 bg-gradient-to-r from-espresso-900/90 via-espresso-900/60 to-espresso-900/20" />
-        <div className="relative max-w-2xl mx-auto px-6 pt-14 pb-10">
-          <p className="kicker text-gold-300 mb-3 flex items-center gap-3">
+      <div className="relative overflow-hidden bg-cream-50 border-b border-cream-200">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="absolute -top-16 right-0 w-64 h-64 rounded-full bg-olive-100/70 blur-3xl" />
+          <div className="absolute -bottom-20 left-1/4 w-72 h-72 rounded-full bg-gold-100/50 blur-3xl" />
+        </div>
+        <div className="relative max-w-2xl mx-auto px-6 pt-10 pb-8">
+          <p className="kicker text-olive-500 mb-2.5 flex items-center gap-3">
             <span className="inline-block w-8 h-px bg-gold-400" />
             Reservas
           </p>
-          <h1 className="font-display font-bold text-white text-4xl md:text-5xl display-balance">Tu mesa te espera</h1>
-          <p className="text-white/65 text-sm mt-3 max-w-md leading-relaxed">Completa los datos y te confirmamos por WhatsApp. Sin anticipos ni tarjetas.</p>
+          <h1 className="font-display font-bold text-espresso-800 text-3xl md:text-[2.75rem] leading-tight display-balance">Tu mesa te espera</h1>
+          <p className="text-steel text-sm mt-2.5 max-w-md leading-relaxed">Completa los datos y te confirmamos por WhatsApp. Sin anticipos ni tarjetas.</p>
         </div>
       </div>
       <div className="max-w-2xl mx-auto px-6 pt-8">
