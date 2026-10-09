@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { FaSearch, FaBox, FaUsers, FaCalendarAlt, FaUtensils, FaFileInvoiceDollar, FaTruck } from 'react-icons/fa'
 import { orderService } from '../../features/orders/order.service'
 import { reservationService } from '../../features/reservations/reservation.service'
@@ -36,11 +37,15 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     hits.forEach(h=> { if(!m.has(h.group)) m.set(h.group,[]); m.get(h.group)!.push(h) })
     return Array.from(m.entries())
   }, [hits])
-  if (!open) return null
   return (
-    <div className="fixed inset-0 z-[70] flex items-start justify-center pt-[18vh] p-4">
-      <div className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-[640px] bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl overflow-hidden">
+    <AnimatePresence>
+      {open && (
+      <div className="fixed inset-0 z-[70] flex items-start justify-center pt-[18vh] p-4">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
+          className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-sm" onClick={onClose} />
+        <motion.div initial={{ opacity: 0, scale: 0.98, y: -12 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: -12 }}
+          transition={{ type: 'spring', damping: 26, stiffness: 320, mass: 0.8 }}
+          className="relative w-full max-w-[640px] bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl overflow-hidden">
         <div className="flex items-center gap-3 px-4 py-3 border-b border-[#E5E7EB]">
           <FaSearch className="text-[#94A3B8]" size={14} />
           <input autoFocus value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar clientes, pedidos, productos, reservas..." className="flex-1 py-2 text-sm text-[#0F172A] placeholder:text-[#94A3B8] outline-none" />
@@ -63,7 +68,9 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
             </div>
           ))}
         </div>
+      </motion.div>
       </div>
-    </div>
+      )}
+    </AnimatePresence>
   )
 }

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { getRestaurantConfig, CONFIG } from '../../lib/config'
 import { SEO } from '../../lib/seo'
-import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaStar, FaInstagram, FaFacebook, FaWhatsapp, FaInfoCircle, FaPaperPlane, FaUtensils, FaHeart, FaLeaf, FaUsers } from 'react-icons/fa'
+import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaStar, FaInstagram, FaFacebook, FaWhatsapp, FaInfoCircle, FaPaperPlane, FaUtensils, FaHeart, FaLeaf, FaUsers, FaClock } from 'react-icons/fa'
 import { useScrollAnimate } from '@/hooks/useScrollAnimate'
 import { reviewService } from '../../features/reviews/review.service'
 import type { ContactReview } from '../../features/reviews/review.service'
@@ -87,19 +87,25 @@ export default function Contact() {
     <>
       <SEO title="Contacto" description={`Contacta con ${config.nombre}`} />
 
-      <section className="relative py-20 px-6 bg-gradient-to-br from-olive-600 to-olive-700 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 right-10 w-40 h-40 bg-gold-400 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-60 h-60 bg-white rounded-full blur-3xl" />
-        </div>
-        <div className="max-w-content mx-auto relative text-center">
-          <span className="inline-block text-olive-200 font-semibold text-sm uppercase tracking-[0.2em] mb-3">Contacto</span>
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-white leading-tight mb-4">
+      <section className="relative overflow-hidden bg-espresso-900">
+        <img src="/platos/ajiaco.webp" alt="Ajiaco tradicional colombiano"
+          className="absolute inset-0 w-full h-full object-cover opacity-30" loading="lazy" />
+        <div className="absolute inset-0 bg-gradient-to-r from-espresso-900/90 via-espresso-900/60 to-espresso-900/20" />
+        <div className="relative max-w-content mx-auto px-6 py-16 md:py-20">
+          <p className="kicker text-gold-300 mb-3 flex items-center gap-3">
+            <span className="inline-block w-8 h-px bg-gold-400" />
+            Contacto
+          </p>
+          <h1 className="font-display font-bold text-white text-4xl md:text-5xl display-balance max-w-xl">
             Estamos aquí para ti
           </h1>
-          <p className="text-olive-100/80 max-w-md mx-auto text-sm">
+          <p className="text-white/65 text-sm mt-3 max-w-md leading-relaxed">
             Visítanos, llámanos o escríbenos. Resolvemos cualquier duda.
           </p>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-6 text-white/60 text-xs">
+            <span className="inline-flex items-center gap-1.5"><FaClock size={11} className="text-gold-400" /> {config.horarioApertura} - {config.horarioCierre}</span>
+            <span className="inline-flex items-center gap-1.5"><FaPhone size={11} className="text-gold-400" /> {config.telefono}</span>
+          </div>
         </div>
       </section>
 

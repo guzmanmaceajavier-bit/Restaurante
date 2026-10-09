@@ -109,16 +109,22 @@ export default function Reserve() {
   }
 
   return (
-    <section className="py-10 px-6 min-h-screen">
+    <section className="pb-16 min-h-screen bg-cream-50">
       <SEO title="Reservas" description="Reserva tu mesa en Sabor y Origen" />
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-olive-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <FaCalendarAlt className="text-olive-500" size={20} />
-          </div>
-          <h1 className="text-3xl font-display font-bold text-espresso-800 mb-2">Reservar mesa</h1>
-          <p className="text-steel text-sm">Completa los datos y te confirmamos por WhatsApp</p>
+      <div className="relative overflow-hidden bg-espresso-900">
+        <img src="/platos/carne_llanera.webp" alt="Mesa servida en Sabor y Origen"
+          className="absolute inset-0 w-full h-full object-cover opacity-35" loading="lazy" />
+        <div className="absolute inset-0 bg-gradient-to-r from-espresso-900/90 via-espresso-900/60 to-espresso-900/20" />
+        <div className="relative max-w-2xl mx-auto px-6 pt-14 pb-10">
+          <p className="kicker text-gold-300 mb-3 flex items-center gap-3">
+            <span className="inline-block w-8 h-px bg-gold-400" />
+            Reservas
+          </p>
+          <h1 className="font-display font-bold text-white text-4xl md:text-5xl display-balance">Tu mesa te espera</h1>
+          <p className="text-white/65 text-sm mt-3 max-w-md leading-relaxed">Completa los datos y te confirmamos por WhatsApp. Sin anticipos ni tarjetas.</p>
         </div>
+      </div>
+      <div className="max-w-2xl mx-auto px-6 pt-8">
 
         <div className="flex gap-1.5 mb-8">
           {['Personas', 'Fecha', 'Datos', 'Listo'].map((label, i) => (
