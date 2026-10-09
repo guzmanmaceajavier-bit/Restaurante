@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { orderService } from '../../features/orders/order.service'
-import { CONFIG } from '../../lib/config'
+import { CONFIG, getRestaurantConfig } from '../../lib/config'
 import { FaCheckCircle, FaWhatsapp, FaHome, FaUtensils, FaStar, FaMotorcycle, FaShoppingBag, FaClock, FaPrint } from 'react-icons/fa'
 import { SEO } from '../../lib/seo'
 import { imprimirPedido } from '../../components/admin/PrintTicket'
@@ -60,12 +60,12 @@ export default function OrderConfirmation() {
   const TypeIcon = config.icon
   const typeLabels: Record<string, string> = { eatHere: 'Comer aquí', delivery: 'A domicilio', pickup: 'Recoger' }
   const message = `Hola, soy ${order.fullName}. Quiero hacer seguimiento a mi pedido #${order.id}`
-  const whatsappUrl = `https://wa.me/${CONFIG.contacto.whatsapp}?text=${encodeURIComponent(message)}`
+  const whatsappUrl = `https://wa.me/${getRestaurantConfig().whatsapp}?text=${encodeURIComponent(message)}`
 
   const handleSendFeedback = () => {
     if (!feedbackMsg.trim()) { toast.error('Escribe un mensaje'); return }
     const fbMsg = `*Nuevo comentario de ${order.fullName}*%0APedido: #${order.id}%0A%0A${encodeURIComponent(feedbackMsg)}`
-    window.open(`https://wa.me/${CONFIG.contacto.whatsapp}?text=${fbMsg}`, '_blank')
+    window.open(`https://wa.me/${getRestaurantConfig().whatsapp}?text=${fbMsg}`, '_blank')
     toast.success('¡Gracias por tu comentario!')
     setShowFeedback(false); setFeedbackMsg('')
   }

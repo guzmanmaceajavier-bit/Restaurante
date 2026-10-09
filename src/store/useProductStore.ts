@@ -11,9 +11,6 @@ interface ProductStore {
   loaded: boolean
   status: CatalogStatus
   loadProductos: () => void
-  addProducto: (producto: Omit<IProduct, 'id'>) => IProduct
-  updateProducto: (id: string, data: Partial<IProduct>) => void
-  deleteProducto: (id: string) => void
   getProductoById: (id: string) => IProduct | undefined
   getCategorias: () => string[]
 }
@@ -43,31 +40,6 @@ export const useProductStore = create<ProductStore>()(
           set({ status: 'empty' })
         }
         // status 'loading': init en curso, él resuelve a ready/empty/error
-      },
-
-      addProducto: (producto) => {
-        const nuevo: IProduct = {
-          ...producto,
-          id: `prod-${Date.now().toString(36)}`,
-        }
-        const updated = [...get().productos, nuevo]
-        set({ productos: updated })
-        productStorage.saveAll(updated)
-        return nuevo
-      },
-
-      updateProducto: (id, data) => {
-        const updated = get().productos.map((p) =>
-          p.id === id ? { ...p, ...data } : p
-        )
-        set({ productos: updated })
-        productStorage.saveAll(updated)
-      },
-
-      deleteProducto: (id) => {
-        const updated = get().productos.filter((p) => p.id !== id)
-        set({ productos: updated })
-        productStorage.saveAll(updated)
       },
 
       getProductoById: (id) => {

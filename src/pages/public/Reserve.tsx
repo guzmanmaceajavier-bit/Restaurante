@@ -92,7 +92,7 @@ export default function Reserve() {
                 {confirmed.ocasion && <div className="flex justify-between"><span className="text-steel text-sm">Ocasión</span><span className="font-semibold text-espresso-800">{confirmed.ocasion}</span></div>}
               </div>
               <div className="flex gap-3">
-                <a href={`https://wa.me/${CONFIG.contacto.whatsapp}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer"
+                <a href={`https://wa.me/${getRestaurantConfig().whatsapp}?text=${whatsappMsg}`} target="_blank" rel="noopener noreferrer"
                   className="flex-1 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3.5 rounded-xl transition-all shadow-md active:scale-95">
                   <FaWhatsapp size={18} /> Abrir WhatsApp
                 </a>

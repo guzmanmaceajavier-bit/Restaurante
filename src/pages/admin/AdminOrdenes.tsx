@@ -206,7 +206,7 @@ export default function AdminOrdenes() {
             <DrawerSection title="Productos">
               <div className="space-y-2">
                 {selected.items?.map((it:any,i:number)=> (
-                  <button key={i} onClick={()=> { setSelected(null); navigate('/admin-productos'); toast.message('Producto: '+it.nombre)}} className="w-full flex justify-between gap-3 py-2 border-b border-[#F1F5F9] last:border-0 hover:bg-[#F8FAFC] -mx-1 px-1 rounded text-left">
+                                      <button key={i} onClick={()=> { setSelected(null); navigate('/admin-catalogo'); toast.message('Producto: '+it.nombre)}} className="w-full flex justify-between gap-3 py-2 border-b border-[#F1F5F9] last:border-0 hover:bg-[#F8FAFC] -mx-1 px-1 rounded text-left">
                     <span className="text-sm text-[#0F172A]"><span className="inline-flex w-6 h-6 rounded-md bg-[#F1F5F9] items-center justify-center text-xs font-semibold mr-2">{it.quantity}</span>{it.nombre}</span>
                     <span className="text-sm font-medium flex items-center gap-1" data-numeric>${Number(it.precio*it.quantity).toLocaleString('es-CO')} <FaExternalLinkAlt size={10} className="text-[#94A3B8]"/></span>
                   </button>
@@ -214,7 +214,7 @@ export default function AdminOrdenes() {
                 <div className="flex justify-between pt-2"><span className="text-sm font-semibold text-[#0F172A]">Total</span><span className="text-sm font-semibold text-[#0F172A]" data-numeric>${Number(selected.total).toLocaleString('es-CO')}</span></div>
               </div>
               <div className="flex gap-2 text-xs">
-                <button onClick={()=> { setSelected(null); navigate('/admin-inventario')}} className="text-[#667A22] hover:underline">Ver inventario →</button>
+                    <button onClick={()=> { setSelected(null); navigate('/admin-catalogo#inventario')}} className="text-[#667A22] hover:underline">Ver inventario →</button>
                 <button onClick={()=> { setSelected(null); navigate('/admin-facturacion')}} className="text-[#667A22] hover:underline">Ver factura →</button>
               </div>
             </DrawerSection>

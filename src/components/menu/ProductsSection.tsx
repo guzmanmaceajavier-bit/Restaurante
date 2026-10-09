@@ -102,7 +102,7 @@ export function ProductsSection() {
   if (loading) return <MenuSkeleton />
 
   return (
-    <section className="py-14 md:py-20 px-6 bg-cream-50" ref={ref}>
+    <section id="menu" className="py-14 md:py-20 px-6 bg-cream-50 scroll-mt-20" ref={ref}>
       <div className="max-w-content mx-auto">
         <div className="text-center mb-8">
           <p className="kicker text-olive-500 mb-2">Nuestra carta</p>

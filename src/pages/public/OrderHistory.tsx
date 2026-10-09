@@ -4,7 +4,7 @@ import { orderService } from '../../features/orders/order.service'
 import { customerService } from '../../features/customers/customer.service'
 import { useCartStore } from '../../store/useCartStore'
 import { useAuthStore } from '../../store/useAuthStore'
-import { CONFIG } from '../../lib/config'
+import { getRestaurantConfig } from '../../lib/config'
 import { toast } from 'sonner'
 import { SEO } from '../../lib/seo'
 import { FaSearch, FaWhatsapp, FaUser, FaArrowRight, FaClipboardList } from 'react-icons/fa'
@@ -94,7 +94,7 @@ export default function OrderHistory() {
                     </div>
                   ))}
                 </div>
-                <a href={`https://wa.me/${CONFIG.contacto.whatsapp}?text=${encodeURIComponent(`Seguimiento pedido #${ordenEncontrada.id}`)}`}
+                <a href={`https://wa.me/${getRestaurantConfig().whatsapp}?text=${encodeURIComponent(`Seguimiento pedido #${ordenEncontrada.id}`)}`}
                   target="_blank" rel="noopener noreferrer"
                   className="mt-4 flex items-center justify-center gap-2 bg-sage-500 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-sage-600 transition-all">
                   <FaWhatsapp size={14} /> Seguimiento por WhatsApp

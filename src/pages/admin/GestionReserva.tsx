@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { reservationService } from '../../features/reservations/reservation.service'
 import { toast } from 'sonner'
-import { CONFIG } from '../../lib/config'
+import { getRestaurantConfig } from '../../lib/config'
 import { FaWhatsapp, FaSearch } from 'react-icons/fa'
 import type { ReservaData } from '../../features/reservations/types'
 
@@ -91,7 +91,7 @@ export default function GestionReserva() {
               <div className="flex flex-wrap justify-end gap-3 mt-6">
                 <button onClick={() => setFiltro(null)} className="btn-secondary text-sm py-2.5">Cerrar</button>
                 <a
-                  href={`https://wa.me/${CONFIG.contacto.whatsapp}?text=${encodeURIComponent(`*Cancelar reserva*%0AID: ${filtro.id}%0ANombre: ${filtro.nombre}%0AFecha: ${filtro.fecha} ${filtro.hora}%0APersonas: ${filtro.personas}`)}`}
+                  href={`https://wa.me/${getRestaurantConfig().whatsapp}?text=${encodeURIComponent(`*Cancelar reserva*%0AID: ${filtro.id}%0ANombre: ${filtro.nombre}%0AFecha: ${filtro.fecha} ${filtro.hora}%0APersonas: ${filtro.personas}`)}`}
                   target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-2 bg-sage-500 text-white px-4 py-2.5 rounded-xl hover:bg-sage-600 transition-all font-medium text-sm"
                 >

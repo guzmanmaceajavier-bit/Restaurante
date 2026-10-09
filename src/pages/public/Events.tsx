@@ -1,7 +1,7 @@
 import { FaBirthdayCake, FaBriefcase, FaUsers, FaGlassCheers, FaPhone, FaArrowRight } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { SEO } from '../../lib/seo'
-import { CONFIG } from '../../lib/config'
+import { getRestaurantConfig } from '../../lib/config'
 import { eventService } from '../../features/events/eventService'
 
 const iconMap: Record<string, any> = { FaBirthdayCake, FaBriefcase, FaUsers, FaGlassCheers }
@@ -75,7 +75,7 @@ export default function Events() {
                   <FaPhone size={14} /> Solicitar cotización
                 </Link>
                 <a
-                  href={`https://wa.me/${CONFIG.contacto.whatsapp}?text=${encodeURIComponent('Hola! Me interesa cotizar un evento...')}`}
+                  href={`https://wa.me/${getRestaurantConfig().whatsapp}?text=${encodeURIComponent('Hola! Me interesa cotizar un evento...')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-600 hover:scale-105 transition-all shadow-lg"

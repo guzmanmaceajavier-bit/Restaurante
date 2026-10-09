@@ -1,5 +1,5 @@
 import { FaPrint } from 'react-icons/fa'
-import { CONFIG } from '../../lib/config'
+import { CONFIG, getRestaurantConfig } from '../../lib/config'
 import type { Order } from '../../features/orders/types'
 
 interface PrintTicketProps {
@@ -83,7 +83,7 @@ function buildTicketHTML(order: Order, name: string, address: string, phone: str
   <div class="ticket-divider"></div>
   <div class="ticket-footer">
     ¡Gracias por su preferencia!<br/>
-    WhatsApp: ${CONFIG.contacto.whatsapp}
+    WhatsApp: ${getRestaurantConfig().whatsapp}
   </div>
 </div>
 </body>
