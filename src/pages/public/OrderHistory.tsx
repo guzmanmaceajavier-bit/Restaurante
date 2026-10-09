@@ -43,7 +43,7 @@ export default function OrderHistory() {
   }
 
   return (
-    <section className="pt-8 pb-16 px-6">
+    <section className="pt-24 pb-16 px-6">
       <SEO title="Mis pedidos" description="Consulta tus pedidos en Sabor y Origen" />
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">

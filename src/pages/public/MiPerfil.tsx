@@ -23,7 +23,7 @@ export default function MiPerfil() {
   const siguienteNivel = clienteActual ? puntosParaSiguienteNivel(clienteActual.puntos) : null
 
   return (
-    <section className="pt-8 pb-20 px-6">
+    <section className="pt-24 pb-20 px-6">
       <SEO title="Mi Perfil" description="Consulta tus puntos y historial de pedidos" />
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-10">

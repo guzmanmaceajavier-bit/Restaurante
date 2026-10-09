@@ -45,7 +45,7 @@ export default function OrderTracking() {
   return (
     <>
       <SEO title="Seguimiento de Pedido" description="Sigue el estado de tu pedido en tiempo real" />
-      <section className="min-h-screen bg-cream-50 dark:bg-[#1a1f16] py-12 px-6">
+      <section className="min-h-screen bg-cream-50 dark:bg-[#1a1f16] pt-24 pb-12 px-6">
         <div className="max-w-lg mx-auto">
           <Link to="/" className="inline-flex items-center gap-2 text-steel hover:text-olive-600 text-sm mb-6 transition-colors">
             <FaArrowLeft size={12} /> Volver al inicio

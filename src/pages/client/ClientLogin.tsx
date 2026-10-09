@@ -34,7 +34,7 @@ export default function ClientLogin() {
   }
 
   return (
-    <section className="py-10 px-4 sm:px-6 min-h-screen bg-[#FFFBF5]">
+    <section className="pt-24 pb-10 px-4 sm:px-6 min-h-screen bg-[#FFFBF5]">
       <SEO title={isRegister ? 'Crear cuenta' : 'Iniciar sesión'} />
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">

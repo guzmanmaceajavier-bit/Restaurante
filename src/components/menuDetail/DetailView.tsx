@@ -53,7 +53,7 @@ export function DetailView() {
 
   if (!productById)
     return (
-      <section className="pt-8 text-center px-6">
+      <section className="pt-24 text-center px-6">
         <p className="text-steel text-lg">Producto no encontrado.</p>
       </section>
     )
@@ -82,7 +82,7 @@ export function DetailView() {
   const totalPrice = (productById.precio ?? 0) + selectedAdicionales.reduce((sum, a) => sum + a.precio, 0)
 
   return (
-    <section className="pt-8 pb-16 px-6">
+    <section className="pt-24 pb-16 px-6">
       <div className="max-w-content mx-auto" ref={ref}>
         <button
           onClick={() => navigate('/menu')}

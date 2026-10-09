@@ -20,7 +20,7 @@ export function BannerSection() {
   const handleNext = () => setIndexSlide((prev) => (prev + 1) % banners.length)
 
   return (
-    <section className="relative w-full overflow-hidden pt-16 bg-cream-100">
+    <section className="relative w-full overflow-hidden pt-20 bg-cream-100">
       <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
         <div
           className="flex h-full transition-transform duration-700 ease-in-out"

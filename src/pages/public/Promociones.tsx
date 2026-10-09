@@ -9,7 +9,7 @@ export default function Promociones() {
   return (
     <>
       <SEO title="Promociones y Combos" description="Aprovecha nuestras promociones" />
-      <section className="pt-8 pb-6 px-6">
+      <section className="pt-24 pb-6 px-6">
         <div className="max-w-content mx-auto">
           <div className="max-w-xl">
             <span className="text-olive-500 font-semibold text-sm uppercase tracking-[0.2em]">Ofertas</span>

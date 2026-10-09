@@ -116,7 +116,7 @@ export function CheckOutView() {
   }
 
   return (
-    <section className="pt-8 pb-20 px-6">
+    <section className="pt-24 pb-20 px-6">
       <div className="max-w-content mx-auto">
         <SEO title="Checkout" description="Confirma tu pedido" />
         <div className="grid lg:grid-cols-3 gap-8">

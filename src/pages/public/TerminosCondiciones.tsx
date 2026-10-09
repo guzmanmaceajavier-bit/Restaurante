@@ -99,7 +99,7 @@ const sections = [
 
 export default function TerminosCondiciones() {
   return (
-    <section className="pt-8 pb-20 px-6 bg-cream-50 min-h-screen">
+    <section className="pt-24 pb-20 px-6 bg-cream-50 min-h-screen">
       <SEO
         title="Términos y Condiciones"
         description={`Conoce los términos y condiciones de ${config.nombre}`}

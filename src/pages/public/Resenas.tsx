@@ -44,7 +44,7 @@ export default function Reseñas() {
   }
 
   return (
-    <section className="pt-8 pb-20 px-6">
+    <section className="pt-24 pb-20 px-6">
       <SEO title="Reseñas" description="Opiniones de nuestros clientes sobre Sabor y Origen" />
       <div className="max-w-content mx-auto">
         <div className="text-center mb-12">

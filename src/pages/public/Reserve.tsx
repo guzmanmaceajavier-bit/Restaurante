@@ -116,7 +116,7 @@ export default function Reserve() {
           <div className="absolute -top-16 right-0 w-64 h-64 rounded-full bg-olive-100/70 blur-3xl" />
           <div className="absolute -bottom-20 left-1/4 w-72 h-72 rounded-full bg-gold-100/50 blur-3xl" />
         </div>
-        <div className="relative max-w-2xl mx-auto px-6 pt-10 pb-8">
+        <div className="relative max-w-2xl mx-auto px-6 pt-24 md:pt-28 pb-8">
           <p className="kicker text-olive-500 mb-2.5 flex items-center gap-3">
             <span className="inline-block w-8 h-px bg-gold-400" />
             Reservas

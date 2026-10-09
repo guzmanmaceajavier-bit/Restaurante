@@ -99,7 +99,7 @@ const sections = [
 
 export default function PoliticaPrivacidad() {
   return (
-    <section className="pt-8 pb-20 px-6 bg-cream-50 min-h-screen">
+    <section className="pt-24 pb-20 px-6 bg-cream-50 min-h-screen">
       <SEO
         title="Política de Privacidad"
         description={`Conoce cómo ${config.nombre} protege tus datos personales`}

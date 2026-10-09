@@ -92,7 +92,7 @@ export default function Contact() {
           <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-olive-100/70 blur-3xl" />
           <div className="absolute -bottom-24 -left-16 w-80 h-80 rounded-full bg-gold-100/60 blur-3xl" />
         </div>
-        <div className="relative max-w-content mx-auto px-6 py-14 md:py-16">
+        <div className="relative max-w-content mx-auto px-6 pt-24 md:pt-28 pb-14 md:pb-16">
           <p className="kicker text-olive-500 mb-3 flex items-center gap-3">
             <span className="inline-block w-8 h-px bg-gold-400" />
             Contacto

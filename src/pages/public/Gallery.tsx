@@ -36,7 +36,7 @@ export default function Gallery() {
   return (
     <>
       <SEO title="Galería" description="Galería de fotos de nuestros platos colombianos en Sabor y Origen" />
-      <section className="min-h-screen bg-cream-50 py-16 px-6">
+      <section className="min-h-screen bg-cream-50 pt-24 pb-16 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
             <h1 className="text-4xl font-display font-bold text-espresso-800 mb-4">Galería</h1>
