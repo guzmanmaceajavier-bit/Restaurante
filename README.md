@@ -2,7 +2,7 @@
 
 Sistema web para un restaurante colombiano: sitio público con menú y pedidos en línea, portal de clientes con fidelización, y panel administrativo para operar el negocio (pedidos, cocina, mesas, inventario, caja y clientes).
 
-**Sitio en producción:** https://restaurante-hgdsw9piq-javier-1e91.vercel.app/
+**Sitio en producción:** https://restaurante-javier-1e91.vercel.app/
 
 ---
 
@@ -10,8 +10,8 @@ Sistema web para un restaurante colombiano: sitio público con menú y pedidos e
 
 | Quién | Dónde | Acceso |
 |---|---|---|
-| Cliente | [/login](https://restaurante-hgdsw9piq-javier-1e91.vercel.app/login) | Se registra con nombre, email, teléfono y contraseña |
-| Administrador | [/admin-login](https://restaurante-hgdsw9piq-javier-1e91.vercel.app/admin-login) | Usuario `admin` · Clave `12345` |
+| Cliente | [/login](https://restaurante-javier-1e91.vercel.app/login) | Se registra con nombre, email, teléfono y contraseña |
+| Administrador | [/admin-login](https://restaurante-javier-1e91.vercel.app/admin-login) | Usuario `admin` · Clave `12345` |
 
 ---
 
