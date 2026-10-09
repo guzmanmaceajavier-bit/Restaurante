@@ -36,7 +36,17 @@ export default function AdminCatalogo() {
   const [catForm, setCatForm] = useState('')
   const [catEditing, setCatEditing] = useState<string | null>(null)
   const [showCatForm, setShowCatForm] = useState(false)
-  useEffect(()=>{ const h=window.location.hash.replace('#',''); if(h==='inventario'||h==='stock') setTab('inventario'); else if(h==='categorias') setTab('categorias'); else if(h==='productos') setTab('productos') },[])
+  useEffect(()=>{
+    const syncTabWithHash = () => {
+      const h=window.location.hash.replace('#','')
+      if(h==='inventario'||h==='stock') setTab('inventario')
+      else if(h==='categorias') setTab('categorias')
+      else if(h==='productos') setTab('productos')
+    }
+    syncTabWithHash()
+    window.addEventListener('hashchange', syncTabWithHash)
+    return ()=> window.removeEventListener('hashchange', syncTabWithHash)
+  },[])
 
   const categoriasList = useMemo(() => productService.extractCategories(productos), [productos])
   const filtrados = useMemo(() => productService.filterProductos(productos, { busqueda, categoria: filtroCat }), [productos, filtroCat, busqueda])

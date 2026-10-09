@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom'
+import type { IconType } from 'react-icons'
 import { authService } from '../features/auth/auth.service'
 import { orderService } from '../features/orders/order.service'
 import { settingsStorage } from '../services/storage/settingsStorage'
@@ -10,8 +11,17 @@ import { useLoading } from '../hooks/useLoading'
 import { CommandPalette } from '../components/admin/CommandPalette'
 import ConfirmModal from '../components/feedback/ConfirmModal'
 
-type Item = { label: string; icon: any; link: string; badgeKey?: string }
+type Item = { label: string; icon: IconType; link: string; badgeKey?: string }
 type Section = { title: string; items: Item[] }
+
+/** Compara rutas ignorando el fragmento (#inventario) para el estado activo. */
+function linkPath(link: string): string {
+  return link.split('#')[0]
+}
+function isActiveLink(link: string, pathname: string): boolean {
+  const base = linkPath(link)
+  return pathname === base || pathname.startsWith(base + '/')
+}
 
 const sections: Section[] = [
   { title: '', items: [{ label: 'Dashboard', icon: FaHome, link: '/admin-dashboard' }] },
@@ -78,6 +88,9 @@ export default function AdminLayout() {
   const [notifOpen, setNotifOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
+  const notifRef = useRef<HTMLDivElement>(null)
+  const userRef = useRef<HTMLDivElement>(null)
+  const adminName = authService.getAdminName() || 'Administrador'
   const loading = useLoading(300)
   const badges = useBadges()
   const config = getRestaurantConfig()
@@ -88,11 +101,26 @@ export default function AdminLayout() {
     const onKey = (e: KeyboardEvent) => { if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); setPaletteOpen(v=>!v)}}
     window.addEventListener('keydown', onKey); return ()=> window.removeEventListener('keydown', onKey)
   }, [])
+  // Cierre unificado de dropdowns: clic fuera, Escape o cambio de ruta
+  useEffect(() => {
+    const closeAll = () => { setNotifOpen(false); setUserMenuOpen(false) }
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node
+      if (notifRef.current?.contains(t)) return
+      if (userRef.current?.contains(t)) return
+      closeAll()
+    }
+    const onEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') closeAll() }
+    document.addEventListener('pointerdown', onDown)
+    document.addEventListener('keydown', onEsc)
+    return () => { document.removeEventListener('pointerdown', onDown); document.removeEventListener('keydown', onEsc) }
+  }, [])
+  useEffect(() => { setNotifOpen(false); setUserMenuOpen(false) }, [location.pathname])
 
   const flat = sections.flatMap(s=> s.items)
-  const current = flat.find(n=> location.pathname===n.link || location.pathname.startsWith(n.link+'/'))
+  const current = flat.find(n=> isActiveLink(n.link, location.pathname))
   const breadcrumb = useMemo(()=> {
-    const sec = sections.find(s=> s.items.some(i=> location.pathname===i.link || location.pathname.startsWith(i.link+'/')))
+    const sec = sections.find(s=> s.items.some(i=> isActiveLink(i.link, location.pathname)))
     return { section: sec?.title || '', label: current?.label || '' }
   }, [location.pathname, current])
 
@@ -121,7 +149,7 @@ export default function AdminLayout() {
             return (
               <div key={sec.title || 'dash'}>
                 {sec.title && !collapsed && (
-                  <button onClick={()=> setOpenSections(s=> ({...s, [sec.title]: !isOpen}))}
+                  <button onClick={()=> setOpenSections(s=> ({...s, [sec.title]: !isOpen}))} aria-expanded={isOpen}
                     className="w-full flex items-center justify-between px-2 py-1.5 text-[10px] font-medium tracking-widest uppercase text-[#94A3B8] hover:text-[#64748B]">
                     <span>{sec.title}</span>
                     {isCollapsible && (isOpen ? <FaChevronDown size={9}/> : <FaChevronRight size={9}/>)}
@@ -131,16 +159,19 @@ export default function AdminLayout() {
                 {(isOpen || collapsed) && (
                   <div className="space-y-px">
                     {sec.items.map(item=> {
-                      const active = location.pathname===item.link || location.pathname.startsWith(item.link+'/')
+                      const active = isActiveLink(item.link, location.pathname)
                       const badge = item.badgeKey ? (badges[item.badgeKey]||0) : 0
                       return (
                         <Link key={item.link} to={item.link}
                           title={collapsed ? item.label : undefined}
+                          aria-current={active ? 'page' : undefined}
                           className={`flex items-center gap-2.5 text-[13px] transition-colors ${collapsed ? 'justify-center px-2 py-2 rounded-md' : 'px-2.5 py-2 rounded-md'} ${active ? 'bg-white text-[#0F172A] border-l-2 border-l-[#667A22] border-y border-r border-[#E5E7EB] -ml-px pl-[9px] font-medium shadow-sm' : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A] border border-transparent'}`}>
-                          <item.icon size={13} className={active ? 'text-[#0F172A]' : 'text-[#94A3B8]'} />
+                          <span className="relative flex items-center justify-center">
+                            <item.icon size={13} className={active ? 'text-[#0F172A]' : 'text-[#94A3B8]'} />
+                            {collapsed && badge>0 && <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#F59E0B] rounded-full border border-white" />}
+                          </span>
                           {!collapsed && <span className="flex-1 truncate leading-5">{item.label}</span>}
                           {!collapsed && badge>0 && <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-[#F59E0B] text-white text-[10px] font-bold flex items-center justify-center">{badge>99?'99+':badge}</span>}
-                          {collapsed && badge>0 && <span className="absolute ml-5 -mt-5 w-2 h-2 bg-[#F59E0B] rounded-full border border-white" />}
                         </Link>
                       )
                     })}
@@ -177,8 +208,8 @@ export default function AdminLayout() {
                   {sec.title && <p className="px-2 py-2 text-[11px] font-semibold tracking-widest text-[#94A3B8]">{sec.title}</p>}
                   <div className="space-y-0.5">
                     {sec.items.map(item=> {
-                      const active = location.pathname===item.link || location.pathname.startsWith(item.link+'/')
-                      return <Link key={item.link} to={item.link} onClick={()=> setSidebarOpen(false)} className={`flex items-center gap-3 px-2.5 py-2 rounded-lg text-[13px] font-medium ${active ? 'bg-[#F1F5F9] text-[#0F172A] border border-[#E5E7EB]' : 'text-[#475569] hover:bg-[#F8FAFC]'}`}><item.icon size={14} className={active?'text-[#667A22]':'text-[#94A3B8]'}/>{item.label}</Link>
+                      const active = isActiveLink(item.link, location.pathname)
+                      return <Link key={item.link} to={item.link} onClick={()=> setSidebarOpen(false)} aria-current={active ? 'page' : undefined} className={`flex items-center gap-3 px-2.5 py-2 rounded-lg text-[13px] font-medium ${active ? 'bg-[#F1F5F9] text-[#0F172A] border border-[#E5E7EB]' : 'text-[#475569] hover:bg-[#F8FAFC]'}`}><item.icon size={14} className={active?'text-[#667A22]':'text-[#94A3B8]'}/>{item.label}</Link>
                     })}
                   </div>
                 </div>
@@ -201,17 +232,17 @@ export default function AdminLayout() {
           </div>
           <div className="flex-1" />
           {/* Global search */}
-          <button onClick={()=> setPaletteOpen(true)} className="hidden md:flex items-center gap-2 pl-2.5 pr-2 py-1 rounded-md border border-[#E5E7EB] bg-[#F8FAFC] text-[13px] text-[#64748B] hover:bg-white hover:border-[#CBD5E1] transition-colors">
+          <button onClick={()=> setPaletteOpen(true)} aria-label="Búsqueda global" className="hidden md:flex items-center gap-2 pl-2.5 pr-2 py-1 rounded-md border border-[#E5E7EB] bg-[#F8FAFC] text-[13px] text-[#64748B] hover:bg-white hover:border-[#CBD5E1] transition-colors">
             <FaSearch size={11}/> <span>Buscar</span> <span className="ml-2 hidden lg:inline-flex text-[11px] px-1 py-0.5 rounded bg-white border border-[#E5E7EB] text-[#94A3B8]">Ctrl K</span>
           </button>
-          <button onClick={()=> setPaletteOpen(true)} className="md:hidden w-7 h-7 rounded-md hover:bg-[#F1F5F9] flex items-center justify-center text-[#64748B]"><FaSearch size={13}/></button>
+          <button onClick={()=> setPaletteOpen(true)} aria-label="Búsqueda global" className="md:hidden w-7 h-7 rounded-md hover:bg-[#F1F5F9] flex items-center justify-center text-[#64748B]"><FaSearch size={13}/></button>
           {/* Notifications */}
-          <div className="relative">
-            <button onClick={()=> setNotifOpen(v=>!v)} className="w-7 h-7 rounded-md hover:bg-[#F1F5F9] flex items-center justify-center text-[#64748B] relative">
+          <div className="relative" ref={notifRef}>
+            <button onClick={()=> { setNotifOpen(v=>!v); setUserMenuOpen(false) }} aria-label="Notificaciones" aria-expanded={notifOpen} aria-haspopup="true" className="w-7 h-7 rounded-md hover:bg-[#F1F5F9] flex items-center justify-center text-[#64748B] relative">
               <FaBell size={13}/>{(badges.pendientes||0) > 0 && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#DC2626] rounded-full border border-white" />}
             </button>
             {notifOpen && (
-              <div className="absolute right-0 top-10 w-80 bg-white rounded-md border border-[#E5E7EB] shadow-md overflow-hidden z-30">
+              <div className="absolute right-0 top-10 w-80 bg-white rounded-md border border-[#E5E7EB] shadow-md overflow-hidden z-30 animate-fade-in">
                 <div className="px-3 py-2.5 border-b border-[#E5E7EB] flex items-center justify-between"><p className="text-[13px] font-semibold text-[#0F172A]">Notificaciones</p><span className="text-[11px] px-2 py-0.5 rounded bg-[#F1F5F9] border border-[#E5E7EB] text-[#475569]">{badges.pendientes||0} pendientes</span></div>
                 <div className="p-2 space-y-1 max-h-80 overflow-y-auto">
                   {(badges.pendientes||0)===0 ? <p className="text-[13px] text-[#94A3B8] text-center py-6">Sin notificaciones</p> : (
@@ -226,15 +257,15 @@ export default function AdminLayout() {
           </div>
           <button onClick={()=> setHelpOpen(true)} className="w-7 h-7 rounded-md hover:bg-[#F1F5F9] hidden sm:flex items-center justify-center text-[#64748B]" title="Centro de ayuda"><FaQuestionCircle size={13}/></button>
           {/* User */}
-          <div className="relative">
-            <button onClick={()=> setUserMenuOpen(v=>!v)} className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-md hover:bg-[#F1F5F9] transition-colors">
-              <span className="w-6 h-6 rounded-full bg-[#0F172A] flex items-center justify-center text-white text-[11px] font-medium">A</span>
-              <span className="hidden sm:block text-[13px] font-medium text-[#0F172A]">Administrador</span>
+          <div className="relative" ref={userRef}>
+            <button onClick={()=> { setUserMenuOpen(v=>!v); setNotifOpen(false) }} aria-label="Menú de usuario" aria-expanded={userMenuOpen} aria-haspopup="true" className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-md hover:bg-[#F1F5F9] transition-colors">
+              <span className="w-6 h-6 rounded-full bg-[#0F172A] flex items-center justify-center text-white text-[11px] font-medium">{adminName.charAt(0).toUpperCase()}</span>
+              <span className="hidden sm:block text-[13px] font-medium text-[#0F172A]">{adminName}</span>
               <FaChevronDown size={9} className="text-[#94A3B8] hidden sm:block"/>
             </button>
             {userMenuOpen && (
-              <div className="absolute right-0 top-10 w-52 bg-white rounded-md border border-[#E5E7EB] shadow-md py-1 z-30">
-                <div className="px-3 py-2 border-b border-[#F1F5F9]"><p className="text-[13px] font-medium text-[#0F172A]">Administrador</p><p className="text-xs text-[#64748B]">{config.nombre}</p></div>
+              <div className="absolute right-0 top-10 w-52 bg-white rounded-md border border-[#E5E7EB] shadow-md py-1 z-30 animate-fade-in">
+                <div className="px-3 py-2 border-b border-[#F1F5F9]"><p className="text-[13px] font-medium text-[#0F172A]">{adminName}</p><p className="text-xs text-[#64748B]">{config.nombre}</p></div>
                 <Link to="/" className="flex items-center gap-2 px-3 py-2 text-[13px] text-[#334155] hover:bg-[#F8FAFC]"><FaChevronLeft size={11}/> Volver al sitio</Link>
                 <button onClick={()=> setShowLogoutConfirm(true)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#DC2626] hover:bg-[#FEF2F2]"><FaSignOutAlt size={11}/> Cerrar sesión</button>
               </div>
@@ -254,18 +285,27 @@ export default function AdminLayout() {
             <div className="p-5 space-y-4">
               <p className="text-sm text-[#64748B]">¿Necesitas ayuda? Contacta al equipo de {config.nombre}:</p>
               <div className="space-y-2">
-                <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent('Hola, necesito ayuda con el panel admin')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg border border-[#E5E7EB] hover:bg-[#F8FAFC] transition-colors">
-                  <FaWhatsapp size={16} className="text-[#10B981]" />
-                  <div><p className="text-sm font-medium text-[#0F172A]">WhatsApp Soporte</p><p className="text-xs text-[#64748B]">{config.whatsapp}</p></div>
-                </a>
-                <a href={`tel:${config.telefono}`} className="flex items-center gap-3 p-3 rounded-lg border border-[#E5E7EB] hover:bg-[#F8FAFC] transition-colors">
-                  <FaPhone size={16} className="text-[#3B82F6]" />
-                  <div><p className="text-sm font-medium text-[#0F172A]">Teléfono</p><p className="text-xs text-[#64748B]">{config.telefono}</p></div>
-                </a>
-                <a href={`mailto:${config.email}`} className="flex items-center gap-3 p-3 rounded-lg border border-[#E5E7EB] hover:bg-[#F8FAFC] transition-colors">
-                  <FaEnvelope size={16} className="text-[#F59E0B]" />
-                  <div><p className="text-sm font-medium text-[#0F172A]">Email</p><p className="text-xs text-[#64748B]">{config.email}</p></div>
-                </a>
+                {config.whatsapp ? (
+                  <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent('Hola, necesito ayuda con el panel admin')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg border border-[#E5E7EB] hover:bg-[#F8FAFC] transition-colors">
+                    <FaWhatsapp size={16} className="text-[#10B981]" />
+                    <div><p className="text-sm font-medium text-[#0F172A]">WhatsApp Soporte</p><p className="text-xs text-[#64748B]">{config.whatsapp}</p></div>
+                  </a>
+                ) : null}
+                {config.telefono ? (
+                  <a href={`tel:${config.telefono}`} className="flex items-center gap-3 p-3 rounded-lg border border-[#E5E7EB] hover:bg-[#F8FAFC] transition-colors">
+                    <FaPhone size={16} className="text-[#3B82F6]" />
+                    <div><p className="text-sm font-medium text-[#0F172A]">Teléfono</p><p className="text-xs text-[#64748B]">{config.telefono}</p></div>
+                  </a>
+                ) : null}
+                {config.email ? (
+                  <a href={`mailto:${config.email}`} className="flex items-center gap-3 p-3 rounded-lg border border-[#E5E7EB] hover:bg-[#F8FAFC] transition-colors">
+                    <FaEnvelope size={16} className="text-[#F59E0B]" />
+                    <div><p className="text-sm font-medium text-[#0F172A]">Email</p><p className="text-xs text-[#64748B]">{config.email}</p></div>
+                  </a>
+                ) : null}
+                {!config.whatsapp && !config.telefono && !config.email && (
+                  <p className="text-xs text-[#94A3B8]">Configura los datos de contacto en Configuración.</p>
+                )}
               </div>
               <div className="pt-4 border-t border-[#E5E7EB]">
                 <p className="text-xs font-medium text-[#0F172A] mb-2">Atajos</p>
