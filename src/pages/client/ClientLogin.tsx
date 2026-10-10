@@ -87,7 +87,7 @@ export default function ClientLogin() {
                 <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
                 <input type={showPass ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••"
                   className="input-base pl-11 pr-11" />
-                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-steel/40 hover:text-olive-500 transition-colors">
+                <button type="button" onClick={() => setShowPass(!showPass)} aria-label={showPass ? 'Ocultar contraseñas' : 'Mostrar contraseñas'} className="absolute right-4 top-1/2 -translate-y-1/2 text-steel/40 hover:text-olive-500 transition-colors">
                   {showPass ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
                 </button>
               </div>
@@ -102,6 +102,9 @@ export default function ClientLogin() {
                   <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-steel/40" size={14} />
                   <input type={showPass ? 'text' : 'password'} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repite tu contraseña"
                     className="input-base pl-11 pr-11" />
+                  <button type="button" onClick={() => setShowPass(!showPass)} aria-label={showPass ? 'Ocultar contraseñas' : 'Mostrar contraseñas'} className="absolute right-4 top-1/2 -translate-y-1/2 text-steel/40 hover:text-olive-500 transition-colors">
+                    {showPass ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                  </button>
                 </div>
                 {confirmPassword && password !== confirmPassword && (
                   <p className="text-xs text-red-500 mt-1.5">Las contraseñas no coinciden</p>
